@@ -1,0 +1,39 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+From https://pakillo.github.io/R-GIS-tutorial/:
+
+To use google maps we need to enable a APIs (Maps Embed API and Maps Static API) and add a API key:
+
+
+```{r}
+library(dismo)
+gmKey <- readLines(sprintf("%s/.secrets/googlecloud/maps-api",Sys.getenv("HOME")))
+
+x <- runif(30)*10 + 40
+y <- runif(30)*10 - 20
+xy <- cbind(x, y)
+g <- gmap(xy, type='hybrid', map_key=gmKey)
+plot(g)
+points(Mercator(xy) , col='red', pch=20)
+```
+
+
+```{r}
+library(googleVis)
+data(Exports)    # a simple data frame
+Geo <- gvisGeoChart(Exports, locationvar="Country", sizevar="Profit", 
+                  options=list(height=400, dataMode='regions'))
+plot(Geo)
+
+
+data(Andrew)
+M1 <- gvisMap(Andrew, "LatLong", "Tip", 
+              options=list(showTip=TRUE, showLine=F, enableScrollWheel=TRUE, 
+                           mapType='satellite', useMapTypeControl=TRUE, width=800,height=400))
+plot(M1)
+
+
+```
