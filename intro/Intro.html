@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>What’s so special about spatial</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="JR Ferrer-Paris" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/fc.css" rel="stylesheet" />
+    <link href="libs/remark-css/fc-fonts.css" rel="stylesheet" />
+    <script src="libs/htmlwidgets/htmlwidgets.js"></script>
+    <script src="libs/jquery/jquery.min.js"></script>
+    <link href="libs/leaflet/leaflet.css" rel="stylesheet" />
+    <script src="libs/leaflet/leaflet.js"></script>
+    <link href="libs/leafletfix/leafletfix.css" rel="stylesheet" />
+    <script src="libs/proj4/proj4.min.js"></script>
+    <script src="libs/Proj4Leaflet/proj4leaflet.js"></script>
+    <link href="libs/rstudio_leaflet/rstudio_leaflet.css" rel="stylesheet" />
+    <script src="libs/leaflet-binding/leaflet.js"></script>
+    <link rel="stylesheet" href="css/footer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# What’s so special about spatial
+## My journey to GIS with R
+### JR Ferrer-Paris
+### Centre for Ecosystem Science<br/>UNSW Data Science Hub
+### ResBaz Sydney 2021 (updated: 2021-11-24)
+
+---
+
+layout: true
+
+&lt;div class="my-footer"&gt;&lt;span&gt;JR Ferrer-Paris &lt;/span&gt;&lt;/div&gt;
+
+&lt;!-- this adds the link footer to all slides, depends on my-footer class in css--&gt;
+
+<div>
+<style type="text/css">.xaringan-extra-logo {
+width: 110px;
+height: 128px;
+z-index: 0;
+background-image: url(https://unsw-coders.netlify.app/home/welcome_files/logo.png);
+background-size: contain;
+background-repeat: no-repeat;
+position: absolute;
+top:1em;right:1em;
+}
+</style>
+<script>(function () {
+  let tries = 0
+  function addLogo () {
+    if (typeof slideshow === 'undefined') {
+      tries += 1
+      if (tries < 10) {
+        setTimeout(addLogo, 100)
+      }
+    } else {
+      document.querySelectorAll('.remark-slide-content:not(.title-slide):not(.inverse):not(.hide_logo)')
+        .forEach(function (slide) {
+          const logo = document.createElement('div')
+          logo.classList = 'xaringan-extra-logo'
+          logo.href = null
+          slide.appendChild(logo)
+        })
+    }
+  }
+  document.addEventListener('DOMContentLoaded', addLogo)
+})()</script>
+</div>
+
+---
+class: inverse, center, middle
+
+
+
+
+
+
+# It all started with a bold decision
+
+The year 1997: **[Free Software and Open Source!](https://en.wikipedia.org/wiki/History_of_free_and_open-source_software)**
+
+
+.center[
+&lt;img src="images/Cathedral-and-the-Bazaar-book-cover.jpg" alt="Front cover art for the book The Cathedral and the Bazaar written by Eric S. Raymond. (Fair Use). https://en.wikipedia.org/wiki/File:Cathedral-and-the-Bazaar-book-cover.jpg" height="320" /&gt;
+]
+
+---
+
+# Universität Bayreuth - 1999
+
+.pull-left[
+![](https://www.study-in-bavaria.de/fileadmin/_processed_/csm_Campus-Luftbild_1_qf_03_8a455a1f25.jpg)
+]
+
+--
+
+.pull-right[
+I was (almost) ready to begin my thesis
+
+- OS: GNU/Linux from SuSE
+
+- Writing: LaTeX
+
+- Editor: GNU Emacs
+
+- Statistics: ?
+
+]
+
+---
+
+# Enter **R**
+
+A brief synopsis of [History and Overview of R](https://bookdown.org/rdpeng/rprogdatascience/history-and-overview-of-r.html)
+
+- 1991: R was created by R. Ihaka and R. Gentleman
+- 1993: First public announcement of R
+- 1995: R adopted the GNU General Public License
+- 1996: Public mailing lists created (the R-help and R-devel lists)
+- 1997: R Core Group was formed
+- 2000: R version 1.0.0 was released to the public.
+
+---
+
+# Universität Bayreuth - 1999
+
+I am ready to learn, if only someone would teach me...
+
+.pull-left[
+![](https://www.study-in-bavaria.de/fileadmin/_processed_/csm_Campus-Luftbild_1_qf_03_8a455a1f25.jpg)
+]
+
+--
+
+.pull-right[
+&lt;img src="images/Statistical-models-in-S.jpeg" alt="The White Book" height="180"/&gt;
+&lt;img src="images/MASS-book.jpeg" alt="MASS book" height="180"/&gt;
+]
+
+
+
+---
+
+# My first map in R!
+
+When you have a hammer...
+--
+every problem is a nail!
+--
+
+
+![My first map in R!](images/Thesis-map-small.png)
+
+
+
+---
+class: inverse, middle, center
+
+# First steps with GIS
+
+
+---
+
+# Maybe is time to learn more about GIS
+
+Three key aspects of Geographic Information Systems :
+
+--
+
+- Visual exploration of spatial data ("Mapping")
+
+--
+
+- Data structures, projection and spatial queries (Spatial Database)
+
+--
+
+- Analysis and modelling of spatial data
+
+---
+
+# GIS and **R** side by side
+
+Just mapping? use GIS software
+
+Non spatial statistical analysis ? use **R**
+
+![](images/Poster-Redonda-small.jpeg)
+
+---
+
+# Spatial analysis in **R**
+
+Early implementations of
+
+- Kriging / geostatistics: _gstat_
+- Spatial point patterns: _spatstats_
+- Mixed effect models with spatial autocorrelation: _geoR_
+
+But:
+
+--
+
+- Each package uses different data structure
+- They assume data is already "spatial" (coordinates)
+- No projection or transformation of data
+- Visualisation: output as images for plotting in **R**
+- Isolated from the GIS environment
+
+---
+
+# Spatial analysis in **R**
+
+
+
+.pull-left[
+If you have a dataset named `pts` with coordinates and  a categorical variable named `Tree.cover`:
+
+![](Intro_files/figure-html/unnamed-chunk-2-1.svg)&lt;!-- --&gt;
+]
+
+.pull-right[
+
+
+```r
+require(gstat)
+v = variogram(I(Tree.cover &gt; 2)~1,pts)
+vm = fit.variogram(v, vgm(1, "Exp", 70, .1))
+plot(v,vm)
+```
+
+![](Intro_files/figure-html/unnamed-chunk-3-1.svg)&lt;!-- --&gt;
+]
+
+---
+
+# Spatial analysis in **R**
+
+
+```r
+ik = krige(I(Tree.cover &gt; 2)~1, pts, prd.grd, vm)
+```
+
+```
+## [using ordinary kriging]
+```
+.pull-left[
+
+```r
+spplot(ik["var1.pred"],
+       main = "ordinary kriging predictions")
+```
+
+![](Intro_files/figure-html/unnamed-chunk-5-1.png)&lt;!-- --&gt;
+]
+
+.pull-right[
+
+```r
+spplot(ik["var1.var"],
+       main = "ordinary kriging variance")
+```
+
+![](Intro_files/figure-html/unnamed-chunk-6-1.png)&lt;!-- --&gt;
+]
+
+
+---
+
+# Not many options in **R**
+
+![](Intro_files/figure-html/early packages plot-1.svg)&lt;!-- --&gt;
+
+---
+
+class: inverse, middle, center
+
+# Spatial as in `rspatial`
+
+---
+
+# Increasing integration of GIS and **R**
+
+[CRAN Task View: Analysis of Spatial Data](https://cran.r-project.org/web/views/Spatial.html) / [rspatial](https://github.com/rspatial)
+
+Need to move spatial data into and out of R:
+
+--
+
+- link to external GIS software: e.g. _GRASS_ or _spgrass7_
+
+--
+
+- import and export standard vector and raster data: e.g. _raster_ package
+
+--
+
+- link to external libraries: e.g. _rgdal_
+
+--
+
+Handling of geographical information in a consistent way:
+
+--
+
+- own standard structure `Spatial...`: _sp_ package bundle
+
+--
+
+- projection and transformation using external libraries: _proj4_
+
+
+---
+
+# _sp_ package
+
+Import "plain" point data and make it "spatial":
+
+
+```r
+require(sp)
+data_ll &lt;- read.csv("../data/JBM-points.csv")
+# declare the names of two columns with coordinates
+coordinates(data_ll) &lt;- c("Longitude","Latitude")
+# declare spatial projection (PROJ4 format)
+proj4string(data_ll) &lt;- "+proj=longlat +datum=WGS84"
+```
+
+But we actually need another projection!...
+--
+no problem!
+--
+
+
+```r
+data_utm &lt;- spTransform(data_ll, CRS("+proj=utm +zone=19n +datum=WGS84"))
+```
+
+
+---
+
+# _rgdal_ package
+
+
+
+```r
+require(rgdal)
+```
+
+Read a polygon from a vector layer using Geographical Data Abstraction Library (GDAL) and transform to the same projection as above:
+
+
+```r
+boundary_ll &lt;- readOGR("../data/JBM.gpkg")
+```
+
+```
+## OGR data source with driver: GPKG 
+## Source: "/Users/jferrer/proyectos/codeRs/geospatial-data-in-R/data/JBM.gpkg", layer: "ZonificacionJardin"
+## with 10 features
+## It has 3 fields
+## Integer64 fields read as strings:  id
+```
+
+```r
+boundary_utm &lt;- spTransform(boundary_ll, CRS("+proj=utm +zone=19n +datum=WGS84"))
+```
+
+---
+
+# Common classes and methods
+
+We can now perform a spatial query, which points overlay which polygon?:
+
+
+```r
+qry &lt;- over(data_utm,boundary_utm)
+head(qry)
+```
+
+```
+##     id  cdg                              nombre
+## 1    8   FE                       Flora exotica
+## 2    7  BHT Lagunas del bosque humedo autoctono
+## 3    7  BHT Lagunas del bosque humedo autoctono
+## 4    7  BHT Lagunas del bosque humedo autoctono
+## 5 &lt;NA&gt; &lt;NA&gt;                                &lt;NA&gt;
+## 6    8   FE                       Flora exotica
+```
+
+---
+
+# _raster_ package
+
+.pull-left[
+We can transform this prediction into a `raster` object
+
+
+```r
+r_ik &lt;- raster(ik[1])
+plot(r_ik)
+```
+
+![](Intro_files/figure-html/unnamed-chunk-12-1.png)&lt;!-- --&gt;
+
+]
+
+.pull-right[
+And export this to a raster file in any format we want:
+
+```r
+writeRaster(r_ik,
+            '../data/kriging-example.tif', 
+            format='GTiff')
+rgdal::GDALinfo('../data/kriging-example.tif')
+```
+
+```
+## rows        18 
+## columns     24 
+## bands       1 
+## lower left origin.x        203091.8 
+## lower left origin.y        1171316 
+## res.x       25.06854 
+## res.y       24.2066 
+## ysign       -1 
+## oblique.x   0 
+## oblique.y   0 
+## driver      GTiff 
+## projection  +proj=utm +zone=19 +datum=WGS84 +units=m +no_defs 
+## file        ../data/kriging-example.tif 
+## apparent band summary:
+##    GDType hasNoDataValue NoDataValue blockSize1 blockSize2
+## 1 Float32           TRUE    -3.4e+38         18         24
+## apparent band statistics:
+##        Bmin      Bmax    Bmean       Bsd
+## 1 0.1195755 0.9844748 0.701971 0.1546923
+## Metadata:
+## AREA_OR_POINT=Area
+```
+]
+
+---
+
+
+# Increasing integration of GIS and **R**
+
+![](Intro_files/figure-html/first 10 years packages plotz-1.svg)&lt;!-- --&gt;
+
+---
+
+class: inverse, middle, center
+
+# Everything is spatial!
+
+---
+
+# Increasing integration of GIS and **R**
+
+[CRAN Task View: Analysis of Spatial Data](https://cran.r-project.org/web/views/Spatial.html) / [rspatial](https://github.com/rspatial)
+
+
+--
+
+We can now move spatial data into and out of R
+
+--
+
+Handling of geographical information is possible in a consistent way
+
+--
+
+There are enough spatial packages to perform the basic GIS operations in **R**
+
+--
+
+... but visualization was still limited / static
+
+--
+
+There are better options for spatial analysis.
+
+
+---
+
+# GIS for everyone
+
+
+.pull-left[
+![](images/GIS-applications.png)
+
+&gt; [© Joseph K. Berry 2013](http://www.innovativegis.com/basis/mapanalysis/Default.htm)
+
+]
+.pull-right[
+More and more users access and share spatial data:
+
+- Tiles and Pyramids
+- Requests over Web Map Service
+- Grow of public datasets and repositories
+- Cloud Computing
+]
+---
+
+# R and GIS integration
+
+[CRAN Task View: Analysis of Spatial Data](https://cran.r-project.org/web/views/Spatial.html) / [rspatial](https://github.com/rspatial) /  [r-spatial](https://github.com/r-spatial)
+
+New approaches in R make use of external libraries and services to improve visualisation and analysis:
+
+--
+
+- Adoption of open standards: "simple features" with [_sf_ package](https://github.com/r-spatial/sf/)
+
+--
+
+- Spatiotemporal arrays (Data cubes) with [_stars_ package](https://github.com/r-spatial/stars/)
+
+--
+
+- *Leaflet*: open-source JavaScript library for interactive maps, with [package _leaflet_](https://rstudio.github.io/leaflet/)
+
+- *Plotly*: Create Interactive Web Graphics via 'plotly.js', with [package _plotly_](https://plotly.com/r/)
+
+- *Mapbox GL JS*: open source JavaScript library to render interactive maps, [package _mapboxer_](https://github.com/crazycapivara/mapboxer)
+
+--
+
+- *Google's Eath Engine*: cloud computing platform for planetary-scale data analysis, [package _rgee_](https://github.com/r-spatial/rgee/)
+
+---
+
+# _leaflet_ package
+
+
+```r
+library(leaflet)
+leaflet() %&gt;%
+  addTiles() %&gt;%
+  addRasterImage(r_ik,colors='BuGn',opacity=0.75) %&gt;%
+  addCircles(data=data_ll,radius=~Tree.cover)
+```
+
+<div id="htmlwidget-dfaf1854bb0399278c9b" style="width:100%;height:288px;" class="leaflet html-widget"></div>
+<script type="application/json" data-for="htmlwidget-dfaf1854bb0399278c9b">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addTiles","args":["//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",null,null,{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false,"attribution":"&copy; <a href=\"http://openstreetmap.org\">OpenStreetMap<\/a> contributors, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA<\/a>"}]},{"method":"addRasterImage","args":["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAASCAYAAABB7B6eAAAEgklEQVQ4jY2UW2xUdRCHv3Pd+3a3u91tS1uxlaJyKyCtoOESDSZgDGJ9MRhMkIQQk0aNvuiDl8QQfcUYjQRjwKgEhRAkAStVAkgT0QqxlFBogd7L3nfPnnP2nL8PDRiVNMzrzPy+/GYyIzFLrNq/U1hmkZHrg9zKFqgOB3BdgaapVMdqUHUvwnUBgSyrnN++T/qvhjobACAQirFtYyeqrPDOrldAlSHuJRgKIYQgl0tjmhY1Ncm79s8KkCQJs1zk9I1TZKZvglFBbqkiFgpimga6x0cqk6OQKRGJRO6uMRtg2edbhG2V6b98GccViJECJP1Uhf1k+8bp7OqiPtTIsV/3oqoaquZBlhX6dnxzR1eeDWBbJhISNZEwmqKAphAIeJCQoCnIqbPfU7RL2LZFoZCfaRKCpZ+9IO4JcGHnAUnVvSiKgpU1wHGxHRfDstD8Oj2vHmEsP0y8ppFEbRO2VWZiYpRSMXNvIwJYe/ANEdCDHN2zFxqDVIcCpNJ5yNvUt9YSCAR4d9Muzk9d5cDJ3Qx3D1C/upnauiZCkeTdl9z+xTZRzKeQJAmf5uO15VsYGDjNyNjUTEGpQrQxyryH22mJL+DwlR7GcsPk80VoCqIoCoqqIyvq/0e07rs3RTRaRy6bYmT0JhMTg7x/9hNM08IYypC6Ok2iKU5zy3w2zNvAx49vJW1MMdj/G6mxDImGGKqqoOk+ltSu+MfB+sNvCxmJqD9BV9uzHEwu40TfAYauXSGSnkCWJPSmKqzhLJZt4/WHuVGY4szkMMcPfguWS2tHK6FwnFx2inx2Ek1WUAA2H/tQrJzTgZC9SEBLZA6b57bTbxqc6TmOLQtCIT/T42mouJRll8eWP8VEYYQ93bsJx4LMa1vC9jVdyL4ohUqO1PQovRd/Rl61f6fQFQ/PN3fQFKwhZ6b5auAnPu3vZqJwA2SJF595nScffYn6xjgNixpoa1vCE/etpGDmuHbuKl6vj8XNa3i5dRUdtQ9RFU4SiSZIJBJIK/ftEMFgNYlgAwUzQ8a4hXAdJFnBNPLYpsHilnUUzAxDYxfQPT6qw/WossZfA7+QTqd5cGE77U2rWZF4gOH8NH9ODWA7JrFAEtV1HYrFNMNGHsexqVhlbKuMQCDLChXbpKd3P9eujLJg8Xzm1i3k6Za1HLh0lEw6jdfroTW5lM7mFZybGmJNfSsJfxWlikXn3OWownWpuBZCGFimQdkokEqlAIjFYpRKRa73XUdK+qlULIp2HqNiMz41iO7RqY4lcVyH0VKOvFUi7qlifX0Nx0cvMm5kUZFAuC4V2yKTmmTyVgavruHx6EiShKapSEk/wnGxLJM/fu/mh0NfIwc03LxFOBxlKNXPl8YkuuJhspRhUfx+escv8eNw74yD20etKApBv5dwOITPF0TVdFTNQ3MjOI6Dpumk0jk8VV7ikTBqnYqiqpx87qM7H2H9obfEYGoAyylzYtMH0p3EI3u2ikrFQgiXspFH07yomo7jVNA0D4IZp07FRiBQFBVF0XAc+1/fE2DjkffEbcDfnnr+v/Gck08AAAAASUVORK5CYII=",[[10.5883525393256,-71.7131994179043],[10.5843689533518,-71.7076730930995]],0.75,null,null,null]},{"method":"addCircles","args":[[10.58634754,10.58617442,10.58545662,10.58641585,10.58585217,10.58577015,10.58647898,10.58755954,10.58691118,10.58532389,10.58600071,10.58490153,10.58597808,10.58622721,10.58697695,10.58820684,10.58678201,10.58560065,10.58511,10.58644305,10.58670856,10.58587189,10.58483,10.58505278,10.5877315,10.58653217,10.58724365,10.58593,10.58587861,10.58591067,10.58772694,10.58539041,10.58555073,10.58625065,10.5863763,10.58618139,10.58581056,10.58735581,10.58608141,10.58641656,10.58687881,10.58636329,10.585029,10.58658681,10.58521898,10.58742694,10.58501651,10.58722582,10.58702128,10.58611743,10.58788252,10.58808,10.58509659,10.58634199,10.58800166,10.5873122,10.58525735,10.58491949,10.58583431,10.58710796,10.58616007,10.58693331,10.58627399,10.58534267,10.58694102,10.58481445,10.5863455,10.58694739,10.58598433,10.58585238,10.58574494,10.58479445,10.5874713,10.58525911,10.58650194,10.58676604,10.58607952,10.58708938,10.58593433,10.58756266,10.58528263,10.5878088,10.58801638,10.58698629,10.58585971,10.58756033,10.5852426,10.58693375,10.58805338,10.58679809,10.58755962,10.58503018,10.58728926,10.5857976,10.58489556,10.58519682,10.58589563,10.58749786,10.58551211,10.58526674,10.5881334,10.58707965,10.58509093,10.58675353,10.58786055],[-71.70803252,-71.71028558,-71.7095255,-71.71035622,-71.71257312,-71.70868056,-71.71062723,-71.71044021,-71.70929409,-71.71077947,-71.70787539,-71.71085595,-71.71019264,-71.70890328,-71.70850206,-71.71089821,-71.70846336,-71.70986564,-71.71103,-71.7115874,-71.71001828,-71.70935374,-71.71221,-71.71179589,-71.70931907,-71.70867579,-71.70908865,-71.71107,-71.70937416,-71.70866725,-71.70923108,-71.71188815,-71.71051316,-71.70856376,-71.70853176,-71.70918554,-71.70792467,-71.70940336,-71.70892929,-71.70855504,-71.71016895,-71.71013712,-71.71120553,-71.71029661,-71.70980194,-71.71058622,-71.71000515,-71.70986762,-71.71080321,-71.71127314,-71.70924628,-71.71018306,-71.7082487,-71.70940628,-71.71025194,-71.70958713,-71.70846495,-71.70966707,-71.71120376,-71.71048071,-71.71188035,-71.70911306,-71.70915025,-71.70781579,-71.70846462,-71.71016257,-71.7079412,-71.7108984,-71.71162486,-71.70973213,-71.71091407,-71.71022075,-71.7095015,-71.70775408,-71.70944843,-71.7109558,-71.71015173,-71.70962502,-71.7106038,-71.70987759,-71.7089856,-71.71060482,-71.71088443,-71.70996533,-71.70957574,-71.71094233,-71.71009214,-71.70970419,-71.71057802,-71.71077424,-71.70973258,-71.7082998,-71.71074228,-71.71138253,-71.7124741,-71.71254132,-71.70851547,-71.71038289,-71.71300835,-71.70822732,-71.71063527,-71.71071271,-71.71229293,-71.71100312,-71.70954758],[4,4,4,4,1,2,4,4,4,4,4,4,4,4,4,4,4,null,4,4,4,4,4,4,4,4,4,4,4,1,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,4,4,4,4,3,4,4,1,2,4,4,1,4,3,4,1,1,3,2,4,3,1,4,2,2,2,3,1,2,2,1,4,2,4,4,2,4,2,4,4,4,2,4,4,4,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],null,null,{"interactive":true,"className":"","stroke":true,"color":"#03F","weight":5,"opacity":0.5,"fill":true,"fillColor":"#03F","fillOpacity":0.2},null,null,null,{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null,null]}],"limits":{"lat":[10.5843689533518,10.5883525393256],"lng":[-71.7131994179043,-71.7076730930995]}},"evals":[],"jsHooks":[]}</script>
+
+
+---
+
+# _sf_ package
+
+```r
+require(sf)
+```
+
+```
+## Loading required package: sf
+```
+
+```
+## Linking to GEOS 3.8.1, GDAL 3.2.1, PROJ 7.2.1
+```
+
+```r
+UBT &lt;- st_sf(text='Universität Bayreuth',
+             url='https://uni-bayreuth.de/',
+             crs=st_crs("+proj=latlong +datum=WGS84"),
+             geometry=st_sfc(st_point(c(11.585833, 49.928889)) ))
+
+UBT %&gt;% st_transform(st_crs("+proj=robin"))
+```
+
+```
+## Simple feature collection with 1 feature and 2 fields
+## Geometry type: POINT
+## Dimension:     XY
+## Bounding box:  xmin: 950471 ymin: 5319538 xmax: 950471 ymax: 5319538
+## CRS:           +proj=robin
+##                   text                      url               geometry
+## 1 Universität Bayreuth https://uni-bayreuth.de/ POINT (950471 5319538)
+```
+
+---
+
+# _mapview_ package
+
+
+
+```r
+require(mapview)
+require(leafpop)
+
+img &lt;- "https://www.study-in-bavaria.de/fileadmin/_processed_/csm_Campus-Luftbild_1_qf_03_8a455a1f25.jpg"
+
+mapview(list(franconia, breweries,trails),
+          zcol = list("district", "founded",NULL),
+          legend = list(TRUE, FALSE,FALSE)) +
+  mapview(UBT, popup = popupImage(img, src = "remote")
+        )
+```
+---
+
+# R + GIS : keeps growing
+
+![](Intro_files/figure-html/full packages plot-1.svg)&lt;!-- --&gt;
+
+
+---
+
+# What has changed in 20 years
+
+- **R** has matured with thousands of packages
+- More comprehensive documentation and tutorials available
+- Spatial data is literally everywhere!
+- GIS has grown out of a single software package or environment
+- There is always a lot to learn!
+
+---
+
+
+class: center, middle
+
+# Thanks!
+
+.center[## Dr. José R. Ferrer-Paris
+&lt;img class="circle" src="https://unsw-coders.netlify.app/author/dr.-jose-r.-ferrer-paris/avatar_hu5b8b6b713305d35fb8bb18275da87db6_26972_270x270_fill_q75_lanczos_center.jpg" width="150px"/&gt;
+
+[<svg aria-hidden="true" role="img" viewBox="0 0 512 512" style="height:1em;width:1em;vertical-align:-0.125em;margin-left:auto;margin-right:auto;font-size:inherit;fill:currentColor;overflow:visible;position:relative;"><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"/></svg> @jrfep](http://twitter.com/jrfep)
+[<svg aria-hidden="true" role="img" viewBox="0 0 496 512" style="height:1em;width:0.97em;vertical-align:-0.125em;margin-left:auto;margin-right:auto;font-size:inherit;fill:currentColor;overflow:visible;position:relative;"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg> @jrfep](http://github.com/jrfep)
+[<svg aria-hidden="true" role="img" viewBox="0 0 512 512" style="height:1em;width:1em;vertical-align:-0.125em;margin-left:auto;margin-right:auto;font-size:inherit;fill:currentColor;overflow:visible;position:relative;"><path d="M476 3.2L12.5 270.6c-18.1 10.4-15.8 35.6 2.2 43.2L121 358.4l287.3-253.2c5.5-4.9 13.3 2.6 8.6 8.3L176 407v80.5c0 23.6 28.5 32.9 42.5 15.8L282 426l124.6 52.2c14.2 6 30.4-2.9 33-18.2l72-432C515 7.8 493.3-6.8 476 3.2z"/></svg> j.ferrer@unsw.edu.au](mailto:j.ferrer@unsw.edu.au)
+]
+
+.tiny[Slides created via the R package [**xaringan**](https://github.com/yihui/xaringan).]
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": true
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+(function(time) {
+  var d2 = function(number) {
+    return ('0' + number).slice(-2); // left-pad 0 to minutes/seconds
+  },
+
+  time_format = function(total) {
+    var secs = Math.abs(total) / 1000;
+    var h = Math.floor(secs / 3600);
+    var m = Math.floor(secs % 3600 / 60);
+    var s = Math.round(secs % 60);
+    var res = d2(m) + ':' + d2(s);
+    if (h > 0) res = h + ':' + res;
+    return res;  // [hh:]mm:ss
+  },
+
+  slide_number_div = function(i) {
+    return document.getElementsByClassName('remark-slide-number').item(i);
+  },
+
+  current_page_number = function(i) {
+    return slide_number_div(i).firstChild.textContent;  // text "i / N"
+  };
+
+  var timer = document.createElement('span'); timer.id = 'slide-time-left';
+  var time_left = time, k = slideshow.getCurrentSlideIndex(),
+      last_page_number = current_page_number(k);
+
+  setInterval(function() {
+    time_left = time_left - 1000;
+    timer.innerHTML = ' ' + time_format(time_left);
+    if (time_left < 0) timer.style.color = 'red';
+  }, 1000);
+
+  slide_number_div(k).appendChild(timer);
+
+  slideshow.on('showSlide', function(slide) {
+    var i = slide.getSlideIndex(), n = current_page_number(i);
+    // reset timer when a new slide is shown and the page number is changed
+    if (last_page_number !== n) {
+      time_left = time; last_page_number = n;
+      timer.innerHTML = ' ' + time_format(time); timer.style.color = null;
+    }
+    slide_number_div(i).appendChild(timer);
+  });
+})(60000);
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

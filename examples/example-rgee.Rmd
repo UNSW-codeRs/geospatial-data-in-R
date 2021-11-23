@@ -1,0 +1,177 @@
+---
+title: "GEE example"
+author: "JR Ferrer-Paris"
+date: "20/11/2021"
+output: 
+  html_document:
+    theme: cerulean
+    highlight: tango
+editor_options: 
+  chunk_output_type: console
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(rgee)
+ ee_Initialize()
+##ee_Initialize(user = 'jrferrerparis@gmail.com', drive = TRUE, gcs = TRUE)
+srtm <- ee$Image("USGS/SRTMGL1_003")
+viz <- list(
+  max = 4000,
+  min = 0,
+  palette = c("#000000","#5AAD5A","#A9AD84","#FFFFFF")
+)
+Map$addLayer(
+  eeObject = srtm,
+  visParams =  viz,
+  name = 'SRTM'
+)
+
+##mft1.2 <- ee$ImageCollection("users/jrferrerparis/IUCN-GET/L3_WM_nwt")
+mft1.2 <- ee$Image("users/jrferrerparis/IUCN-GET/L3_WM_nwt/MFT1_2")
+
+viz <- list(
+  max = 2,
+  min = 1,
+  palette = c("red","yellow")
+)
+require(dplyr)
+Map$setCenter(74, 10.5, 7)
+Map$addLegend(viz)
+
+
+Map$addLayer(
+  eeObject = mft1.2,
+  visParams =  viz,
+  name = 'MFT1.2 Intertidal forests and shrublands'
+)
+
+
+require(cptcity)
+library(mapedit) # (OPTIONAL) Interactive editing of vector data
+library(raster)  # Manipulate raster data
+library(scales)  # Scale functions for visualization
+library(cptcity)  # cptcity color gradients!
+library(tmap)    # Thematic Map Visualization <3
+
+dataset <- ee$ImageCollection("MODIS/006/MOD11A1")$
+  filter(ee$Filter$date('2020-01-01', '2020-01-31'))$
+  mean()
+
+landSurfaceTemperature <- dataset$
+  select("LST_Day_1km")$
+  multiply(0.02)$
+  subtract(273.15)
+
+landSurfaceTemperatureVis <- list(
+  min = -50, 
+  max = 50,
+  palette = cpt("grass_bcyr")
+)
+Map$addLayer(
+  eeObject = landSurfaceTemperature,
+  visParams = landSurfaceTemperatureVis,
+  name = 'Land Surface Temperature'
+)
+geometry <- ee$Geometry$Rectangle(
+    coords = c(-180,-90,180,90),
+  ##coords = c(-90,-180,90,180),
+  proj = "EPSG:4326",
+  geodesic = FALSE
+)
+
+world_temp <- ee_as_thumbnail(
+  image = landSurfaceTemperature,  # Image to export
+  region = geometry, # Region of interest
+  dimensions = 1024, # output dimension
+  raster = TRUE, # If FALSE returns a stars object. FALSE by default
+  vizparams = landSurfaceTemperatureVis[-3] # Delete the palette element
+)
+
+min_lst <- landSurfaceTemperatureVis$min
+max_lst <- landSurfaceTemperatureVis$max
+world_temp[] <- scales::rescale(
+  getValues(world_temp), c(min_lst, max_lst)
+)
+
+require(sf)
+crs(world_temp) <- "EPSG:4326"
+eck4proj <- "+proj=eck4 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
+
+data("World") # Load world vector (available after load tmap)
+World %>% st_transform(eck4proj) -> w4e
+
+world_temp_robin <- projectRaster(
+  from = world_temp,
+  crs = crs(w4e)
+) %>% mask(w4e)
+
+plot(world_temp_robin)
+
+tm_shape(shp = world_temp_robin) +
+  tm_raster(
+    title = "LST (°C)",
+    palette = cpt("grass_bcyr", n = 100),
+    stretch.palette = FALSE,
+    style = "cont"
+  ) +
+  tm_shape(shp = World) + 
+  tm_borders(col = "black", lwd = 0.7) +
+  tm_graticules(alpha=0.8, lwd = 0.5, labels.size = 0.5) +
+  tm_layout() +
+  tmap_style(style = "natural") +
+  tm_layout(
+    scale = .8,
+    bg.color = "aliceblue",
+    frame = FALSE,
+    frame.lwd = NA,
+    panel.label.bg.color = NA,
+    attr.outside = TRUE,
+    main.title.size = 0.8,
+    main.title = "Global monthly mean LST from MODIS: January 2020",
+    main.title.fontface = 2,
+    main.title.position = 0.1,
+    legend.title.size = 1,
+    legend.title.fontface = 2,
+    legend.text.size = 0.7,
+    legend.frame = FALSE,
+    legend.outside = TRUE,
+    legend.position = c(0.10, 0.38),
+    legend.bg.color = "white",
+    legend.bg.alpha = 0
+  ) +
+  tm_credits(
+    text = "Source: MOD11A1 - Terra Land Surface Temperature and Emissivity Daily Global 1km",
+    size = 0.8,
+    position = c(0.1,0)
+  ) -> lst_tmap
+tmap_save(lst_tmap, "lst_tmap.svg", width = 1865, height = 1165)
+```
+
+
+
+```{r}
+require(rstac)
+s = stac("https://earth-search.aws.element84.com/v0")
+
+q <- s %>%
+    stac_search(collections = "sentinel-s2-l2a-cogs",
+                bbox = c(bbox(data_ll)),
+                datetime = "2020-10-01/2020-10-31",
+                limit = 500) 
+  
+  q$params$query = "{\"eo:cloud_cover\": {\"lt\": 10}}" # JSON property filter
+q %>% post_request() -> items
+
+
+items
+
+assets_download(items)
+assets_download(items, asset_names = "thumbnail", output_dir = "data/",
+  overwrite = FALSE)
+```
