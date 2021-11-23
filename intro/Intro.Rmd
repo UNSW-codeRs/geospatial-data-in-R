@@ -377,21 +377,26 @@ head(qry)
 # _raster_ package
 
 .pull-left[
-We can transform this prediction into a `raster` object
+We can transform this prediction into a `raster` object, and export to a external file in any format we want:
 
 ```{r, eval=TRUE,echo=TRUE, dev='svg',fig.height=4, fig.width=4,dev='png'}
 r_ik <- raster(ik[1])
 plot(r_ik)
 ```
 
-]
-
-.pull-right[
-And export this to a raster file in any format we want:
-```{r, eval=TRUE,echo=TRUE}
+```{r, eval={!file.exists('../data/kriging-example.tif')}}
 writeRaster(r_ik,
             '../data/kriging-example.tif', 
             format='GTiff')
+
+```
+
+]
+
+.pull-right[
+
+```{r, eval=TRUE,echo=TRUE}
+
 rgdal::GDALinfo('../data/kriging-example.tif')
 ```
 ]
