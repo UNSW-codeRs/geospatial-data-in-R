@@ -13,6 +13,7 @@ output:
       highlightStyle: github
       highlightLines: true
       countIncrementalSlides: true
+
 ---
 layout: true
 
@@ -28,6 +29,14 @@ xaringanExtra::use_logo(
 ```
 
 ---
+
+class: center,inverse
+background-image: url("images/Heal-Country-NAIDOC-2021.png")
+background-position: center
+background-size: contain
+
+---
+
 class: inverse, center, middle
 
 
@@ -386,7 +395,7 @@ plot(r_ik)
 
 ```{r, eval={!file.exists('../data/kriging-example.tif')}}
 writeRaster(r_ik,
-            '../data/kriging-example.tif', 
+            '../data/kriging-example.tif',
             format='GTiff')
 
 ```
@@ -517,6 +526,7 @@ class: inverse, middle, center
 
 # Packages in action
 
+[UNSW codeRs @ GitHub](https://github.com/UNSW-codeRs) / [geospatial-data-in-R](https://github.com/UNSW-codeRs/geospatial-data-in-R) / [Examples-geospatial-packages.R](https://github.com/UNSW-codeRs/geospatial-data-in-R/blob/main/examples/Examples-geospatial-packages.R)
 
 ---
 
@@ -571,4 +581,3 @@ class: center, middle
 [`r fa(name = "github")` @jrfep](http://github.com/jrfep)
 [`r fa(name = "paper-plane")` j.ferrer@unsw.edu.au](mailto:j.ferrer@unsw.edu.au)
 ]
-
