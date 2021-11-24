@@ -16,7 +16,7 @@ output:
 ---
 layout: true
 
-<div class="my-footer"><span>JR Ferrer-Paris </span></div>
+<div class="my-footer"><span>JR Ferrer-Paris / <a href='https://github.com/UNSW-codeRs/geospatial-data-in-R'>geospatial-data-in-R</a></span></div>
 
 <!-- this adds the link footer to all slides, depends on my-footer class in css-->
 
