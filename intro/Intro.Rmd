@@ -79,9 +79,7 @@ I was (almost) ready to begin my thesis
 
 ]
 
----
-
-# Enter **R**
+--
 
 A brief synopsis of [History and Overview of R](https://bookdown.org/rdpeng/rprogdatascience/history-and-overview-of-r.html)
 
@@ -163,26 +161,6 @@ Non spatial statistical analysis ? use **R**
 
 # Spatial analysis in **R**
 
-Early implementations of
-
-- Kriging / geostatistics: _gstat_
-- Spatial point patterns: _spatstats_
-- Mixed effect models with spatial autocorrelation: _geoR_
-
-But:
-
---
-
-- Each package uses different data structure
-- They assume data is already "spatial" (coordinates)
-- No projection or transformation of data
-- Visualisation: output as images for plotting in **R**
-- Isolated from the GIS environment
-
----
-
-# Spatial analysis in **R**
-
 ```{r,eval=TRUE,echo=FALSE,message=FALSE}
 data_ll <- read.csv("../data/JBM-points.csv")
 coordinates(data_ll) <- c("Longitude","Latitude")
@@ -248,6 +226,28 @@ spplot(ik["var1.var"],
 
 
 ---
+
+
+# Spatial analysis in **R**
+
+Early implementations of
+
+- Kriging / geostatistics: _gstat_
+- Spatial point patterns: _spatstats_
+- Mixed effect models with spatial autocorrelation: _geoR_
+
+But:
+
+--
+
+- Each package uses different data structure
+- They assume data is already "spatial" (coordinates)
+- No projection or transformation of data
+- Visualisation: output as images for plotting in **R**
+- Isolated from the GIS environment
+
+---
+
 
 # Not many options in **R**
 
@@ -511,50 +511,16 @@ New approaches in R make use of external libraries and services to improve visua
 
 - *Google's Eath Engine*: cloud computing platform for planetary-scale data analysis, [package _rgee_](https://github.com/r-spatial/rgee/)
 
+
 ---
+class: inverse, middle, center
 
-# _leaflet_ package
-
-```{r out.width='100%', fig.height=4, eval=require('leaflet'),warning=FALSE,message=FALSE}
-library(leaflet)
-leaflet() %>%
-  addTiles() %>%
-  addRasterImage(r_ik,colors='BuGn',opacity=0.75) %>%
-  addCircles(data=data_ll,radius=~Tree.cover)
-```
+# Packages in action
 
 
 ---
 
-# _sf_ package
-```{r}
-require(sf)
-UBT <- st_sf(text='Universität Bayreuth',
-             url='https://uni-bayreuth.de/',
-             crs=st_crs("+proj=latlong +datum=WGS84"),
-             geometry=st_sfc(st_point(c(11.585833, 49.928889)) ))
 
-UBT %>% st_transform(st_crs("+proj=robin"))
-```
-
----
-
-# _mapview_ package
-
-
-```{r, eval=FALSE}
-require(mapview)
-require(leafpop)
-
-img <- "https://www.study-in-bavaria.de/fileadmin/_processed_/csm_Campus-Luftbild_1_qf_03_8a455a1f25.jpg"
-
-mapview(list(franconia, breweries,trails),
-          zcol = list("district", "founded",NULL),
-          legend = list(TRUE, FALSE,FALSE)) +
-  mapview(UBT, popup = popupImage(img, src = "remote")
-        )
-```
----
 
 # R + GIS : keeps growing
 
@@ -606,4 +572,3 @@ class: center, middle
 [`r fa(name = "paper-plane")` j.ferrer@unsw.edu.au](mailto:j.ferrer@unsw.edu.au)
 ]
 
-.tiny[Slides created via the R package [**xaringan**](https://github.com/yihui/xaringan).]
