@@ -1,6 +1,5 @@
 require(dplyr)
 
-
 # Create and project data with `sp`
 require(sp)
 data_ll <- read.csv("data/JBM-points.csv")
