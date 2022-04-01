@@ -1,5 +1,5 @@
 ---
-title: "Geospatial tutorial"
+title: "Geo-spatial tutorial: points / lines / polygons"
 author: "JR Ferrer-Paris"
 institute: "Centre for Ecosystem Science<br/>UNSW Data Science Hub"
 date: "March 2021 (updated: `r Sys.Date()`)"
@@ -9,7 +9,7 @@ output:
     allow_skip: true
 runtime: shiny_prerendered
 description: >
-  Learn how to make interactive maps with R packages `sf` and `mapview`.
+  Learn how to ...
 ---
 
 ```{r setup, include=FALSE}
@@ -55,17 +55,12 @@ trails %>% mutate(length=st_length(geometry)) %>% filter(length>set_units(40000,
 
 ## Welcome
 
-In this tutorial, you will learn some basic steps to start working with (geo)-spatial data in R. I prepared this tutorial as a intuitive "hands on" introduction, but I provide links for those interested in more background and theory. 
+In this tutorial, you will learn some basic steps to start working with (geo)-spatial data in R. I prepared this tutorial as a intuitive "hands on" introduction, but I provide links for those interested in more background and theory.
 
 We will cover following steps :
 
-* Work with points, lines and polygons (vector data) using package `sf`
-  * create spatial objects,
-  * apply spatial functions,
-* Visualise spatial data :
-  * default static plots and `ggplot`
-  * interactive exploration with `mapview`
-
+* TO DO
+*
 ### Setup
 
 I've preloaded the packages for this tutorial with
@@ -84,79 +79,29 @@ Throughout this tutorial we will be using the  pipe operator, `%>%`. You can use
 library(tidyverse)
 ```
 
-The tidyverse package also includes `ggplot2`, which allow us to create static maps in a similar modular fashion, but using the `+` operator instead of the pipe. 
+The tidyverse package also includes `ggplot2`, which allow us to create static maps in a similar modular fashion, but using the `+` operator instead of the pipe.
 
-For the first part of this tutorial we will create our own spatial objects. 
+For the first part of this tutorial we will create our own spatial objects.
 Further on, to practice more spatial functions, we will use the `franconia`, `breweries` and `trails` data sets from package `mapview`. These data sets are documented in `help(package=mapview)`.
 
 
 
-```{r, eval=TRUE, child="00-intro.Rmd"}
+```{r, eval=FALSE, child="00-intro.Rmd"}
 
 ```
 
 ###
 
-Now that we have discussed some background on packages for spatial data in R, let's start with our first spatial object.
+Now that we have discussed ...
 
 
-```{r, eval=TRUE, child="01-create-sf-section.Rmd"}
-
-```
-
-###
-
-We just created our first spatial object, how cool is that?
-
-However, spatial data are often more complex and we want to use R to answer questions about the spatial data, not only display them.
-
-In the next section we will find out some ways to do that.
-
-
-
-```{r, eval=TRUE, child="02-points-section.Rmd"}
-
-```
-
-
-###
-
-We learned how to plot and query spatial and non-spatial information from a `sf` object, well done!
-
-We will come back to the questions of plotting and querying spatial objects when we have a look at other types of spatial objects. Please continue to the next section.
-
-```{r, eval=TRUE, child="03-polygons-section.Rmd"}
-
-```
-
-
-###
-
-We just learned to work with polygons, how to use spatial functions `st_union`, `st_intersection` and how to plot spatial objects with ``ggplot`, well done!
-
-In the next section we will work with objects in different projections. 
-
-
-```{r, eval=TRUE, child="04-projection-section.Rmd"}
-
-```
-
-
-###
-
-We learned to work with lines, how to use spatial functions `st_length` and how to handle projections of spatial objects with ``ggplot` and with the function `st_transform`. Great!
-
-In the last section we will use mapview to explore all the types of data interactively. 
-
-
-```{r, eval=TRUE, child="05-mapview-section.Rmd"}
+```{r, eval=FALSE, child="01-create-sf-section.Rmd"}
 
 ```
 
 
 ### That's it from me!
 
-We just learned to use mapview to visualise spatial data interactively.
+We just learned to ...
 
-I hope this has been useful and you feel more confident to start working with geo-spatial data in R. 
-
+I hope this has been useful and you feel more confident to start working with geo-spatial data in R.
