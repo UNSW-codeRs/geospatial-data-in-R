@@ -1,0 +1,189 @@
+---
+title: "Geo-spatial tutorial: create a simple feature"
+subtitle: "Section 1"
+author: "JR Ferrer-Paris"
+editor_options:
+  chunk_output_type: console
+---
+## Creating a spatial object in R
+
+For the first part of this tutorial we will create our own spatial objects.
+
+```{r prepared-objects, include=FALSE}
+my_geom <- st_point(c(23.978333, 38.118056))
+my_crs <- st_crs("+proj=latlong +datum=WGS84")
+data <- data.frame(name=c('Marathon'),
+                   famous_for=c('Battle of Marathon'),
+                   url=c('https://en.wikipedia.org/wiki/Battle_of_Marathon'),
+                   year=c(-490))
+hellas1 <- st_sf(data,
+                crs=my_crs,
+                geometry=st_sfc(my_geom))
+
+my_data <- data.frame(name='This is Sparta!')
+my_geom <- st_point(c(22.431028, 37.075074))
+sparta <- st_sf(my_data,
+               crs=my_crs,
+              geometry=st_sfc(my_geom))
+
+pt2 <- st_point(c( 23.2, 39.05))
+pt3 <- st_point(c(20.716667, 38.366667))
+
+data <- data.frame(name=c('Arthemision','Ithaca'),
+                   famous_for=c('Battle of Arthemision', "Homer's Odyssey"),
+                   url=c('https://en.wikipedia.org/wiki/Battle_of_Artemisium', 'https://en.wikipedia.org/wiki/Ithaca'),
+                   year=c(-480,-800))
+
+hellas2 <- st_sf(data,
+                crs=my_crs,
+                geometry=st_sfc(pt2,pt3))
+
+not_sparta <- rbind(hellas1, hellas2)
+not_sparta
+
+```
+
+### Create points using package `sf`
+
+There are many alternative ways to define and work with geo-spatial data in R, but the _simple features_ approach in package `sf` has many advantages and has become the _new_ standard.
+
+Simple features are a standardized way to encode spatial vector data. This package binds to several external libraries like `GDAL`, `GEOS` and `PROJ` for many spatial operations.
+
+If you want to understand simple features in R, you should visit the [documentation of the `sf` package](https://r-spatial.github.io/sf/articles/).
+
+Functions from package `sf` have the prefix `st_`. Many of these functions are described by the _simple features_ standard, so, if you are familiar with spatial databases such as PostGIS and other GIS software, you might recognise many of these.
+
+### The geometry
+
+A simple feature needs to have a _geometry_, this can be a point, multi-point, linestring, multi-linestring, polygon, multi-polygon, it can also be linked to a collection of several geometries.
+
+In R you can use this function to define a point geometry:
+
+```{r}
+my_geom <- st_point(c(23.978333, 38.118056))
+
+```
+
+For geospatial data we need to define a coordinate reference system (_crs_) to interpret these coordinates correctly. They are usually defined by several parameters in a standard format (with heavy use of geospatial jargon), but there are handy shortcuts for the most common examples. Here we will focus on plain latitude and longitude coordinates, known as the _latlong_ projection based on the _WGS84_ datum, this is also referred to as _EPSG:4326_ (Check details at https://epsg.io/4326)
+
+```{r}
+my_crs <- st_crs("+proj=latlong +datum=WGS84")
+```
+
+### The data
+
+Typically you will want to attach one or more attributes or variables to your geometry, for example we can start with a name, some properties, a year, and maybe a url link in a data frame (or a tibble):
+
+```{r points}
+data <- data.frame(name=c('Marathon'),
+                   famous_for=c('Battle of Marathon'),
+                   url=c('https://en.wikipedia.org/wiki/Battle_of_Marathon'),
+                   year=c(-490))
+```
+
+But you are not limited by this, you can have a data frame with many columns, each column can represent a variable, a measurement, you can have factors, texts, colors, etc.
+
+Each row in the data frame represents an observation or element, so they need to match the number of spatial features. In this case it is easy with just one point and one row in the data frame, but keep this in mind when creating your own objects!
+
+### Bringing geometry and data together
+
+So we are now ready to make our _simple feature_ object,
+
+One way to put this together and create a simple feature with function `st_sf` is this:
+
+```{r first-point }
+hellas1 <- st_sf(data,
+                crs=my_crs,
+                geometry=st_sfc(my_geom))
+```
+
+Notice that I am using `st_sfc` to combine the geometry and _crs_ into a _simple feature geometry list column_.
+
+
+### Exercise 1
+
+Let's create our own simple feature object for this tutorial.
+
+We want to define a point for the city of Sparta with the supplied coordinates and _crs_ (EPSG code is 4326), fill the blanks with the names of the functions and hit run:
+
+```{r sfex1, exercise = TRUE, paged.print=FALSE}
+#my_data <- ____(name='This is Sparta!')
+#my_crs <- ____("EPSG:4326")
+#my_geom <- ____(c(22.431028, 37.075074))
+#sparta <- st_sf(my_data,
+#               crs=my_crs,
+#              geometry=____)
+
+#print(sparta)
+
+```
+
+```{r sfex1-solution, exercise.reveal_solution = TRUE}
+my_data <- data.frame(name='This is Sparta!')
+my_crs <- st_crs("EPSG:4326")
+my_geom <- st_point(c(22.431028, 37.075074))
+sparta <- st_sf(my_data,
+               crs=my_crs,
+              geometry=st_sfc(my_geom))
+```
+
+<div id="sfex1-hint">
+**Hint:** You need to define the data and the simple feature collection to create your object. Use functions `st_point`, `st_crs` and `st_sfc`.
+</div>
+
+```{r sfex1-check}
+"Great work!\nNow you know where Sparta is!"
+```
+
+### More than one point in a single object
+
+If we want to combine several points into one _simple feature_ object, and assuming all share the same _crs_:
+
+```{r add-points}
+pt2 <- st_point(c( 23.2, 39.05))
+pt3 <- st_point(c(20.716667, 38.366667))
+
+data <- data.frame(name=c('Arthemision','Ithaca'),
+                   famous_for=c('Battle of Arthemision', "Homer's Odyssey"),
+                   url=c('https://en.wikipedia.org/wiki/Battle_of_Artemisium', 'https://en.wikipedia.org/wiki/Ithaca'),
+                   year=c(-480,-800))
+
+hellas2 <- st_sf(data,
+                crs=my_crs,
+                geometry=st_sfc(pt2,pt3))
+
+```
+
+Each point will have their own attributes or variables.
+
+###
+
+What about combining existing object to create a new one?
+
+You can use the good old `rbind` function to combine two simple feature objects, provided they share the same columns, run the code to verify the result:
+
+```{r, sfex2, exercise = TRUE, paged.print=FALSE, exercise.setup = "prepared-objects"}
+not_sparta <- rbind(hellas1, hellas2)
+not_sparta
+```
+
+The output will tell you many interesting attributes of your newly created object, and we can confirm that we now have three features.
+
+###
+
+But if one of the objects has different columns, this will not work:
+
+```{r, sfex3, exercise = TRUE, paged.print=FALSE, exercise.setup = "prepared-objects", error=TRUE}
+with_sparta <- rbind(hellas1, sparta)
+with_sparta
+```
+
+```{r sfex3-solution, exercise.reveal_solution = TRUE}
+# you can make it work if you add the missing variables:
+sparta$famous_for <- NA
+sparta$url <- NA
+sparta$year <- NA
+# try again:
+with_sparta <- rbind(hellas1, sparta)
+with_sparta
+```

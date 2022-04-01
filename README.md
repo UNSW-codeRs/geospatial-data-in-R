@@ -2,7 +2,23 @@
 
 [![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
 
-José R. Ferrer-Paris (@jrfep) for UNSW codeRs.
+José R. Ferrer-Paris (@jrfep) for [UNSW codeRs](https://github.com/UNSW-codeRs).
+
+## About this repository
+
+This repository was first created for a presentation in [ResBaz Sydney 2021](https://resbaz.github.io/resbaz2021/sydney/program/#session-325) in November 2021.
+
+The presentation is in folder [presentation/intro/] and examples were written as plain R scripts in folder [presentation/examples/]
+
+Content was updated for the [UNSW CodeRs Workshop](https://unsw-coders.netlify.app/workshops/) in March 2022.
+
+I updated the presentation in [presentation/intro/].
+
+I created three tutorials in folder :
+- Create and display a spatial object in [workshop/tutorial-1/]
+- Spatial objects and functions in `sf` package in [workshop/tutorial-2/]
+- Plots and interactive maps with `ggplot` and `mapview` in [workshop/tutorial-3/]
+
 
 ## Abstract
 

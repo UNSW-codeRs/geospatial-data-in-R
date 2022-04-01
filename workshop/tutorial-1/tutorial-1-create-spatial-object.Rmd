@@ -1,0 +1,95 @@
+---
+title: "Geo-spatial tutorial: create a simple feature"
+author: "JR Ferrer-Paris"
+institute: "Centre for Ecosystem Science<br/>UNSW Data Science Hub"
+date: "March 2021 (updated: `r Sys.Date()`)"
+output:
+  learnr::tutorial:
+    progressive: true
+    allow_skip: true
+runtime: shiny_prerendered
+description: >
+  Learn how to create spatial features with R package `sf` and visualise with `mapview`.
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+library(sf)
+require(leafpop)
+library(leaflet)
+library(mapview)
+
+tutorial_options(
+  exercise.timelimit = 60,
+  # A simple checker function that just returns the message in the check chunk
+  exercise.checker = function(check_code, ...) {
+    list(
+      message = eval(parse(text = check_code)),
+      correct = logical(0),
+      type = "info",
+      location = "append"
+    )
+  }
+)
+knitr::opts_chunk$set(error = TRUE)
+
+
+```
+
+## Welcome
+
+This is part 1 of a series of introductory tutorials to work with geo-spatial data in R. I prepared these tutorials as a intuitive "hands on" introduction, but I provide links for those interested in more background and theory.
+
+In this tutorial, you will learn how to create a spatial object with package `sf` (simple features).
+
+
+### Setup
+
+I've preloaded the packages for this tutorial with
+
+```{r eval = FALSE}
+library(sf)
+library(leaflet)
+library(mapview)
+library(leafpop)
+```
+
+
+For this tutorial we will **create our own spatial objects from scratch**, so we don't need to load any additional data.
+
+
+```{r, eval=TRUE, child="01-create-sf-section.Rmd"}
+
+```
+
+### Good job!
+
+We just created our first spatial object, how cool is that?
+
+So we learned to:
+
+- use package `sf`
+- define a geometry with `st_points`
+- assign a coordinate reference system with `st_crs`
+- create a spatial object with `st_sf` by combining a data frame with a simple feature column with `st_sfc`
+- combine `sf` objects with `rbind`
+
+But what can we do with these sets of points? Let's do some more spatial stuff like calculating distance and mapping in the next section!
+
+
+```{r, eval=TRUE, child="02-map-points-section.Rmd"}
+
+```
+
+### That's it for this tutorial!
+
+Well, that was easy! wasn't it?
+
+We learned to:
+
+- calculate distance between points with `st_distance` and `st_nearest_feature`
+- map two sets of points using `mapview`
+
+I hope this has been useful and you feel more confident to start working with geo-spatial data in R.
+
+Check the next tutorials in our [geospatial-data repository](https://github.com/UNSW-codeRs/geospatial-data-in-R)

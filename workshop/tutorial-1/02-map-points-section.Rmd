@@ -1,0 +1,115 @@
+---
+title: "Geo-spatial tutorial: create a simple feature"
+subtitle: "Section 2"
+author: "JR Ferrer-Paris"
+editor_options:
+  chunk_output_type: console
+---
+
+
+```{r prepared-objects-2, include=FALSE}
+my_geom <- st_point(c(23.978333, 38.118056))
+my_crs <- st_crs("+proj=latlong +datum=WGS84")
+data <- data.frame(name=c('Marathon'),
+                   famous_for=c('Battle of Marathon'),
+                   url=c('https://en.wikipedia.org/wiki/Battle_of_Marathon'),
+                   year=c(-490))
+hellas1 <- st_sf(data,
+                crs=my_crs,
+                geometry=st_sfc(my_geom))
+
+my_data <- data.frame(name='This is Sparta!')
+my_geom <- st_point(c(22.431028, 37.075074))
+sparta <- st_sf(my_data,
+               crs=my_crs,
+              geometry=st_sfc(my_geom))
+
+pt2 <- st_point(c( 23.2, 39.05))
+pt3 <- st_point(c(20.716667, 38.366667))
+
+data <- data.frame(name=c('Arthemision','Ithaca'),
+                   famous_for=c('Battle of Arthemision', "Homer's Odyssey"),
+                   url=c('https://en.wikipedia.org/wiki/Battle_of_Artemisium', 'https://en.wikipedia.org/wiki/Ithaca'),
+                   year=c(-480,-800))
+
+hellas2 <- st_sf(data,
+                crs=my_crs,
+                geometry=st_sfc(pt2,pt3))
+
+not_sparta <- rbind(hellas1, hellas2)
+not_sparta
+
+```
+## Spatial functions and visualisation
+
+Functions from package `sf` have the prefix `st_`. Many of these functions are described by the _simple features_ standard, so, if you are familiar with spatial databases such as PostGIS and other GIS software, you might recognise many of these.
+
+###
+
+If you want to know which functions are available for your newly created object, you can use the `methods` function:
+
+```{r}
+class(hellas1)
+methods(class = "sf")
+```
+
+For now we will focus on two functions that will help us find the nearest feature to one point of interest.
+
+### Calculating distance between features
+
+The function `st_distance` will find the distance between spatial features in an object or between two sets of spatial features. In the excercise box you can un-comment one line at a time and compare the different results:
+
+```{r, distex1, exercise = TRUE, paged.print=FALSE, exercise.setup = "prepared-objects"}
+#st_distance(not_sparta) # internal distance
+#st_distance(sparta,not_sparta) # distance between points in each object
+#st_distance(not_sparta,sparta) # same as above
+```
+
+In this small example is easy to find which feature is nearest (smaller distance) to a feature of interest. But in more complex examples with hundreds or thousands of features it is handy to have a shortcut.
+
+###
+
+Finding the nearest feature is one of the most common queries related to spatial data, so much so that it has its own function: `st_nearest_feature`. Let's find out which location is nearest to Sparta:
+
+```{r, distex2, exercise = TRUE, paged.print=FALSE, exercise.setup = "prepared-objects"}
+ not_sparta[st_nearest_feature(sparta,not_sparta),]
+```
+
+
+### Visualising and exploring the data
+
+Exploring spatial data is mostly about context, and very often we need to have a quick view of our features. The best way to do this is to plot together several spatial objects and to add a base map that we can zoom and navigate.
+
+We can do this directly in R thanks to the `mapview` package. This packages uses functions of the *Leaflet* open-source JavaScript library for interactive maps.
+
+An interactive map of the points is as easy as:
+
+```{r viewmap1}
+mapview(not_sparta, col.regions = "blanchedalmond")
+```
+
+Navigation of a mapview element is quite intuitive
+
+- Controls allow you to zoom and pan,
+- Use the layer icon to:
+  - switch layers on and off
+  - change the background layers
+- Click on an element to:
+  -  read its table of attributes (default)
+  -  open a custom popup (see next example)
+- There are shortcuts to zoom to each layer or for a full zoom
+
+###
+
+We can add layers to the map using the `+` operator:
+
+```{r viewmap2}
+  sparta.popup='https://64.media.tumblr.com/c963fce8a6e638323f5e60df33c127f3/tumblr_mq3bykOEmD1s9xi1so1_500.gif'
+
+  mapview(not_sparta, col.regions = "blanchedalmond") +
+  mapview(sparta, popup = popupImage(img=sparta.popup, src ="remote"))
+```
+
+`mapview` provides functionality to view spatial objects interactively. The intention is to provide interactivity for easy and quick visualization during spatial data analysis.
+
+If you want more fine-tuned, presentation quality map production you can explore the [`leaflet`](https://rstudio.github.io/leaflet/) or the `tmap` packages.

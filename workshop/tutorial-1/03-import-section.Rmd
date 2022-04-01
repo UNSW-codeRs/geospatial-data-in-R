@@ -1,0 +1,74 @@
+---
+title: "Geo-spatial tutorial: create a simple feature"
+subtitle: "Section 3"
+author: "JR Ferrer-Paris"
+---
+
+In the last section I will give some advice on how to import data from different file formats.
+
+
+```{r, eval=FALSE, child="03-import-section.Rmd"}
+
+```
+
+## Importing spatial data into R
+
+There are plenty of options for importing spatial data into R. Here I show only a few options, please follow the links to read more advanced documentation:
+
+### Load existing datasets
+
+If you need basic layers of you can load data from existing R packages, for example:
+
+***rnaturalearth***: Vector map data from [natural earth](http://www.naturalearthdata.com/)
+
+```{r}
+library("rnaturalearth")
+library("rnaturalearthdata")
+world <- ne_countries(scale = "medium", returnclass = "sf")
+class(world)
+head(world,1)
+```
+
+***ozmaps***: Maps of Australian coastline and administrative regions. Data can be drawn or accessed directly as simple features objects.
+
+```{r}
+library(ozmaps)
+sf_oz <- ozmap_data("states")
+class(sf_oz)
+head(sf_oz,1)
+```
+
+### Importing data using `st_read`
+
+The function `st_read` allows to read spatial data from many different formats. For example, you can read a geojson from a text string:
+
+```{r, eval=FALSE}
+geojson_txt <- paste("{\"type\":\"MultiPoint\",\"coordinates\":",
+   "[[3.2,4],[3,4.6],[3.8,4.4],[3.5,3.8],[3.4,3.6],[3.9,4.5]]}")
+x = read_sf(geojson_txt)
+x
+```
+
+To read from a shapefile, you need to specify the path to the one its components (either file ".shp", ".shx" or ".dbf" )
+
+```{r, eval=FALSE}
+my_shape = st_read("path-to-your-file/filename.shp")
+summary(my_shape)
+```
+
+To read from a postGIS or similar spatial database, you need to set up a connection to the database and then select the table or query you want to execute in the database:
+
+```{r, eval=FALSE}
+library(RPostgreSQL)
+conn <- dbConnect(PostgreSQL(), dbname = "postgis")
+x = st_read(conn, table = "public.meuse")
+dbDisconnect(conn)
+
+
+```
+
+We just learned to:
+
+- load data from existing packages,
+- read geojson and shapefiles with `st_read`
+- read from postGIS using `st_read` and a database connection

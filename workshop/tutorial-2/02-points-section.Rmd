@@ -1,0 +1,120 @@
+---
+title: "Geospatial tutorial - section 2"
+author: "JR Ferrer-Paris"
+---
+## Explore points with `sf`
+
+For this tutorial we want to explore the surroundings of the University of Bayreuth, my _alma mater_.
+
+I created a simple feature object using the functions we learned in the previous tutorial:
+
+```{r UBT}
+UBT <- st_sf(data.frame(full_name='Universität Bayreuth',
+             url='https://uni-bayreuth.de/'),
+             crs=st_crs("EPSG:4326"),
+             geometry=st_sfc(
+               st_point(c(11.585833, 49.928889))))
+
+```
+
+### Welcome to Franconia
+
+There is not much we can do with one point, so we will look at a couple of data sets from this region, known as "Franken" in german or "Franconia" in other languages.
+
+### The _breweries_ dataset in Franconia
+
+The best way to start our tour is to explore one of its main attractions: the breweries or Brauereien.
+
+If you want to have an overview of a `sf` object in R, just type its name, click on the run button to show data and attributes of this object:
+
+```{r pointsex1, exercise=TRUE, paged.print=FALSE}
+breweries
+```
+
+This is basically the same structure we have seen before, but with more points and several variables.
+
+If you get a warning about and old-style crs object, you can simply update this with:
+
+```{r}
+st_crs(breweries) <- "EPSG:4326"
+```
+
+### Separate data from geometry
+
+We can use the function `st_drop_geometry` to look at the data without the spatial component:
+
+```{r pointsex2, exercise=TRUE}
+breweries %>% st_drop_geometry()
+```
+
+Or we can use `st_geometry` to look at the spatial component without the data:
+```{r pointsex3, exercise=TRUE, paged.print=FALSE}
+breweries %>% st_geometry()
+```
+
+### Plotting geometry and data
+
+There are many ways to explore data in spatial objects. We might be interested in non-spatial information, for example, how many types of beers are there in each brewery?
+
+```{r pointsex4, exercise=TRUE}
+breweries %>% pull(number.of.types) %>% hist(main="Nr. of types of beers")
+```
+
+###
+But how do we know where are the breweries with the most types of beers?
+
+Here we will select one variable from our object and use the defaul plot function for _sf_ objects:
+
+```{r pointsex5, exercise=TRUE}
+breweries %>% select(number.of.types) %>% plot(pch=19)
+```
+
+So, where would you go to have the largest selection of beers?
+
+### Distance between spatial objects
+You can imagine this is a question that was frequently asked in academic circles of the University. So let's find the answer!
+
+- First we will need to define what is the desired number of beers we expect. We can do this by filtering our spatial object based on a variable:
+
+  ```{r eval=FALSE}
+  selected_breweries <- breweries %>% filter(number.of.types>9)
+  ```
+
+- Then we want to know which one of these is nearest to our
+
+  ```{r eval=FALSE}
+  qry <- st_nearest_feature(UBT,selected_breweries)
+  ```
+
+- Now we can check the details for this record in the spatial object:
+
+  ```{r eval=FALSE}
+  selected_breweries %>% slice(qry)
+  ```
+
+- Finally we want to know the distance from the uni:
+
+  ```{r  eval=FALSE}
+  st_distance(UBT,selected_breweries %>% slice(qry))
+  ```
+
+###
+
+Try running these lines of code, and see if you can answer the questions below:
+
+```{r  pointsex6, exercise=TRUE}
+selected_breweries <- breweries %>% filter(number.of.types>9)
+qry <- st_nearest_feature(UBT,selected_breweries)
+selected_breweries %>% slice(qry)
+st_distance(UBT,selected_breweries %>% slice(qry))
+```
+
+```{r how_many_beers, echo = FALSE}
+question(" What's the name of the place, How many types of beers will we find there? and how far do we have to travel? ",
+         answer("Brauerei Huetten, 10 km and 14808 beers", message = "Ok, you have had too many beers, please try again"),
+         answer("Kitzmann-Braeu, 14 beers and 55 km", message = "Did you change the threshold? this is a far ride, but gets you the largest variety of beers"),
+          answer("Brauerei Huetten, 10 beers and 14.8 km", correct = TRUE),
+         answer("Brauhaus Leikeim, 11 beers, 33km ", message = "Did you change the threshold? A good choice if you really need more than ten beers."),
+         allow_retry = TRUE
+)
+```
