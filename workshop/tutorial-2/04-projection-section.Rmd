@@ -28,7 +28,7 @@ The [Universal Transverse Mercator (UTM)](https://en.wikipedia.org/wiki/Universa
 We are often interested in the spatial dimensions of object, for example in this case we want to know the length of each trail, we use the function `st_length`:
 
 ```{r linesex2, exercise=TRUE}
-trails %>% st_length() %>% set_units('km') %>% hist(main="Length of trails")
+trails %>% st_length() %>% hist(main="Length of trails")
 ```
 
 ###
@@ -51,7 +51,7 @@ trails %>% mutate(length=st_length(geometry)) %>% filter(length>set_units(40000,
 
 ### Projections and plots (maps)
 
-When plotting object, `geom_sf` will handle the projections automatically, in this case the trails object is projected to geographical coordinates (some people would call this "inverse projection"). Notice the graticule of geographical coordinates in the background is rectilinear (1 degree in latitude is equal to 1 degree in longitude)?
+When plotting object, `geom_sf` will handle the projections automatically, in this case the trails object is projected to geographical coordinates (some people would call this "inverse projection"). Notice the [graticule](https://www.thefreedictionary.com/graticule) of geographical coordinates in the background is rectilinear (straight lines in the background)?
 
 ```{r}
 ggplot() +

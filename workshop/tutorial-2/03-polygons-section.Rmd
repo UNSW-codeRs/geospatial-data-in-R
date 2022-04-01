@@ -26,7 +26,7 @@ franconia
 
 ###
 
-All `sf` objects have some common structure, regardless of how complex the spatial information is. Theinteresting feature here is that the geometry is composed of several polygons that can be associated with a single record in the data frame. Many spatial objects are nested, and thus multiple elements (points, lines, polygons) can share the same attributes. The _multi_-type of geometries allow to handle this kind of data in the same way as we would handle single points, lines or polygons.
+All `sf` objects have some common structure, regardless of how complex the spatial information is. The interesting feature here is that the geometry is composed of several polygons that can be associated with a single record in the data frame. Many spatial objects are nested, and thus multiple elements (points, lines, polygons) can share the same attributes. The _multi_-type of geometries allow to handle this kind of data in the same way as we would handle single points, lines or polygons.
 
 ### Plotting geometry and data
 

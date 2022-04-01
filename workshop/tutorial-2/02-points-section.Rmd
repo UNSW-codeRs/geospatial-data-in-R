@@ -80,7 +80,7 @@ You can imagine this is a question that was frequently asked in academic circles
   selected_breweries <- breweries %>% filter(number.of.types>9)
   ```
 
-- Then we want to know which one of these is nearest to our
+- Then we want to know which one of these is nearest to our point of reference (UBT point):
 
   ```{r eval=FALSE}
   qry <- st_nearest_feature(UBT,selected_breweries)
