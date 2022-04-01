@@ -63,7 +63,7 @@ breweries %>% pull(number.of.types) %>% hist(main="Nr. of types of beers")
 ###
 But how do we know where are the breweries with the most types of beers?
 
-Here we will select one variable from our object and use the defaul plot function for _sf_ objects:
+Here we will select one variable from our object and use the default plot function for _sf_ objects:
 
 ```{r pointsex5, exercise=TRUE}
 breweries %>% select(number.of.types) %>% plot(pch=19)
