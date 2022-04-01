@@ -19,6 +19,13 @@ I created three tutorials in folder :
 - Spatial objects and functions in `sf` package in [workshop/tutorial-2/]
 - Plots and interactive maps with `ggplot` and `mapview` in [workshop/tutorial-3/]
 
+## On-line tutorials
+
+For the Workshop I set up the `learnr` tutorials in the following addresses
+
+- Tutorial 1: Create a spatial object [option 1](https://ecosphere.shinyapps.io/tutorial-1-create-spatial-object/) [option 2]( https://yessl3-unswcoders.shinyapps.io/tutorial-1-create-spatial-object/)
+- Tutorial 2: Points, Lines and Polygons [option 1](https://yessl3-unswcoders.shinyapps.io/tutorial-2-points-lines-polygons/) [option 2]( https://ecosphere.shinyapps.io/tutorial-2-points-lines-polygons/)
+
 
 ## Abstract
 
