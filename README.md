@@ -14,10 +14,10 @@ Content was updated for the [UNSW CodeRs Workshop](https://unsw-coders.netlify.a
 
 I updated the presentation in [presentation/intro/].
 
-I created three tutorials in folder :
-- Create and display a spatial object in [workshop/tutorial-1/]
-- Spatial objects and functions in `sf` package in [workshop/tutorial-2/]
-- Plots and interactive maps with `ggplot` and `mapview` in [workshop/tutorial-3/]
+I created some tutorials:
+- Create a spatial object with `sf` and display with `mapview` [workshop/tutorial-1/]
+- Spatial objects and functions in `sf` package and plots with `ggplot2` in [workshop/tutorial-2/]
+- ... more tutorials to come
 
 ## On-line tutorials
 
