@@ -8,16 +8,17 @@ José R. Ferrer-Paris (@jrfep) for [UNSW codeRs](https://github.com/UNSW-codeRs)
 
 This repository was first created for a presentation in [ResBaz Sydney 2021](https://resbaz.github.io/resbaz2021/sydney/program/#session-325) in November 2021.
 
-The presentation is in folder [presentation/intro/] and examples were written as plain R scripts in folder [presentation/examples/]
+The presentation is in folder [presentation/intro/](presentation/intro/) and examples were written as plain R scripts in folder [presentation/examples/](presentation/examples/)
 
 Content was updated for the [UNSW CodeRs Workshop](https://unsw-coders.netlify.app/workshops/) in March 2022.
 
-I updated the presentation in [presentation/intro/].
+I updated the presentation in [presentation/intro/](presentation/intro/).
 
 I created some tutorials:
-- Create a spatial object with `sf` and display with `mapview` [workshop/tutorial-1/]
-- Spatial objects and functions in `sf` package and plots with `ggplot2` in [workshop/tutorial-2/]
+- Create a spatial object with `sf` and display with `mapview` [workshop/tutorial-1/](workshop/tutorial-1/)
+- Spatial objects and functions in `sf` package and plots with `ggplot2` in [workshop/tutorial-2/](workshop/tutorial-2/)
 - ... more tutorials to come
+
 
 ## On-line tutorials
 
