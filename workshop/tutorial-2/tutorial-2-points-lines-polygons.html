@@ -180,7 +180,7 @@ Or we can use <code>st_geometry</code> to look at the spatial component without 
 <div id="section-section" class="section level3">
 <h3></h3>
 <p>But how do we know where are the breweries with the most types of beers?</p>
-<p>Here we will select one variable from our object and use the defaul plot function for <em>sf</em> objects:</p>
+<p>Here we will select one variable from our object and use the default plot function for <em>sf</em> objects:</p>
 <div class="tutorial-exercise" data-label="pointsex5" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
 <pre class="text"><code>breweries %&gt;% select(number.of.types) %&gt;% plot(pch=19)</code></pre>
 <script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":false,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
@@ -193,7 +193,7 @@ Or we can use <code>st_geometry</code> to look at the spatial component without 
 <ul>
 <li><p>First we will need to define what is the desired number of beers we expect. We can do this by filtering our spatial object based on a variable:</p>
 <pre class="r"><code>selected_breweries &lt;- breweries %&gt;% filter(number.of.types&gt;9)</code></pre></li>
-<li><p>Then we want to know which one of these is nearest to our</p>
+<li><p>Then we want to know which one of these is nearest to our point of reference (UBT point):</p>
 <pre class="r"><code>qry &lt;- st_nearest_feature(UBT,selected_breweries)</code></pre></li>
 <li><p>Now we can check the details for this record in the spatial object:</p>
 <pre class="r"><code>selected_breweries %&gt;% slice(qry)</code></pre></li>
@@ -245,7 +245,7 @@ st_distance(UBT,selected_breweries %&gt;% slice(qry))</code></pre>
 </div>
 <div id="section-section-4" class="section level3">
 <h3></h3>
-<p>All <code>sf</code> objects have some common structure, regardless of how complex the spatial information is. Theinteresting feature here is that the geometry is composed of several polygons that can be associated with a single record in the data frame. Many spatial objects are nested, and thus multiple elements (points, lines, polygons) can share the same attributes. The <em>multi</em>-type of geometries allow to handle this kind of data in the same way as we would handle single points, lines or polygons.</p>
+<p>All <code>sf</code> objects have some common structure, regardless of how complex the spatial information is. The interesting feature here is that the geometry is composed of several polygons that can be associated with a single record in the data frame. Many spatial objects are nested, and thus multiple elements (points, lines, polygons) can share the same attributes. The <em>multi</em>-type of geometries allow to handle this kind of data in the same way as we would handle single points, lines or polygons.</p>
 </div>
 <div id="section-plotting-geometry-and-data-1" class="section level3">
 <h3>Plotting geometry and data</h3>
@@ -351,7 +351,7 @@ Usually we want to plot one single attribute, for example let’s choose the dis
 <h3>Length and area of spatial objects</h3>
 <p>We are often interested in the spatial dimensions of object, for example in this case we want to know the length of each trail, we use the function <code>st_length</code>:</p>
 <div class="tutorial-exercise" data-label="linesex2" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
-<pre class="text"><code>trails %&gt;% st_length() %&gt;% set_units(&#39;km&#39;) %&gt;% hist(main=&quot;Length of trails&quot;)</code></pre>
+<pre class="text"><code>trails %&gt;% st_length() %&gt;% hist(main=&quot;Length of trails&quot;)</code></pre>
 <script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":false,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
 </div>
 </div>
@@ -373,7 +373,7 @@ trails %&gt;% mutate(length=st_length(geometry)) %&gt;% filter(length&gt;set_uni
 </div>
 <div id="section-projections-and-plots-maps" class="section level3">
 <h3>Projections and plots (maps)</h3>
-<p>When plotting object, <code>geom_sf</code> will handle the projections automatically, in this case the trails object is projected to geographical coordinates (some people would call this “inverse projection”). Notice the graticule of geographical coordinates in the background is rectilinear (1 degree in latitude is equal to 1 degree in longitude)?</p>
+<p>When plotting object, <code>geom_sf</code> will handle the projections automatically, in this case the trails object is projected to geographical coordinates (some people would call this “inverse projection”). Notice the <a href="https://www.thefreedictionary.com/graticule">graticule</a> of geographical coordinates in the background is rectilinear (straight lines in the background)?</p>
 <pre class="r"><code>ggplot() +
   geom_sf(data = franconia, aes(fill=district)) +
   geom_sf(data = UBT, cex=2, col=&quot;yellow&quot;) +
@@ -784,21 +784,21 @@ learnr:::store_exercise_cache(structure(list(global_setup = structure(c("library
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "how_many_beers", 
     question = structure("What&#39;s the name of the place, How many types of beers will we find there? and how far do we have to travel? ", html = TRUE, class = c("html", 
-    "character")), answers = list(structure(list(id = "lnr_ans_196cde5", 
+    "character")), answers = list(structure(list(id = "lnr_ans_fcd7eaf", 
         option = "Brauerei Huetten, 10 km and 14808 beers", value = "Brauerei Huetten, 10 km and 14808 beers", 
         label = structure("Brauerei Huetten, 10 km and 14808 beers", html = TRUE, class = c("html", 
         "character")), correct = FALSE, message = structure("Ok, you have had too many beers, please try again", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_a76e517", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_bd9b98c", 
         option = "Kitzmann-Braeu, 14 beers and 55 km", value = "Kitzmann-Braeu, 14 beers and 55 km", 
         label = structure("Kitzmann-Braeu, 14 beers and 55 km", html = TRUE, class = c("html", 
         "character")), correct = FALSE, message = structure("Did you change the threshold? this is a far ride, but gets you the largest variety of beers", html = TRUE, class = c("html", 
         "character")), type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_c8fc83b", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_90ebca1", 
         option = "Brauerei Huetten, 10 beers and 14.8 km", value = "Brauerei Huetten, 10 beers and 14.8 km", 
         label = structure("Brauerei Huetten, 10 beers and 14.8 km", html = TRUE, class = c("html", 
         "character")), correct = TRUE, message = NULL, type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_3d25ecd", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_a87d1b8", 
         option = "Brauhaus Leikeim, 11 beers, 33km ", value = "Brauhaus Leikeim, 11 beers, 33km ", 
         label = structure("Brauhaus Leikeim, 11 beers, 33km ", html = TRUE, class = c("html", 
         "character")), correct = FALSE, message = structure("Did you change the threshold? A good choice if you really need more than ten beers.", html = TRUE, class = c("html", 
@@ -812,7 +812,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
         answer = "how_many_beers-answer", question = "how_many_beers"), 
     loading = structure("<strong>Loading:<\u002fstrong> \n What&#39;s the name of the place, How many types of beers will we find there? and how far do we have to travel? \n<br/><br/><br/>", html = TRUE, class = c("html", 
     "character")), random_answer_order = FALSE, allow_retry = TRUE, 
-    seed = 1299240863.89499, options = list()), class = c("learnr_radio", 
+    seed = 1599117530.75535, options = list()), class = c("learnr_radio", 
 "tutorial_question")), session = session)
 </script>
  
@@ -1105,13 +1105,13 @@ learnr:::store_exercise_cache(structure(list(global_setup = structure(c("library
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "where_is_UBT", 
     question = structure("Where is the University of Bayreuth located?", html = TRUE, class = c("html", 
-    "character")), answers = list(structure(list(id = "lnr_ans_e18ccf2", 
+    "character")), answers = list(structure(list(id = "lnr_ans_14125e4", 
         option = "Unterfranken", value = "Unterfranken", label = structure("Unterfranken", html = TRUE, class = c("html", 
         "character")), correct = FALSE, message = NULL, type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_4a07a4a", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_dc96bda", 
         option = "Oberfranken", value = "Oberfranken", label = structure("Oberfranken", html = TRUE, class = c("html", 
         "character")), correct = TRUE, message = NULL, type = "literal"), class = c("tutorial_question_answer", 
-    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_7acaca8", 
+    "tutorial_quiz_answer")), structure(list(id = "lnr_ans_f5639a0", 
         option = "Mittelfranken", value = "Mittelfranken", label = structure("Mittelfranken", html = TRUE, class = c("html", 
         "character")), correct = FALSE, message = NULL, type = "literal"), class = c("tutorial_question_answer", 
     "tutorial_quiz_answer"))), button_labels = list(submit = structure("<span data-i18n=\"button.questionsubmit\">Submit Answer<\u002fspan>", html = TRUE, class = c("html", 
@@ -1123,7 +1123,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
         answer = "where_is_UBT-answer", question = "where_is_UBT"), 
     loading = structure("<strong>Loading:<\u002fstrong> \n Where is the University of Bayreuth located?\n<br/><br/><br/>", html = TRUE, class = c("html", 
     "character")), random_answer_order = FALSE, allow_retry = TRUE, 
-    seed = 25750353.9880091, options = list()), class = c("learnr_radio", 
+    seed = 1243471626.92096, options = list()), class = c("learnr_radio", 
 "tutorial_question")), session = session)
 </script>
  
@@ -1197,7 +1197,7 @@ learnr:::store_exercise_cache(structure(list(global_setup = structure(c("library
 "st_crs(trails) <- \"EPSG:32632\"", "", "franconia_utm = franconia %>% st_transform(st_crs(trails))", 
 "UBT_utm = UBT %>% st_transform(st_crs(trails))", "", "trails %>% mutate(length=st_length(geometry)) %>% filter(length>set_units(40000,'m')) -> long_trails", 
 ""), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
-    chunks = list(list(label = "linesex2", code = "trails %>% st_length() %>% set_units('km') %>% hist(main=\"Length of trails\")", 
+    chunks = list(list(label = "linesex2", code = "trails %>% st_length() %>% hist(main=\"Length of trails\")", 
         opts = list(label = "\"linesex2\"", exercise = "TRUE"), 
         engine = "r")), code_check = NULL, error_check = NULL, 
     check = NULL, solution = NULL, test_cases = NULL, options = list(
@@ -1217,7 +1217,7 @@ learnr:::store_exercise_cache(structure(list(global_setup = structure(c("library
         message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
         engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
         max.print = 1000, exercise.timelimit = 60, exercise.checker = "function (check_code, ...) \n{\n    list(message = eval(parse(text = check_code)), correct = logical(0), \n        type = \"info\", location = \"append\")\n}", 
-        label = "linesex2", exercise = TRUE, code = "trails %>% st_length() %>% set_units('km') %>% hist(main=\"Length of trails\")", 
+        label = "linesex2", exercise = TRUE, code = "trails %>% st_length() %>% hist(main=\"Length of trails\")", 
         out.width.px = 624, out.height.px = 384, params.src = "linesex2, exercise=TRUE", 
         fig.num = 0, exercise.df_print = "paged"), engine = "r"), class = "tutorial_exercise"))
 </script>
@@ -1494,7 +1494,7 @@ learnr:::store_exercise_cache(structure(list(global_setup = structure(c("library
 <div id="doc-metadata">
 <h2 class="title toc-ignore" style="display:none;">Geo-spatial tutorial: points / lines / polygons</h2>
 <h4 class="author"><em>JR Ferrer-Paris</em></h4>
-<h4 class="date"><em>March 2021 (updated: 2022-04-01)</em></h4>
+<h4 class="date"><em>March 2021 (updated: 2022-04-02)</em></h4>
 </div>
 <!-- end doc-metadata -->
 
