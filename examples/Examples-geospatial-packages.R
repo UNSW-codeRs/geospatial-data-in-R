@@ -2,19 +2,19 @@ require(dplyr)
 
 # Create and project data with `sp`
 require(sp)
-data_ll <- read.csv("data/JBM-points.csv")
+data_ll <- read.csv("presentation/data/JBM-points.csv")
 coordinates(data_ll) <- c("Longitude","Latitude")
 proj4string(data_ll) <- "+proj=longlat +datum=WGS84"
 data_utm <- spTransform(data_ll, CRS("+proj=utm +zone=19n +datum=WGS84"))
 
 # Read and project data with `rgdal`
 require(rgdal)
-boundary_ll <- readOGR("data/JBM.gpkg",verbose = F)
+boundary_ll <- readOGR("presentation/data/JBM.gpkg",verbose = F)
 boundary_utm <- spTransform(boundary_ll, CRS("+proj=utm +zone=19n +datum=WGS84"))
 
 # Read data with `raster`
 require(raster)
-ik <- raster("data/kriging-example.tif")
+ik <- raster("presentation/data/kriging-example.tif")
 
 ## Plot all this together
 require(RColorBrewer)

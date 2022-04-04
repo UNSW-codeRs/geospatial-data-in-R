@@ -19,6 +19,7 @@ I created some tutorials:
 - Spatial objects and functions in `sf` package and plots with `ggplot2` in [workshop/tutorial-2/](workshop/tutorial-2/)
 - ... more tutorials to come
 
+I also added a script with code from the tutorials in [examples/Tutorials-script.R](examples/Tutorials-script.R)
 
 ## On-line tutorials
 
