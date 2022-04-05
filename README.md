@@ -4,6 +4,8 @@
 
 José R. Ferrer-Paris (@jrfep) for [UNSW codeRs](https://github.com/UNSW-codeRs).
 
+The recording for this workshop can be found: https://bit.ly/37gE3t1
+
 ## About this repository
 
 This repository was first created for a presentation in [ResBaz Sydney 2021](https://resbaz.github.io/resbaz2021/sydney/program/#session-325) in November 2021.
