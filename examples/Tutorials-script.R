@@ -93,7 +93,7 @@ st_distance(not_sparta,sparta) # same as above
 not_sparta[st_nearest_feature(sparta,not_sparta),]
 
 ## Visualisation with mapview:
-# use mapviewOptions(fgb=FALSE) if points/features not showing
+# use mapviewOptions(fgb=FALSE) # if points/features not showing
 
 mapview(not_sparta, col.regions = "blanchedalmond")
 

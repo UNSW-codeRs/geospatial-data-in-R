@@ -18,7 +18,7 @@ class: center, middle, inverse, title-slide
 ## My journey to GIS with R
 ### JR Ferrer-Paris
 ### Centre for Ecosystem Science<br/>UNSW Data Science Hub
-### UNSW codeRs Workshop (updated: 2022-04-01)
+### UNSW codeRs Workshop (updated: 2022-04-04)
 
 ---
 
@@ -104,16 +104,12 @@ I was (almost) ready to begin my thesis
 
 # My first map in R!
 
-When you have a hammer...
---
-every problem is a nail!
+When you have a hammer... every problem is a nail!
 --
 
 
 ![My first map in R!](images/Thesis-map-small.png)
-
-
-
+---
 # Maybe is time to learn more about GIS
 
 Three key aspects of Geographic Information Systems :
@@ -121,13 +117,7 @@ Three key aspects of Geographic Information Systems :
 --
 
 - Visual exploration of spatial data ("Mapping")
-
---
-
 - Data structures, projection and spatial queries (Spatial Database)
-
---
-
 - Analysis and modelling of spatial data
 
 ---
@@ -243,13 +233,7 @@ Need to move spatial data into and out of R:
 --
 
 - link to external GIS software: e.g. _GRASS_ or _spgrass7_
-
---
-
 - import and export standard vector and raster data: e.g. _raster_ package
-
---
-
 - link to external libraries: e.g. _rgdal_
 
 --
@@ -259,9 +243,6 @@ Handling of geographical information in a consistent way:
 --
 
 - own standard structure `Spatial...`: _sp_ package bundle
-
---
-
 - projection and transformation using external libraries: _proj4_
 
 
@@ -281,9 +262,7 @@ coordinates(data_ll) &lt;- c("Longitude","Latitude")
 proj4string(data_ll) &lt;- "+proj=longlat +datum=WGS84"
 ```
 
-But we actually need another projection!...
---
-no problem!
+But we actually need another projection!... no problem!
 --
 
 
@@ -419,25 +398,21 @@ class: inverse, middle, center
 [CRAN Task View: Analysis of Spatial Data](https://cran.r-project.org/web/views/Spatial.html) / [rspatial](https://github.com/rspatial)
 
 
---
+Done:
 
-We can now move spatial data into and out of R
+- We can now move spatial data into and out of R
 
---
+- Handling of geographical information is possible in a consistent way
 
-Handling of geographical information is possible in a consistent way
-
---
-
-There are enough spatial packages to perform the basic GIS operations in **R**
+- There are enough spatial packages to perform the basic GIS operations in **R**
 
 --
 
-... but visualization was still limited / static
+To do:
 
---
+- Visualization was still limited / static
 
-There are better options for spatial analysis.
+- There are other/better options for spatial analysis
 
 
 ---
@@ -470,8 +445,6 @@ New approaches in R make use of external libraries and services to improve visua
 --
 
 - Adoption of open standards: "simple features" with [_sf_ package](https://github.com/r-spatial/sf/)
-
---
 
 - Spatiotemporal arrays (Data cubes) with [_stars_ package](https://github.com/r-spatial/stars/)
 
@@ -512,10 +485,13 @@ class: inverse, middle, center
 
 # Let's try some packages with these tutorials
 
-[UNSW codeRs @ GitHub](https://github.com/UNSW-codeRs) / [geospatial-data-in-R](https://github.com/UNSW-codeRs/geospatial-data-in-R) 
+[UNSW codeRs @ GitHub](https://github.com/UNSW-codeRs) / [geospatial-data-in-R](https://github.com/UNSW-codeRs/geospatial-data-in-R)
 
-[Tutorial 1](https://yessl3-unswcoders.shinyapps.io/tutorial-1-create-spatial-object/)
 
+[Tutorial 1: create a spatial object](https://yessl3-unswcoders.shinyapps.io/tutorial-1-create-spatial-object/)
+
+
+[Tutorial 2: points, lines and polygons](https://yessl3-unswcoders.shinyapps.io/tutorial-2-points-lines-polygons/)
 ---
 
 
