@@ -40,5 +40,10 @@ prd.grd <- SpatialPixelsDataFrame(
 Run this chunk to visualise the raster mask before continuing to the next step:
 ```{r mask, exercise = TRUE}
 plot(prd.grd, main = "Mask") 
-plot(st_geometry(data_jbm), add=TRUE)
+bubble(as_Spatial(data_jbm), 
+  zcol = "Tree.cover",
+  col = "black",
+  maxsize = 1.5,
+  key.entries = 1:4,
+  add = T)
 ```

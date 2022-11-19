@@ -46,7 +46,7 @@ Let's first look at the distribution of values
 table(data_jbm$`Tree cover`)
 ```
 
-### Spatial properties
+### Spatial properties: extent
 
 The spatial information is also important for this analysis. In order to understand the data better we want to explore its spatial properties. What is the spatial extent? what is the distance between sampling points?
 
@@ -64,6 +64,8 @@ data_jbm_bbox <- st_as_sfc(st_bbox(data_jbm))
 st_area(data_jbm_bbox)
 ```
 The output lacks units because we removed the CRS before this calculation, but we know the coordinates are in meters.
+
+### Spatial operations: Nearest neighbour distance
 
 To get a sense of how are the points spaced from one another, we can calculate a distance matrix:
 
@@ -101,6 +103,8 @@ summary(min_distances)
 ```{r distance-check}
 "If you used the custom function `function(x) min(x[x>0])` you now know that the minimum distances are between 2 and 83 meters, with mean value of 25m."
 ```
+
+### Spatial operations: Full distance matrix
 
 For spatial interpolation the distance between all pairs of points is important. A well sampled area will have a wide spread of distance between the minimum (0 meters) and the extent of the bounding box (400 to 500m). So let's do this!
 

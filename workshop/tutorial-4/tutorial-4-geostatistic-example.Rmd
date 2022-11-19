@@ -153,7 +153,7 @@ Here comes the fun part: spatial prediction with kriging.
 
 ```
 
-### That's it for this tutorial!
+## That's it for this tutorial!
 
 Good job!
 
@@ -167,7 +167,15 @@ We learned to:
 
 I hope this has been useful and you feel more confident to start working with geo-spatial data in R.
 
-Check other tutorials in this workshop at the [UNSW codeRs' geospatial-data repository](https://github.com/UNSW-codeRs/geospatial-data-in-R)
+### What is next?
+
+Check other tutorials in this workshop at the [UNSW codeRs' geospatial-data repository](https://github.com/UNSW-codeRs/geospatial-data-in-R) or in the following links:
+
+```{r echo=FALSE, results='asis'}
+cat(knitr::knit_child(text = readLines(here::here("tutorials-links.Rmd")), quiet=TRUE), sep = '\n')
+```
+
+### References
 
 The data for this tutorial comes from:
 
