@@ -1,0 +1,7 @@
+---
+title: "Geo-spatial tutorial: create a simple feature"
+subtitle: "Section 1"
+author: "JR Ferrer-Paris"
+editor_options:
+  chunk_output_type: console
+---

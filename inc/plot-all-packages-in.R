@@ -8,11 +8,12 @@ library(rvest)
 library(dplyr)
 require(stringr)
 require(magrittr)
+here::i_am("inc/plot-all-packages-in.R")
 
 # Step 1: get the current or active versions of the packages
 
 ## Check if output file exists:
-arch <- "R-package-list-current.rds"
+arch <- here::here("Rdata", "R-package-list-current.rds")
 if (file.exists(arch)) {
   current_pkgs <- readRDS(file=arch)
 } else {
@@ -33,7 +34,8 @@ if (file.exists(arch)) {
 # Step 2: get the archive versions of the packages
 
 ## Check if output file exists, if not, initiate a tibble to store the data
-arch <- "R-package-list-archive.rds"
+
+arch <- here::here("Rdata", "R-package-list-archive.rds")
 if (file.exists(arch)) {
   archive_pkgs <- readRDS(file=arch)
 } else {
@@ -105,4 +107,4 @@ our_plot +
             color=clrs[6])
 
 # Finally, save the last plot here:
-ggsave('number-of-submitted-packages-to-CRAN.png',width=6,height=5)
+ggsave(here::here("images", "number-of-submitted-packages-to-CRAN.png"),width=6,height=5)

@@ -1,0 +1,211 @@
+---
+title: "Geospatial tutorial - intro"
+author: "JR Ferrer-Paris"
+editor_options: 
+  chunk_output_type: console
+---
+
+## Spatial data 
+
+Basically, spatial data is not much more than ordinary data (vectors or matrices) with spatial properties. These are commonly summarised as coordinates representing their location in space (usually 2D or 3D).
+
+$$ \mathrm{spatial} \ \mathrm{data} = \mathrm{data} + \mathrm{coordinates} $$
+For example, a group of biologists are studying if the activity of a frog species in related to vegetation characteristics in a botanical garden. They use a paper map or a gps to write down coordinates of each sampling point and describe characteristics of the vegetation at these points.
+
+## Geospatial data
+
+Similarly, geospatial data is a special type of spatial data that uses a Coordinate Reference System (CRS) to translate locations on the earth to planar coordinates.
+
+$$ \mathrm{geospatial} \ \mathrm{data} = \mathrm{data} + \mathrm{coords} + \mathrm{CRS} $$
+For example: Consider data about trends in human population size in major cities of the world. We use geographic coordinates (latitude and longitude) to locate each city in the map of the world, and for each city we have several estimates of population size for each decade.
+
+## Raster and vector
+
+The two primary types of (geo-)spatial data are raster and vector data. 
+
+**Raster data** is stored as a grid of values which are rendered on a map as pixels or cells. Each pixel value represents an area on the Earth’s surface with. **Vector data** structures represent specific features on the Earth’s surface, and assign attributes to those features.
+
+### Rasters 
+
+- Raster data is pixelated data where each pixel is associated with a specific location.
+- Raster data always has an extent and a resolution.
+- The extent is the geographical area covered by a raster.
+- The resolution is the area covered by each pixel of a raster.
+
+Examples of raster data: aerial photographs, satellite images, precipitation maps, elevation maps, landcover maps, etc.
+
+One common file formats for raster data is the [GeoTIFF](https://en.wikipedia.org/wiki/GeoTIFF) format.
+
+A raster file can contain data on multiple variables stored as **bands** (each band represents one variable) that share the same spatial properties (extent, resolution, etc).
+
+### Vectors
+
+- Vector data structures represent specific features on the Earth’s surface, and assign attributes to those features.
+- Vectors are composed of discrete geometric locations that define the shape of the spatial object (points, lines, polygons).
+- A table of attributes links each spatial object (row) with multiple attributes (columns).
+
+Examples of vector data: sampling locations or cities, roads or routes, country boundaries.
+
+There are many file formats for vector data: ESRI Shapefiles are very popular, OGC GeoPackage (GPKG) is an open and standards-based format, GeoJSON is used in many web applications.
+
+## Steps of spatial analysis
+
+### Visualisation
+
+We can work with spatial data as regular data, and use coordinates as additional variables for visualisation. 
+
+For example if we compare the population size in major cities of the world between 2010 and 2020, we can calculate population growth and use the coordinates to show where are the cities with largest growth.
+
+```{r}
+library(tmap)
+data(metro)
+data(World)
+
+metro$growth <- (metro$pop2020 - metro$pop2010)/(metro$pop2010 * 10) * 100
+my_map <- tm_shape(World,projection='+proj=robin') + 
+  tm_polygons() +
+  tm_text("iso_a3", size = "AREA", col = "gray30", root = 3) +
+  tm_shape(metro) + tm_bubbles("pop2010", col = "growth",
+  border.col = "black", border.alpha = 0.5,
+  breaks = c(-Inf, 0, 2, 4, 6, Inf), palette = "-RdYlGn",
+  title.size = "Metro population (2010)",
+  title.col = "Annual growth rate (%)", id = "name",
+  popup.vars = c("pop2010", "pop2020", "growth")) 
+
+```
+
+
+### Spatial operations
+
+Calculating distances between datasets
+
+### Spatial queries
+
+Comparing two datasets
+
+### Filling gaps: spatial interpolation
+
+
+For example, our team of biologist collected data about leaf litter in several locations
+
+```{r}
+library(raster)
+rnull <- raster(extent(garden_outline),
+                nrows=18, ncols=24)
+mask <- distanceFromPoints(rnull,garden_sample)<50
+prd.grd <- as_Spatial(mask)
+  
+  SpatialPixelsDataFrame(points=xyFromCell(mask,1:ncell(mask))[values(mask)==1,],data=data.frame(values(mask)[values(mask)==1]),
+                                  proj4string=boundary_utm@proj4string)
+
+```
+
+
+```{r}
+require(gstat)
+v = variogram(I(Tree.cover > 2)~1,garden_sample)
+vm = fit.variogram(v, vgm(1, "Exp", 70, .1))
+plot(v,vm)
+ik = krige(I(Tree.cover > 2)~1, garden_sample, mask, vm)
+```
+
+
+
+```{r}
+#| echo: false
+library(sf)
+library(ggplot2)
+
+here::i_am("workshop/00-intro.qmd")
+garden_outline <- 
+  read_sf(here::here("data","JBM.gpkg")) %>%
+  filter(id %in% c(7,8,11))
+garden_sample <- 
+    read_sf(here::here("data","JBM-points.gpkg")) 
+st_crs(garden_sample) <- NA
+
+ggplot(garden_sample) + 
+  geom_sf(aes(size=`Leaf Litter`, colour=`Leaf Litter`)) +
+  labs(subtitle="Coordinates in meters", x="x", y="y")
+```
+
+
+### Spatial regression techniques
+
+extract + model non-spatial + predict back to spatial
+
+model non-spatial + spatial structure 
+
+
+
+### Spatial operations
+
+
+- working with coordinates for spatial queries and operations, without modifying the data
+
+
+
+Sometimes spatial data just looks like a regular plot
+
+But there is a set of unique operation that combine both data and coordinates, for example:
+
+- spatial aggregation,
+- spatial interpolation and geostatistics,
+- spatial regression techniques:
+  - geostatistics (again!),
+  - autoregressive models,
+  - spatial structure in GLMM, 
+  - point pattern analysis, etc
+
+
+## Geospatial data and analysis
+
+GeoSpatialData = Data + Coords + CRS
+
+```{mermaid}
+flowchart LR
+    sp(spatial\ndata)
+    data[data]
+    xys[coords]
+    sp ---|=| data ---|+| xys 
+```
+
+Simple geospatial analysis could focus on: 
+
+- working with data, as we are used to, then add coords for viz
+- work with coordinates for spatial queries and operations 
+- work with coordinates + crs for spatial re-projection
+
+But also:
+- data + coordinates + crs: spatial interpolation
+- data + coordinates: geostatistics, spatial structure in GLMM, point pattern analysis, etc
+
+## Geospatial data in ***R***
+
+
+### Rspatial and R-spatial
+
+Fortunately a group of R users and developers started to tackle the issue of integrating Geographical Information Systems (GIS) into R.
+
+The group of R packages in [rspatial](https://github.com/rspatial) allowed users to:
+
+-   find more efficient ways to move spatial data into and out of R: e.g. *sp* package bundle
+-   link to external GIS software: e.g. *GRASS* or *spgrass7*
+-   import and export standard vector and raster data: e.g. *raster* package
+-   link to external libraries: e.g. *rgdal*, *proj4*
+
+More recently, the [r-spatial](https://github.com/r-spatial) group of packages (mind the "-" in the name...) updated, standardized and modernized many of these packages by: - adoption of open standards: "simple features" with [*sf* package](https://github.com/r-spatial/sf/) - handling of spatiotemporal arrays (Data cubes) with [*stars* package](https://github.com/r-spatial/stars/)
+
+Also, the development of powerful external libraries and services allow better visualisation and analysis in R. Some options include:
+
+-   *Leaflet*: open-source JavaScript library for interactive maps, with [package *leaflet*](https://rstudio.github.io/leaflet/)
+-   *Plotly*: Create Interactive Web Graphics via 'plotly.js', with [package *plotly*](https://plotly.com/r/)
+-   *Mapbox GL JS*: open source JavaScript library to render interactive maps, [package *mapboxer*](https://github.com/crazycapivara/mapboxer)
+-   *Google's Eath Engine*: cloud computing platform for planetary-scale data analysis, [package *rgee*](https://github.com/r-spatial/rgee/)
+
+Visit the [CRAN Task View: Analysis of Spatial Data](https://cran.r-project.org/web/views/Spatial.html) for a comprehensive list of packages and links to many more resources.
+
+### Plenty of options
+
+Nowadays, there are plenty of options for working with spatial data in R:
+
