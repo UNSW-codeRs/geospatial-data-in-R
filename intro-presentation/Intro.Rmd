@@ -1,9 +1,12 @@
 ---
 title: "What's so special about spatial"
-subtitle: "My journey to GIS with R"
+subtitle: "Geospatial tutorial - intro"
 author: "JR Ferrer-Paris"
-institute: "Centre for Ecosystem Science<br/>UNSW Data Science Hub"
-date: "UNSW codeRs Workshop (updated: `r Sys.Date()`)"
+institute: 
+  - "Centre for Ecosystem Science"
+  - "UNSW Data Science Hub"
+  - "UNSW codeRs"
+date: "14 Dec 2023 (updated: `r Sys.Date()`)"
 output:
   xaringan::moon_reader:
     css: [default, fc, fc-fonts, "css/footer.css"]
@@ -13,7 +16,8 @@ output:
       highlightStyle: github
       highlightLines: true
       countIncrementalSlides: true
-
+editor_options: 
+  chunk_output_type: console
 ---
 layout: true
 
@@ -42,7 +46,9 @@ class: inverse, center, middle
 
 ```{r setup, include=FALSE}
 options(htmltools.dir.version = FALSE)
+library(tmap)
 require(sp)
+library(sf)
 require(rgdal)
 require(raster)
 require(plotrix)
@@ -54,78 +60,196 @@ require(leaflet)
 library(fontawesome)
 ```
 
-
-
-# It all started at the Universität Bayreuth - 1999
-
-
-.pull-left[
-![](https://www.study-in-bavaria.de/fileadmin/_processed_/csm_Campus-Luftbild_1_qf_03_8a455a1f25.jpg)
-]
-
---
-
-.pull-right[
-I was (almost) ready to begin my thesis
-
-- OS: GNU/Linux from SuSE
-
-- Writing: LaTeX
-
-- Editor: GNU Emacs
-
-- Statistics: ?
-
-]
+# Spatial or geospatial?
 
 ---
 
-# My first map in R!
 
-When you have a hammer... every problem is a nail!
+# Spatial data 
+
+Basically, spatial data is not much more than ordinary data (vectors or matrices) with spatial properties. 
+
+These are commonly summarised as coordinates representing their location in space (usually 2D or 3D).
+
+$$ \mathrm{spatial} \ \mathrm{data} = \mathrm{data} + \mathrm{coordinates} $$
 --
 
+That does not look so hard, right?
 
 ![My first map in R!](images/Thesis-map-small.png)
----
-# Maybe is time to learn more about GIS
 
-Three key aspects of Geographic Information Systems :
+
+---
+
+# Geospatial data
+
+Geospatial data is a special type of spatial data that uses a Coordinate Reference System (CRS)
+
+$$ \mathrm{geospatial} \ \mathrm{data} = \mathrm{data} + \mathrm{coords} + \mathrm{CRS} $$
+
+Using explicit and standard CRS allows to:
+
+- Translate locations on the earth to planar coordinates.
+- Compare, overlay and combine spatial data using the same CRS
+- Transform coordinates between alternative CRS
 
 --
 
-- Visual exploration of spatial data ("Mapping")
-- Data structures, projection and spatial queries (Spatial Database)
-- Analysis and modelling of spatial data
+In this workshop we will see examples that:
+
+- focus on the **data** and use **coordinates** as an aesthetic in plots
+- modify **CRS** to improve visualisation
+- focus on the **coordinates** to perform spatial operations
+- use **coordinates** to query **data**
+- use **coordinates** to modify the **data**
+- models that use both **data** and **coordinates**
 
 ---
 
-# GIS and **R** side by side
+# Geospatial data types
 
-Just mapping? use GIS software
+The two primary types of (geo-)spatial data are raster and vector data. 
 
-Non spatial statistical analysis ? use **R**
-
-![](images/Poster-Redonda-small.jpeg)
+**Raster data** is stored as a grid of values which are rendered on a map as pixels or cells. Each pixel value represents an area on the Earth’s surface with. **Vector data** structures represent specific features on the Earth’s surface, and assign attributes to those features.
 
 ---
 
-# Spatial analysis in **R**
+## Rasters 
+
+- Raster data is pixelated data where each pixel is associated with a specific location.
+- Raster data always has an extent and a resolution.
+- The extent is the geographical area covered by a raster.
+- The resolution is the area covered by each pixel of a raster.
+
+Examples of raster data: aerial photographs, satellite images, precipitation maps, elevation maps, landcover maps, etc.
+
+One common file formats for raster data is the [GeoTIFF](https://en.wikipedia.org/wiki/GeoTIFF) format.
+
+A raster file can contain data on multiple variables stored as **bands** (each band represents one variable) that share the same spatial properties (extent, resolution, etc).
+
+---
+
+## Vectors
+
+- Vector data structures represent specific features on the Earth’s surface, and assign attributes to those features.
+- Vectors are composed of discrete geometric locations that define the shape of the spatial object (points, lines, polygons).
+- A table of attributes links each spatial object (row) with multiple attributes (columns).
+
+
+Examples of vector data: sampling locations or cities, roads or routes, country boundaries.
+
+There are many file formats for vector data: ESRI Shapefiles are very popular, OGC GeoPackage (GPKG) is an open and standards-based format, GeoJSON is used in many web applications.
+
+
+
+
+---
+class: inverse, middle, center
+
+
+# Examples of spatial operations and analysis
+
+---
+
+## Visualisation
+
+Sometimes coordinates are just additional aesthetics variables in our plots.
+
+--
+
+For example: Consider data about trends in human population size in major cities of the world. 
+
+
+```{r}
+data(metro)
+metro
+```
+
+---
+
+We use geographic coordinates (latitude and longitude) to locate each city in the map of the world, and for each city we have several estimates of population size for each decade.
+
+```{r}
+metro <- metro %>% mutate(growth = (pop2020 - pop2010)/(pop2010 * 10) * 100)
+```
+
+
+For example if we compare the population size in major cities of the world between 2010 and 2020, we can calculate population growth and use the coordinates to show where are the cities with largest growth.
+
+---
+
+### Visualisation
+
+For example if we compare the population size in major cities of the world between 2010 and 2020, we can calculate population growth and use the coordinates to show where are the cities with largest growth.
+
+```{r}
+
+data(World)
+
+my_map <- tm_shape(World, projection='+proj=robin') + 
+  tm_polygons() +
+  tm_text("iso_a3", size = "AREA", col = "gray30", root = 3) +
+  tm_shape(metro) + tm_bubbles("pop2010", col = "growth",
+  border.col = "black", border.alpha = 0.5,
+  breaks = c(-Inf, 0, 2, 4, 6, Inf), palette = "-RdYlGn",
+  title.size = "Metro population (2010)",
+  title.col = "Annual growth rate (%)", id = "name",
+  popup.vars = c("pop2010", "pop2020", "growth")) 
+
+```
+
+---
+
+```{r}
+my_map
+```
+
+
+---
+
+### Spatial operations
+
+Calculating distances between datasets
+
+---
+
+### Spatial queries
+
+Comparing two datasets
+
+---
+
+### Filling gaps: spatial interpolation
+
+For example, a group of biologists are studying if the activity of a frog species in related to vegetation characteristics in a botanical garden. They use a paper map and write down coordinates of each sampling point where they describe characteristics of the vegetation at these points.
+For example, our team of biologist collected data about leaf litter in several locations
+
+---
+
+### Filling gaps: spatial interpolation
+
+
+For example, our team of biologist collected data about leaf litter in several locations
+
 
 ```{r,eval=TRUE,echo=FALSE,message=FALSE}
-data_ll <- read.csv("../data/JBM-points.csv")
-coordinates(data_ll) <- c("Longitude","Latitude")
-proj4string(data_ll) <- "+proj=longlat +datum=WGS84"
-boundary_ll <- readOGR("../data/JBM.gpkg",verbose = F)
-boundary_utm <- spTransform(boundary_ll, CRS("+proj=utm +zone=19n +datum=WGS84"))
+here::i_am("intro-presentation/Intro.Rmd")
 
-data_utm <- spTransform(data_ll, CRS("+proj=utm +zone=19n +datum=WGS84"))
+boundary_utm <- read_sf(here::here("data","JBM.gpkg")) %>% 
+  filter(id %in% c(7,8,11))
+data_utm <- read_sf(here::here("data","JBM-points.gpkg"))
 
-rnull <- raster(extent(boundary_utm[boundary_utm@data$id %in% c(7,8,11),]),
-                nrows=18, ncols=24)
+rnull <- raster(extent(boundary_utm),
+                nrows=18, ncols=24,
+                crs=st_crs(boundary_utm)$proj4string)
 mask <- distanceFromPoints(rnull,data_utm)<50
-prd.grd <- SpatialPixelsDataFrame(points=xyFromCell(mask,1:ncell(mask))[values(mask)==1,],data=data.frame(values(mask)[values(mask)==1]),
-                                  proj4string=boundary_utm@proj4string)
+
+ss <- values(mask)==1
+
+prd.grd <- SpatialPixelsDataFrame(
+  points=xyFromCell(mask,1:ncell(mask))[ss,],
+  data=data.frame(values(mask)[ss]),
+  proj4string=CRS(st_crs(boundary_utm)$proj4string))
 
 ```
 
@@ -133,12 +257,17 @@ prd.grd <- SpatialPixelsDataFrame(points=xyFromCell(mask,1:ncell(mask))[values(m
 If you have a dataset named `pts` with coordinates and  a categorical variable named `Tree.cover`:
 
 ```{r,fig.height=4, fig.width=4,dev='svg',message=F,echo=FALSE}
-par(mar=c(0,0,0,0))
-plot(data_utm,col=as.numeric(data_utm@data$Tree.cover),cex=as.numeric(data_utm@data$Tree.cover)/2,pch=19)
-legend("bottomright",legend=1:4,col=1:4,pch=19,pt.cex=c(1:4)/2,title="Tree cover class",horiz=T,cex=.8)
 
-ss <- !is.na(data_utm@data$Tree.cover)
-pts <- data_utm[ss,]
+dts <- data_utm #%>% mutate(TCC=factor(`Tree cover`))
+st_crs(dts) <- NA
+
+
+ggplot(dts) + 
+  geom_sf(aes(size=`Tree cover`, colour=`Tree cover`)) +
+  labs(subtitle="Coordinates in meters", x="x", y="y",
+       size="Tree\ncover\nclass", colour="Tree\ncover\nclass") +
+  guides(color= guide_legend(), size=guide_legend())
+
 
 ```
 ]
@@ -147,7 +276,7 @@ pts <- data_utm[ss,]
 
 ```{r, fig.height=4, fig.width=4,dev='svg',message=F}
 require(gstat)
-v = variogram(I(Tree.cover > 2)~1,pts)
+v = variogram(I(Tree.cover > 2)~1,data_utm)
 vm = fit.variogram(v, vgm(1, "Exp", 70, .1))
 plot(v,vm)
 ```
@@ -158,331 +287,27 @@ plot(v,vm)
 # Spatial analysis in **R**
 
 ```{r,message=FALSE}
-ik = krige(I(Tree.cover > 2)~1, pts, prd.grd, vm)
+ik = krige(I(Tree.cover > 2)~1, as_Spatial(data_utm), prd.grd, vm)
+
 
 ```
 .pull-left[
 ```{r,fig.height=4,fig.width=4,dev='png',message=FALSE}
 spplot(ik["var1.pred"],
-       main = "ordinary kriging predictions")
+       main = "ordinary kriging predictions",
+       sub = "Z = Tree Cover > 2")
 ```
 ]
 
 .pull-right[
 ```{r,fig.height=4,fig.width=4,dev='png',message=FALSE}
 spplot(ik["var1.var"],
-       main = "ordinary kriging variance")
+       main = "ordinary kriging variance",
+       sub = "Z = Tree Cover > 2")
 ```
 ]
 
 
----
-
-
-# Spatial analysis in **R**
-
-Early implementations of
-
-- Kriging / geostatistics: _gstat_
-- Spatial point patterns: _spatstats_
-- Mixed effect models with spatial autocorrelation: _geoR_
-
-But:
-
---
-
-- Each package uses different data structure
-- They assume data is already "spatial" (coordinates)
-- No projection or transformation of data
-- Visualisation: output as images for plotting in **R**
-- Isolated from the GIS environment
-
----
-
-
-# Not many options in **R**
-
-```{r early packages plot,fig.height=6, fig.width=6,dev='svg',warning=FALSE,echo=FALSE,message=FALSE}
-
-all_pkgs <- readRDS(file='../Rdata/R-package-list-archive.rds')
-current_pkgs <- readRDS(file='../Rdata/R-package-list-current.rds')
-pkg_history <- all_pkgs %>% bind_rows(current_pkgs) %>% group_by(name) %>% summarise(n_versions=n_distinct(version),first=min(last_modified),last=max(last_modified)) %>% arrange(first) %>% mutate(index=vctrs::vec_group_id(first))
-
-pkg_subset <- pkg_history %>% filter(first < "2001-09-15")
-
-# (some) spatial packages:
-pkg_subset %>% filter(name %in% c("sf","raster","sp",'rgee') | grepl("GRASS|grass|gdal|spatial|spat|geo|maps|leaflet|mapbox|plotly|proj4",name)) -> pkg_geospatial
-
-selection <- c('sgeostat','GRASS','geoR','spatstat','rgdal','sp','rgee', 'raster','sf','leaflet','mapboxapi','plotly','proj4','spatial','geosphere')
-pkg_geospatial %>% filter(name %in% selection) -> slc_geospatial
-
-clrs <- brewer.pal(6,"Paired")
-
-ggplot(pkg_subset, aes(as.Date(first), index)) +
-  geom_line(size = 2,col=clrs[1]) +
-  geom_rug(data=pkg_geospatial,aes(as.Date(first)),color=clrs[5],sides="b") +
-  scale_x_date(date_breaks = '1 year', date_labels = '%Y') +
-  scale_y_continuous(breaks = seq(0, 500, 20)) +
-  #scale_y_continuous(trans='log10') +
-  xlab('') + ylab('') + theme_bw() +
-  theme(plot.title = element_text(colour = clrs[2]), plot.subtitle = element_text(colour = clrs[6])) +
-  labs(title='Cummulative number of R packages published on CRAN',
-       subtitle=sprintf("ca. %s (geo)spatial packages!",nrow(pkg_geospatial))) +
-  geom_text(data=slc_geospatial,aes(x=as.Date(first),y=index,label=name,angle=if_else(index<1500,45,0)),color=clrs[6])
-
-```
-
----
-
-class: inverse, middle, center
-
-# Spatial as in `rspatial`
-
----
-
-# Increasing integration of GIS and **R**
-
-[CRAN Task View: Analysis of Spatial Data](https://cran.r-project.org/web/views/Spatial.html) / [rspatial](https://github.com/rspatial)
-
-Need to move spatial data into and out of R:
-
---
-
-- link to external GIS software: e.g. _GRASS_ or _spgrass7_
-- import and export standard vector and raster data: e.g. _raster_ package
-- link to external libraries: e.g. _rgdal_
-
---
-
-Handling of geographical information in a consistent way:
-
---
-
-- own standard structure `Spatial...`: _sp_ package bundle
-- projection and transformation using external libraries: _proj4_
-
-
----
-
-# _sp_ package
-
-Import "plain" point data and make it "spatial":
-
-```{r,eval=TRUE,echo=TRUE}
-require(sp)
-data_ll <- read.csv("../data/JBM-points.csv")
-# declare the names of two columns with coordinates
-coordinates(data_ll) <- c("Longitude","Latitude")
-# declare spatial projection (PROJ4 format)
-proj4string(data_ll) <- "+proj=longlat +datum=WGS84"
-```
-
-But we actually need another projection!... no problem!
---
-
-```{r,eval=TRUE,echo=TRUE}
-data_utm <- spTransform(data_ll, CRS("+proj=utm +zone=19n +datum=WGS84"))
-```
-
-
----
-
-# _rgdal_ package
-
-
-```{r,message=FALSE}
-require(rgdal)
-```
-
-Read a polygon from a vector layer using Geographical Data Abstraction Library (GDAL) and transform to the same projection as above:
-
-```{r,eval=TRUE,echo=TRUE}
-boundary_ll <- readOGR("../data/JBM.gpkg")
-boundary_utm <- spTransform(boundary_ll, CRS("+proj=utm +zone=19n +datum=WGS84"))
-```
-
----
-
-# Common classes and methods
-
-We can now perform a spatial query, which points overlay which polygon?:
-
-```{r, eval=TRUE,echo=TRUE}
-qry <- over(data_utm,boundary_utm)
-head(qry)
-```
-
----
-
-# _raster_ package
-
-.pull-left[
-We can transform this prediction into a `raster` object, and export to a external file in any format we want:
-
-```{r, eval=TRUE,echo=TRUE, dev='svg',fig.height=4, fig.width=4,dev='png'}
-r_ik <- raster(ik[1])
-plot(r_ik)
-```
-
-```{r, eval={!file.exists('../data/kriging-example.tif')}}
-writeRaster(r_ik,
-            '../data/kriging-example.tif',
-            format='GTiff')
-
-```
-
-]
-
-.pull-right[
-
-```{r, eval=TRUE,echo=TRUE}
-
-rgdal::GDALinfo('../data/kriging-example.tif')
-```
-]
-
----
-
-
-# Increasing integration of GIS and **R**
-
-```{r first 10 years packages plotz, fig.height=4, dev='svg',fig.height=6, fig.width=6,dev='svg',warning=FALSE,echo=FALSE,message=FALSE}
-
-pkg_subset <- pkg_history %>% filter(first < "2011-12-20")
-
-# (some) spatial packages:
-pkg_subset %>% filter(name %in% c("sf","raster","sp",'rgee') | grepl("GRASS|grass|gdal|spatial|spat|geo|maps|leaflet|mapbox|plotly|proj4",name)) -> pkg_geospatial
-
-selection <- c('sgeostat','GRASS','geoR','spatstat','rgdal','sp','rgee', 'raster','sf','leaflet','mapboxapi','plotly','proj4','spatial','geosphere')
-pkg_geospatial %>% filter(name %in% selection) -> slc_geospatial
-
-ggplot(pkg_subset, aes(as.Date(first), index)) +
-  geom_line(size = 2,col=clrs[1]) +
-  geom_rug(data=pkg_geospatial,aes(as.Date(first)),color=clrs[5],sides="b") +
-  scale_x_date(date_breaks = '1 year', date_labels = '%Y') +
-  scale_y_continuous(breaks = seq(0, 5000, 500)) +
-  #scale_y_continuous(trans='log10') +
-  xlab('') + ylab('') + theme_bw() +
-  theme(plot.title = element_text(colour = clrs[2]), plot.subtitle = element_text(colour = clrs[6])) +
-  labs(title='Cummulative number of R packages published on CRAN',
-       subtitle=sprintf("ca. %s (geo)spatial packages!",nrow(pkg_geospatial))) +
-  geom_text(data=slc_geospatial,aes(x=as.Date(first),y=index,label=name,angle=if_else(index<1500,45,0)),color=clrs[6])
-
-```
-
----
-
-class: inverse, middle, center
-
-# Everything is spatial!
-
----
-
-# Increasing integration of GIS and **R**
-
-[CRAN Task View: Analysis of Spatial Data](https://cran.r-project.org/web/views/Spatial.html) / [rspatial](https://github.com/rspatial)
-
-
-Done:
-
-- We can now move spatial data into and out of R
-
-- Handling of geographical information is possible in a consistent way
-
-- There are enough spatial packages to perform the basic GIS operations in **R**
-
---
-
-To do:
-
-- Visualization was still limited / static
-
-- There are other/better options for spatial analysis
-
-
----
-
-# GIS for everyone
-
-
-.pull-left[
-![](images/GIS-applications.png)
-
-> [© Joseph K. Berry 2013](http://www.innovativegis.com/basis/mapanalysis/Default.htm)
-
-]
-.pull-right[
-More and more users access and share spatial data:
-
-- Tiles and Pyramids
-- Requests over Web Map Service
-- Grow of public datasets and repositories
-- Cloud Computing
-]
----
-
-# R and GIS integration
-
-[CRAN Task View: Analysis of Spatial Data](https://cran.r-project.org/web/views/Spatial.html) / [rspatial](https://github.com/rspatial) /  [r-spatial](https://github.com/r-spatial)
-
-New approaches in R make use of external libraries and services to improve visualisation and analysis:
-
---
-
-- Adoption of open standards: "simple features" with [_sf_ package](https://github.com/r-spatial/sf/)
-
-- Spatiotemporal arrays (Data cubes) with [_stars_ package](https://github.com/r-spatial/stars/)
-
---
-
-- *Leaflet*: open-source JavaScript library for interactive maps, with [package _leaflet_](https://rstudio.github.io/leaflet/)
-
-- *Plotly*: Create Interactive Web Graphics via 'plotly.js', with [package _plotly_](https://plotly.com/r/)
-
-- *Mapbox GL JS*: open source JavaScript library to render interactive maps, [package _mapboxer_](https://github.com/crazycapivara/mapboxer)
-
---
-
-- *Google's Eath Engine*: cloud computing platform for planetary-scale data analysis, [package _rgee_](https://github.com/r-spatial/rgee/)
-
----
-
-
-
-# R + GIS : keeps growing
-
-```{r full packages plot,fig.height=6, fig.width=6, dev='svg', warning=FALSE, echo=FALSE, message=FALSE}
-
-# (some) spatial packages:
-pkg_history %>% filter(name %in% c("sf","raster","sp",'rgee') | grepl("GRASS|grass|gdal|spatial|spat|geo|maps|leaflet|mapbox|plotly|proj4",name)) -> pkg_geospatial
-
-selection <- c('sgeostat','GRASS','geoR','spatstat','rgdal','sp','rgee', 'raster','sf','leaflet','mapboxapi','plotly')
-pkg_geospatial %>% filter(name %in% selection) -> slc_geospatial
-
-
-ggplot(pkg_history, aes(as.Date(first), index)) +
-  geom_line(size = 2,col=clrs[1]) +
-  geom_rug(data=pkg_geospatial,aes(as.Date(first)),color=clrs[5],sides="b") +
-  scale_x_date(date_breaks = '4 year', date_labels = '%Y') +
-  scale_y_continuous(breaks = seq(0, 20000, 2500)) +
-  #scale_y_continuous(trans='log10') +
-  xlab('') + ylab('') + theme_bw() +
-  theme(plot.title = element_text(colour = clrs[2]), plot.subtitle = element_text(colour = clrs[6])) +
-  labs(title='Cummulative number of R packages published on CRAN',
-       subtitle=sprintf("ca. %s (geo)spatial packages!",nrow(pkg_geospatial))) +
-  geom_text(data=slc_geospatial,aes(x=as.Date(first),y=index+if_else(index<1500,500,0),label=name,angle=if_else(index<1500,45,0)),color=clrs[6])
-```
-
-
----
-
-# What has changed in 20 years
-
-- **R** has matured with thousands of packages
-- More comprehensive documentation and tutorials available
-- Spatial data is literally everywhere!
-- GIS has grown out of a single software package or environment
-- There is always a lot to learn!
 
 
 ---
@@ -507,7 +332,10 @@ class: center, middle
 .center[## Dr. José R. Ferrer-Paris
 <img class="circle" src="https://unsw-coders.netlify.app/author/dr.-jose-r.-ferrer-paris/avatar_hu5b8b6b713305d35fb8bb18275da87db6_26972_270x270_fill_q75_lanczos_center.jpg" width="150px"/>
 
-[`r fa(name = "twitter")` @jrfep](http://twitter.com/jrfep)
+
+
 [`r fa(name = "github")` @jrfep](http://github.com/jrfep)
+/
 [`r fa(name = "paper-plane")` j.ferrer@unsw.edu.au](mailto:j.ferrer@unsw.edu.au)
+
 ]

@@ -28,13 +28,13 @@ library(sf)
 library(readr)
 library(dplyr)
 here::i_am("data/README.qmd")
-garden_outline <- 
+JBM_boundary <- 
   read_sf(here::here("data","JBM.gpkg")) 
-garden_sample <- read_csv(here::here("data","JBM-points.csv"), 
+JBM_sample <- read_csv(here::here("data","JBM-points.csv"), 
                           show_col_types = FALSE) %>%  
   st_as_sf(coords=c("Longitude","Latitude"), crs="EPSG:4326") %>% 
-  st_transform(st_crs(garden_outline)) %>% 
-  select(Uncertainty:Canopy)
-write_sf(dsn=here::here("data","JBM-points.gpkg"), garden_sample)
+  st_transform(st_crs(JBM_boundary)) %>% 
+  dplyr::select(Uncertainty:Canopy)
+write_sf(dsn=here::here("data","JBM-points.gpkg"), JBM_sample)
 ```
 

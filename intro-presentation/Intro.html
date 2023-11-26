@@ -14,11 +14,27 @@
     <textarea id="source">
 class: center, middle, inverse, title-slide
 
+.title[
 # What’s so special about spatial
-## My journey to GIS with R
+]
+.subtitle[
+## Geospatial tutorial - intro
+]
+.author[
 ### JR Ferrer-Paris
-### Centre for Ecosystem Science<br/>UNSW Data Science Hub
-### UNSW codeRs Workshop (updated: 2022-04-04)
+]
+.institute[
+### Centre for Ecosystem Science
+]
+.institute[
+### UNSW Data Science Hub
+]
+.institute[
+### UNSW codeRs
+]
+.date[
+### 14 Dec 2023 (updated: 2023-11-26)
+]
 
 ---
 
@@ -76,70 +92,244 @@ class: inverse, center, middle
 
 
 
-
-
-# It all started at the Universität Bayreuth - 1999
-
-
-.pull-left[
-![](https://www.study-in-bavaria.de/fileadmin/_processed_/csm_Campus-Luftbild_1_qf_03_8a455a1f25.jpg)
-]
-
---
-
-.pull-right[
-I was (almost) ready to begin my thesis
-
-- OS: GNU/Linux from SuSE
-
-- Writing: LaTeX
-
-- Editor: GNU Emacs
-
-- Statistics: ?
-
-]
+# Spatial or geospatial?
 
 ---
 
-# My first map in R!
 
-When you have a hammer... every problem is a nail!
+# Spatial data 
+
+Basically, spatial data is not much more than ordinary data (vectors or matrices) with spatial properties. 
+
+These are commonly summarised as coordinates representing their location in space (usually 2D or 3D).
+
+$$ \mathrm{spatial} \ \mathrm{data} = \mathrm{data} + \mathrm{coordinates} $$
 --
 
+That does not look so hard, right?
 
 ![My first map in R!](images/Thesis-map-small.png)
----
-# Maybe is time to learn more about GIS
 
-Three key aspects of Geographic Information Systems :
+
+---
+
+# Geospatial data
+
+Geospatial data is a special type of spatial data that uses a Coordinate Reference System (CRS)
+
+$$ \mathrm{geospatial} \ \mathrm{data} = \mathrm{data} + \mathrm{coords} + \mathrm{CRS} $$
+
+Using explicit and standard CRS allows to:
+
+- Translate locations on the earth to planar coordinates.
+- Compare, overlay and combine spatial data using the same CRS
+- Transform coordinates between alternative CRS
 
 --
 
-- Visual exploration of spatial data ("Mapping")
-- Data structures, projection and spatial queries (Spatial Database)
-- Analysis and modelling of spatial data
+In this workshop we will see examples that:
+
+- focus on the **data** and use **coordinates** as an aesthetic in plots
+- modify **CRS** to improve visualisation
+- focus on the **coordinates** to perform spatial operations
+- use **coordinates** to query **data**
+- use **coordinates** to modify the **data**
+- models that use both **data** and **coordinates**
 
 ---
 
-# GIS and **R** side by side
+# Geospatial data types
 
-Just mapping? use GIS software
+The two primary types of (geo-)spatial data are raster and vector data. 
 
-Non spatial statistical analysis ? use **R**
-
-![](images/Poster-Redonda-small.jpeg)
+**Raster data** is stored as a grid of values which are rendered on a map as pixels or cells. Each pixel value represents an area on the Earth’s surface with. **Vector data** structures represent specific features on the Earth’s surface, and assign attributes to those features.
 
 ---
 
-# Spatial analysis in **R**
+## Rasters 
+
+- Raster data is pixelated data where each pixel is associated with a specific location.
+- Raster data always has an extent and a resolution.
+- The extent is the geographical area covered by a raster.
+- The resolution is the area covered by each pixel of a raster.
+
+Examples of raster data: aerial photographs, satellite images, precipitation maps, elevation maps, landcover maps, etc.
+
+One common file formats for raster data is the [GeoTIFF](https://en.wikipedia.org/wiki/GeoTIFF) format.
+
+A raster file can contain data on multiple variables stored as **bands** (each band represents one variable) that share the same spatial properties (extent, resolution, etc).
+
+---
+
+## Vectors
+
+- Vector data structures represent specific features on the Earth’s surface, and assign attributes to those features.
+- Vectors are composed of discrete geometric locations that define the shape of the spatial object (points, lines, polygons).
+- A table of attributes links each spatial object (row) with multiple attributes (columns).
+
+
+Examples of vector data: sampling locations or cities, roads or routes, country boundaries.
+
+There are many file formats for vector data: ESRI Shapefiles are very popular, OGC GeoPackage (GPKG) is an open and standards-based format, GeoJSON is used in many web applications.
+
+
+
+
+---
+class: inverse, middle, center
+
+
+# Examples of spatial operations and analysis
+
+---
+
+## Visualisation
+
+Sometimes coordinates are just additional aesthetics variables in our plots.
+
+--
+
+For example: Consider data about trends in human population size in major cities of the world. 
+
+
+
+```r
+data(metro)
+metro
+```
+
+```
+## Simple feature collection with 436 features and 12 fields
+## Geometry type: POINT
+## Dimension:     XY
+## Bounding box:  xmin: -123.1193 ymin: -37.814 xmax: 174.7667 ymax: 60.16925
+```
+
+```
+## old-style crs object detected; please recreate object with a recent sf::st_crs()
+```
+
+```
+## Geodetic CRS:  WGS 84
+## First 10 features:
+```
+
+```
+## old-style crs object detected; please recreate object with a recent sf::st_crs()
+## old-style crs object detected; please recreate object with a recent sf::st_crs()
+```
+
+```
+##            name             name_long iso_a3 pop1950 pop1960 pop1970 pop1980
+## 2         Kabul                 Kabul    AFG  170784  285352  471891  977824
+## 8       Algiers El Djazair  (Algiers)    DZA  516450  871636 1281127 1621442
+## 13       Luanda                Luanda    AGO  138413  219427  459225  771349
+## 16 Buenos Aires          Buenos Aires    ARG 5097612 6597634 8104621 9422362
+## 17      Cordoba               Cordoba    ARG  429249  605309  809794 1009521
+## 25      Rosario               Rosario    ARG  554483  671349  816230  953491
+## 32      Yerevan               Yerevan    ARM  341432  537759  778158 1041587
+## 33     Adelaide              Adelaide    AUS  429277  571822  850168  971856
+## 34     Brisbane              Brisbane    AUS  441718  602999  904777 1134833
+## 37    Melbourne             Melbourne    AUS 1331966 1851220 2499109 2839019
+##     pop1990  pop2000  pop2010  pop2020  pop2030                    geometry
+## 2   1549320  2401109  3722320  5721697  8279607   POINT (69.17246 34.52889)
+## 8   1797068  2140577  2432023  2835218  3404575     POINT (3.04197 36.7525)
+## 13  1390240  2591388  4508434  6836849 10428756   POINT (13.23432 -8.83682)
+## 16 10513284 12406780 14245871 15894307 16956491 POINT (-58.40037 -34.60508)
+## 17  1200168  1347561  1459268  1562509  1718192  POINT (-64.18105 -31.4135)
+## 25  1083819  1152387  1298073  1453814  1606993 POINT (-60.63932 -32.94682)
+## 32  1174524  1111301  1065597  1023703  1057459     POINT (44.51462 40.182)
+## 33  1081618  1141623  1217990  1320783  1505422  POINT (138.5986 -34.92866)
+## 34  1381306  1666203  2033617  2388517  2721325  POINT (153.0281 -27.46794)
+## 37  3154314  3460541  3951216  4500501  5070873    POINT (144.9633 -37.814)
+```
+
+---
+
+We use geographic coordinates (latitude and longitude) to locate each city in the map of the world, and for each city we have several estimates of population size for each decade.
+
+
+```r
+metro &lt;- metro %&gt;% mutate(growth = (pop2020 - pop2010)/(pop2010 * 10) * 100)
+```
+
+
+For example if we compare the population size in major cities of the world between 2010 and 2020, we can calculate population growth and use the coordinates to show where are the cities with largest growth.
+
+---
+
+### Visualisation
+
+For example if we compare the population size in major cities of the world between 2010 and 2020, we can calculate population growth and use the coordinates to show where are the cities with largest growth.
+
+
+```r
+data(World)
+
+my_map &lt;- tm_shape(World, projection='+proj=robin') + 
+  tm_polygons() +
+  tm_text("iso_a3", size = "AREA", col = "gray30", root = 3) +
+  tm_shape(metro) + tm_bubbles("pop2010", col = "growth",
+  border.col = "black", border.alpha = 0.5,
+  breaks = c(-Inf, 0, 2, 4, 6, Inf), palette = "-RdYlGn",
+  title.size = "Metro population (2010)",
+  title.col = "Annual growth rate (%)", id = "name",
+  popup.vars = c("pop2010", "pop2020", "growth")) 
+```
+
+---
+
+
+```r
+my_map
+```
+
+```
+## old-style crs object detected; please recreate object with a recent sf::st_crs()
+## old-style crs object detected; please recreate object with a recent sf::st_crs()
+## old-style crs object detected; please recreate object with a recent sf::st_crs()
+```
+
+```
+## Variable(s) "growth" contains positive and negative values, so midpoint is set to 0. Set midpoint = NA to show the full spectrum of the color palette.
+```
+
+![](Intro_files/figure-html/unnamed-chunk-4-1.png)&lt;!-- --&gt;
+
+
+---
+
+### Spatial operations
+
+Calculating distances between datasets
+
+---
+
+### Spatial queries
+
+Comparing two datasets
+
+---
+
+### Filling gaps: spatial interpolation
+
+For example, a group of biologists are studying if the activity of a frog species in related to vegetation characteristics in a botanical garden. They use a paper map and write down coordinates of each sampling point where they describe characteristics of the vegetation at these points.
+For example, our team of biologist collected data about leaf litter in several locations
+
+---
+
+### Filling gaps: spatial interpolation
+
+
+For example, our team of biologist collected data about leaf litter in several locations
+
 
 
 
 .pull-left[
 If you have a dataset named `pts` with coordinates and  a categorical variable named `Tree.cover`:
 
-![](Intro_files/figure-html/unnamed-chunk-2-1.svg)&lt;!-- --&gt;
+![](Intro_files/figure-html/unnamed-chunk-6-1.svg)&lt;!-- --&gt;
 ]
 
 .pull-right[
@@ -147,12 +337,12 @@ If you have a dataset named `pts` with coordinates and  a categorical variable n
 
 ```r
 require(gstat)
-v = variogram(I(Tree.cover &gt; 2)~1,pts)
+v = variogram(I(Tree.cover &gt; 2)~1,data_utm)
 vm = fit.variogram(v, vgm(1, "Exp", 70, .1))
 plot(v,vm)
 ```
 
-![](Intro_files/figure-html/unnamed-chunk-3-1.svg)&lt;!-- --&gt;
+![](Intro_files/figure-html/unnamed-chunk-7-1.svg)&lt;!-- --&gt;
 ]
 
 ---
@@ -161,7 +351,7 @@ plot(v,vm)
 
 
 ```r
-ik = krige(I(Tree.cover &gt; 2)~1, pts, prd.grd, vm)
+ik = krige(I(Tree.cover &gt; 2)~1, as_Spatial(data_utm), prd.grd, vm)
 ```
 
 ```
@@ -171,313 +361,25 @@ ik = krige(I(Tree.cover &gt; 2)~1, pts, prd.grd, vm)
 
 ```r
 spplot(ik["var1.pred"],
-       main = "ordinary kriging predictions")
+       main = "ordinary kriging predictions",
+       sub = "Z = Tree Cover &gt; 2")
 ```
 
-![](Intro_files/figure-html/unnamed-chunk-5-1.png)&lt;!-- --&gt;
+![](Intro_files/figure-html/unnamed-chunk-9-1.png)&lt;!-- --&gt;
 ]
 
 .pull-right[
 
 ```r
 spplot(ik["var1.var"],
-       main = "ordinary kriging variance")
+       main = "ordinary kriging variance",
+       sub = "Z = Tree Cover &gt; 2")
 ```
 
-![](Intro_files/figure-html/unnamed-chunk-6-1.png)&lt;!-- --&gt;
+![](Intro_files/figure-html/unnamed-chunk-10-1.png)&lt;!-- --&gt;
 ]
 
 
----
-
-
-# Spatial analysis in **R**
-
-Early implementations of
-
-- Kriging / geostatistics: _gstat_
-- Spatial point patterns: _spatstats_
-- Mixed effect models with spatial autocorrelation: _geoR_
-
-But:
-
---
-
-- Each package uses different data structure
-- They assume data is already "spatial" (coordinates)
-- No projection or transformation of data
-- Visualisation: output as images for plotting in **R**
-- Isolated from the GIS environment
-
----
-
-
-# Not many options in **R**
-
-![](Intro_files/figure-html/early packages plot-1.svg)&lt;!-- --&gt;
-
----
-
-class: inverse, middle, center
-
-# Spatial as in `rspatial`
-
----
-
-# Increasing integration of GIS and **R**
-
-[CRAN Task View: Analysis of Spatial Data](https://cran.r-project.org/web/views/Spatial.html) / [rspatial](https://github.com/rspatial)
-
-Need to move spatial data into and out of R:
-
---
-
-- link to external GIS software: e.g. _GRASS_ or _spgrass7_
-- import and export standard vector and raster data: e.g. _raster_ package
-- link to external libraries: e.g. _rgdal_
-
---
-
-Handling of geographical information in a consistent way:
-
---
-
-- own standard structure `Spatial...`: _sp_ package bundle
-- projection and transformation using external libraries: _proj4_
-
-
----
-
-# _sp_ package
-
-Import "plain" point data and make it "spatial":
-
-
-```r
-require(sp)
-data_ll &lt;- read.csv("../data/JBM-points.csv")
-# declare the names of two columns with coordinates
-coordinates(data_ll) &lt;- c("Longitude","Latitude")
-# declare spatial projection (PROJ4 format)
-proj4string(data_ll) &lt;- "+proj=longlat +datum=WGS84"
-```
-
-But we actually need another projection!... no problem!
---
-
-
-```r
-data_utm &lt;- spTransform(data_ll, CRS("+proj=utm +zone=19n +datum=WGS84"))
-```
-
-
----
-
-# _rgdal_ package
-
-
-
-```r
-require(rgdal)
-```
-
-Read a polygon from a vector layer using Geographical Data Abstraction Library (GDAL) and transform to the same projection as above:
-
-
-```r
-boundary_ll &lt;- readOGR("../data/JBM.gpkg")
-```
-
-```
-## OGR data source with driver: GPKG 
-## Source: "/Users/jferrer/proyectos/codeRs/geospatial-data-in-R/presentation/data/JBM.gpkg", layer: "ZonificacionJardin"
-## with 10 features
-## It has 3 fields
-## Integer64 fields read as strings:  id
-```
-
-```r
-boundary_utm &lt;- spTransform(boundary_ll, CRS("+proj=utm +zone=19n +datum=WGS84"))
-```
-
----
-
-# Common classes and methods
-
-We can now perform a spatial query, which points overlay which polygon?:
-
-
-```r
-qry &lt;- over(data_utm,boundary_utm)
-head(qry)
-```
-
-```
-##     id  cdg                              nombre
-## 1    8   FE                       Flora exotica
-## 2    7  BHT Lagunas del bosque humedo autoctono
-## 3    7  BHT Lagunas del bosque humedo autoctono
-## 4    7  BHT Lagunas del bosque humedo autoctono
-## 5 &lt;NA&gt; &lt;NA&gt;                                &lt;NA&gt;
-## 6    8   FE                       Flora exotica
-```
-
----
-
-# _raster_ package
-
-.pull-left[
-We can transform this prediction into a `raster` object, and export to a external file in any format we want:
-
-
-```r
-r_ik &lt;- raster(ik[1])
-plot(r_ik)
-```
-
-![](Intro_files/figure-html/unnamed-chunk-12-1.png)&lt;!-- --&gt;
-
-
-```r
-writeRaster(r_ik,
-            '../data/kriging-example.tif',
-            format='GTiff')
-```
-
-]
-
-.pull-right[
-
-
-```r
-rgdal::GDALinfo('../data/kriging-example.tif')
-```
-
-```
-## rows        18 
-## columns     24 
-## bands       1 
-## lower left origin.x        203091.8 
-## lower left origin.y        1171316 
-## res.x       25.06854 
-## res.y       24.2066 
-## ysign       -1 
-## oblique.x   0 
-## oblique.y   0 
-## driver      GTiff 
-## projection  +proj=utm +zone=19 +datum=WGS84 +units=m +no_defs 
-## file        ../data/kriging-example.tif 
-## apparent band summary:
-##    GDType hasNoDataValue NoDataValue blockSize1 blockSize2
-## 1 Float32           TRUE    -3.4e+38         18         24
-## apparent band statistics:
-##        Bmin      Bmax    Bmean       Bsd
-## 1 0.1195755 0.9844748 0.701971 0.1546923
-## Metadata:
-## AREA_OR_POINT=Area
-```
-]
-
----
-
-
-# Increasing integration of GIS and **R**
-
-![](Intro_files/figure-html/first 10 years packages plotz-1.svg)&lt;!-- --&gt;
-
----
-
-class: inverse, middle, center
-
-# Everything is spatial!
-
----
-
-# Increasing integration of GIS and **R**
-
-[CRAN Task View: Analysis of Spatial Data](https://cran.r-project.org/web/views/Spatial.html) / [rspatial](https://github.com/rspatial)
-
-
-Done:
-
-- We can now move spatial data into and out of R
-
-- Handling of geographical information is possible in a consistent way
-
-- There are enough spatial packages to perform the basic GIS operations in **R**
-
---
-
-To do:
-
-- Visualization was still limited / static
-
-- There are other/better options for spatial analysis
-
-
----
-
-# GIS for everyone
-
-
-.pull-left[
-![](images/GIS-applications.png)
-
-&gt; [© Joseph K. Berry 2013](http://www.innovativegis.com/basis/mapanalysis/Default.htm)
-
-]
-.pull-right[
-More and more users access and share spatial data:
-
-- Tiles and Pyramids
-- Requests over Web Map Service
-- Grow of public datasets and repositories
-- Cloud Computing
-]
----
-
-# R and GIS integration
-
-[CRAN Task View: Analysis of Spatial Data](https://cran.r-project.org/web/views/Spatial.html) / [rspatial](https://github.com/rspatial) /  [r-spatial](https://github.com/r-spatial)
-
-New approaches in R make use of external libraries and services to improve visualisation and analysis:
-
---
-
-- Adoption of open standards: "simple features" with [_sf_ package](https://github.com/r-spatial/sf/)
-
-- Spatiotemporal arrays (Data cubes) with [_stars_ package](https://github.com/r-spatial/stars/)
-
---
-
-- *Leaflet*: open-source JavaScript library for interactive maps, with [package _leaflet_](https://rstudio.github.io/leaflet/)
-
-- *Plotly*: Create Interactive Web Graphics via 'plotly.js', with [package _plotly_](https://plotly.com/r/)
-
-- *Mapbox GL JS*: open source JavaScript library to render interactive maps, [package _mapboxer_](https://github.com/crazycapivara/mapboxer)
-
---
-
-- *Google's Eath Engine*: cloud computing platform for planetary-scale data analysis, [package _rgee_](https://github.com/r-spatial/rgee/)
-
----
-
-
-
-# R + GIS : keeps growing
-
-![](Intro_files/figure-html/full packages plot-1.svg)&lt;!-- --&gt;
-
-
----
-
-# What has changed in 20 years
-
-- **R** has matured with thousands of packages
-- More comprehensive documentation and tutorials available
-- Spatial data is literally everywhere!
-- GIS has grown out of a single software package or environment
-- There is always a lot to learn!
 
 
 ---
@@ -502,9 +404,12 @@ class: center, middle
 .center[## Dr. José R. Ferrer-Paris
 &lt;img class="circle" src="https://unsw-coders.netlify.app/author/dr.-jose-r.-ferrer-paris/avatar_hu5b8b6b713305d35fb8bb18275da87db6_26972_270x270_fill_q75_lanczos_center.jpg" width="150px"/&gt;
 
-[<svg aria-hidden="true" role="img" viewBox="0 0 512 512" style="height:1em;width:1em;vertical-align:-0.125em;margin-left:auto;margin-right:auto;font-size:inherit;fill:currentColor;overflow:visible;position:relative;"><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"/></svg> @jrfep](http://twitter.com/jrfep)
+
+
 [<svg aria-hidden="true" role="img" viewBox="0 0 496 512" style="height:1em;width:0.97em;vertical-align:-0.125em;margin-left:auto;margin-right:auto;font-size:inherit;fill:currentColor;overflow:visible;position:relative;"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg> @jrfep](http://github.com/jrfep)
-[<svg aria-hidden="true" role="img" viewBox="0 0 512 512" style="height:1em;width:1em;vertical-align:-0.125em;margin-left:auto;margin-right:auto;font-size:inherit;fill:currentColor;overflow:visible;position:relative;"><path d="M476 3.2L12.5 270.6c-18.1 10.4-15.8 35.6 2.2 43.2L121 358.4l287.3-253.2c5.5-4.9 13.3 2.6 8.6 8.3L176 407v80.5c0 23.6 28.5 32.9 42.5 15.8L282 426l124.6 52.2c14.2 6 30.4-2.9 33-18.2l72-432C515 7.8 493.3-6.8 476 3.2z"/></svg> j.ferrer@unsw.edu.au](mailto:j.ferrer@unsw.edu.au)
+/
+[<svg aria-hidden="true" role="img" viewBox="0 0 512 512" style="height:1em;width:1em;vertical-align:-0.125em;margin-left:auto;margin-right:auto;font-size:inherit;fill:currentColor;overflow:visible;position:relative;"><path d="M16.1 260.2c-22.6 12.9-20.5 47.3 3.6 57.3L160 376V479.3c0 18.1 14.6 32.7 32.7 32.7c9.7 0 18.9-4.3 25.1-11.8l62-74.3 123.9 51.6c18.9 7.9 40.8-4.5 43.9-24.7l64-416c1.9-12.1-3.4-24.3-13.5-31.2s-23.3-7.5-34-1.4l-448 256zm52.1 25.5L409.7 90.6 190.1 336l1.2 1L68.2 285.7zM403.3 425.4L236.7 355.9 450.8 116.6 403.3 425.4z"/></svg> j.ferrer@unsw.edu.au](mailto:j.ferrer@unsw.edu.au)
+
 ]
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
@@ -553,6 +458,19 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
     deleted = true;
   });
 })();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
 (function() {
   "use strict"
   // Replace <script> tags in slides area to make them executable
