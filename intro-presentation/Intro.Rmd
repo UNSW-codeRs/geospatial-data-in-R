@@ -7,7 +7,7 @@ institute:
 date: "`r Sys.Date()`"
 output:
   xaringan::moon_reader:
-    css: [xaringan-themer.css, "css/footer.css"]
+    css: [xaringan-themer.css, "css/footer.css", "css/custom.css"]
     lib_dir: libs
     nature:
       countdown: 60000
@@ -46,6 +46,17 @@ style_duo_accent(
 knitr::opts_chunk$set(fig.showtext=TRUE,collapse=TRUE)
 ```
 
+```{r knitr-hooks, include=FALSE}
+knitr::opts_hooks$set(fig.callout = function(options) {
+  if (options$fig.callout) {
+    options$echo <- FALSE
+    options$out.height <- "99%"
+    options$fig.width <- 16
+    options$fig.height <- 8
+  }
+  options
+})
+```
 ---
 
 class: center,inverse
@@ -176,8 +187,11 @@ class: inverse, middle, center
 # Examples of spatial and geospatial data
 
 ---
+layout: true
 
 ## Biologists looking for frogs
+
+---
 
 Our team is studying if the activity of a frog species in related to vegetation characteristics in a botanical garden (we will call it [JBM](https://iamvenezuela.com/2017/05/jardin-botanico-de-maracaibo-leandro-aristeguieta/#prettyPhoto) for short). They use a paper map of the garden and write down coordinates of each sampling point where they describe characteristics of the vegetation at these points (leaf litter, tree cover, etc).
 
@@ -201,8 +215,10 @@ glimpse(data_jbm)
 
 Here the *geometry* attribute is represented as points with two coordinates, and we can use these coordinates as aesthetics in a plot and represent other categorical variable with size and colour aesthetics.
 
-```{r, dev='svg', message=F, echo=FALSE}
 
+
+.small-code[
+```{r jbm-plot, message=F, eval=FALSE}
 ggplot(data_jbm) + 
   geom_sf(aes(size=`Tree cover`, colour=`Tree cover`)) +
   labs(subtitle="Coordinates in meters", x="x", y="y",
@@ -210,18 +226,22 @@ ggplot(data_jbm) +
   scale_x_continuous(labels=function(x) x-203000) +
     scale_y_continuous(labels=function(x) x-1171000) +
   guides(color= guide_legend(), size=guide_legend())
-
-
 ```
+]
 
+.plot-callout[
+```{r jbm-plot-callout, ref.label="jbm-plot", fig.callout=TRUE}
+```
+]
 
 ---
 
-### Filling gaps: spatial interpolation
+```{r large-plot-full-output, ref.label="jbm-plot", echo=FALSE}
+```
 
+---
 
-For example, our team of biologist collected data about leaf litter in several locations
-
+**Spatial autocorrelation** is a measure of how similar are observations that are close together. We use a **semivariogram** to represent this.
 
 
 ```{r,eval=TRUE,echo=FALSE,message=FALSE}
@@ -244,6 +264,30 @@ prd.grd <- SpatialPixelsDataFrame(
   proj4string=CRS(st_crs(boundary_jbm)$proj4string))
 
 ```
+
+.pull-left[
+.small-code[
+```{r variogram, eval=FALSE,message=FALSE}
+library(gstat)
+
+v <- variogram(
+  I(Tree.cover > 2)~1,
+  data_jbm)
+
+vm <- fit.variogram(
+  v,
+  vgm(1, "Exp", 70, .1))
+
+plot(v,vm)
+```
+]
+]
+
+.pull-right[
+```{r variogram-out, ref.label="variogram", echo=FALSE, fig.dim=c(4.8, 4.5), out.width="100%"}
+```
+]
+
 ---
 
 ## 
@@ -315,13 +359,6 @@ Comparing two datasets
 ---
 
 
-
-```{r, fig.height=4, fig.width=4,dev='svg',message=F}
-require(gstat)
-v = variogram(I(Tree.cover > 2)~1,data_jbm)
-vm = fit.variogram(v, vgm(1, "Exp", 70, .1))
-plot(v,vm)
-```
 
 ---
 

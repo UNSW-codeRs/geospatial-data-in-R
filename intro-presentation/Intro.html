@@ -4,10 +4,11 @@
     <title>What’s so special about spatial</title>
     <meta charset="utf-8" />
     <meta name="author" content="JR Ferrer-Paris" />
-    <meta name="date" content="2023-11-27" />
+    <meta name="date" content="2023-11-28" />
     <script src="libs/header-attrs/header-attrs.js"></script>
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
     <link rel="stylesheet" href="css/footer.css" type="text/css" />
+    <link rel="stylesheet" href="css/custom.css" type="text/css" />
   </head>
   <body>
     <textarea id="source">
@@ -26,7 +27,7 @@ class: center, middle, inverse, title-slide
 ### UNSW codeRs
 ]
 .date[
-### 2023-11-27
+### 2023-11-28
 ]
 
 ---
@@ -70,6 +71,7 @@ top:1em;right:1em;
   document.addEventListener('DOMContentLoaded', addLogo)
 })()</script>
 </div>
+
 
 
 
@@ -186,8 +188,11 @@ class: inverse, middle, center
 # Examples of spatial and geospatial data
 
 ---
+layout: true
 
-## A group of biologists looking for frogs
+## Biologists looking for frogs
+
+---
 
 Our team is studying if the activity of a frog species in related to vegetation characteristics in a botanical garden (we will call it [JBM](https://iamvenezuela.com/2017/05/jardin-botanico-de-maracaibo-leandro-aristeguieta/#prettyPhoto) for short). They use a paper map of the garden and write down coordinates of each sampling point where they describe characteristics of the vegetation at these points (leaf litter, tree cover, etc).
 
@@ -213,11 +218,13 @@ glimpse(data_jbm)
 
 ---
 
-The geom with coordinates and  a categorical variable named `Tree.cover`:
+Here the *geometry* attribute is represented as points with two coordinates, and we can use these coordinates as aesthetics in a plot and represent other categorical variable with size and colour aesthetics.
 
+
+
+.small-code[
 
 ```r
-
 ggplot(data_jbm) + 
   geom_sf(aes(size=`Tree cover`, colour=`Tree cover`)) +
   labs(subtitle="Coordinates in meters", x="x", y="y",
@@ -226,18 +233,45 @@ ggplot(data_jbm) +
     scale_y_continuous(labels=function(x) x-1171000) +
   guides(color= guide_legend(), size=guide_legend())
 ```
+]
 
-![](Intro_files/figure-html/unnamed-chunk-3-1.svg)&lt;!-- --&gt;
+.plot-callout[
+&lt;img src="Intro_files/figure-html/jbm-plot-callout-1.png" height="99%" /&gt;
+]
 
 ---
 
-### Filling gaps: spatial interpolation
+![](Intro_files/figure-html/large-plot-full-output-1.png)&lt;!-- --&gt;
+
+---
+
+**Spatial autocorrelation** is a measure of how similar are observations that are close together. We use a **semivariogram** to represent this.
 
 
-For example, our team of biologist collected data about leaf litter in several locations
 
 
+.pull-left[
+.small-code[
 
+```r
+library(gstat)
+
+v &lt;- variogram(
+  I(Tree.cover &gt; 2)~1,
+  data_jbm)
+
+vm &lt;- fit.variogram(
+  v,
+  vgm(1, "Exp", 70, .1))
+
+plot(v,vm)
+```
+]
+]
+
+.pull-right[
+&lt;img src="Intro_files/figure-html/variogram-out-1.png" width="100%" /&gt;
+]
 
 ---
 
@@ -332,7 +366,7 @@ my_map
 ## Variable(s) "growth" contains positive and negative values, so midpoint is set to 0. Set midpoint = NA to show the full spectrum of the color palette.
 ```
 
-![](Intro_files/figure-html/unnamed-chunk-8-1.png)&lt;!-- --&gt;
+![](Intro_files/figure-html/unnamed-chunk-7-1.png)&lt;!-- --&gt;
 
 
 ---
@@ -351,16 +385,6 @@ Comparing two datasets
 
 
 
-
-```r
-require(gstat)
-v = variogram(I(Tree.cover &gt; 2)~1,data_jbm)
-vm = fit.variogram(v, vgm(1, "Exp", 70, .1))
-plot(v,vm)
-```
-
-![](Intro_files/figure-html/unnamed-chunk-9-1.svg)&lt;!-- --&gt;
-
 ---
 
 # Spatial analysis in **R**
@@ -378,7 +402,7 @@ spplot(ik["var1.pred"],
        sub = "Z = Tree Cover &gt; 2")
 ```
 
-![](Intro_files/figure-html/unnamed-chunk-11-1.png)&lt;!-- --&gt;
+![](Intro_files/figure-html/unnamed-chunk-9-1.png)&lt;!-- --&gt;
 ]
 
 .pull-right[
@@ -389,7 +413,7 @@ spplot(ik["var1.var"],
        sub = "Z = Tree Cover &gt; 2")
 ```
 
-![](Intro_files/figure-html/unnamed-chunk-12-1.png)&lt;!-- --&gt;
+![](Intro_files/figure-html/unnamed-chunk-10-1.png)&lt;!-- --&gt;
 ]
 
 

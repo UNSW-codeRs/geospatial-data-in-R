@@ -49,3 +49,21 @@ I created some tutorials:
 I also added a script with code from the tutorials in [examples/Tutorials-script.R](examples/Tutorials-script.R)
 
 We shared the [recording for this workshop](https://bit.ly/37gE3t1) through the UNSW codeRs website. 
+
+# Sources
+
+I am using content from several tutorials and on-line resources:
+
+- 
+
+For the presentation I was initially inspired by ... 
+
+For showing both plot and code in one slide, I followed [Garrick's blogpost](https://www.garrickadenbuie.com/blog/decouple-code-and-output-in-xaringan-slides/)
+
+font size for code slides: 
+
+https://community.rstudio.com/t/using-multiple-font-sizes-for-code-chunks/26405/6
+
+https://github.com/yihui/xaringan/issues/69
+
+
