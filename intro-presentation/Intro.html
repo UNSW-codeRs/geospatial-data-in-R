@@ -4,10 +4,9 @@
     <title>What’s so special about spatial</title>
     <meta charset="utf-8" />
     <meta name="author" content="JR Ferrer-Paris" />
+    <meta name="date" content="2023-11-27" />
     <script src="libs/header-attrs/header-attrs.js"></script>
-    <link href="libs/remark-css/default.css" rel="stylesheet" />
-    <link href="libs/remark-css/fc.css" rel="stylesheet" />
-    <link href="libs/remark-css/fc-fonts.css" rel="stylesheet" />
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
     <link rel="stylesheet" href="css/footer.css" type="text/css" />
   </head>
   <body>
@@ -24,16 +23,10 @@ class: center, middle, inverse, title-slide
 ### JR Ferrer-Paris
 ]
 .institute[
-### Centre for Ecosystem Science
-]
-.institute[
-### UNSW Data Science Hub
-]
-.institute[
 ### UNSW codeRs
 ]
 .date[
-### 14 Dec 2023 (updated: 2023-11-26)
+### 2023-11-27
 ]
 
 ---
@@ -78,6 +71,8 @@ top:1em;right:1em;
 })()</script>
 </div>
 
+
+
 ---
 
 class: center,inverse
@@ -96,46 +91,52 @@ class: inverse, center, middle
 
 ---
 
+# Spatial or geospatial?
 
-# Spatial data 
+Think of **spatial data** as ordinary data (vectors or matrices) with spatial properties that we will call geometries. 
 
-Basically, spatial data is not much more than ordinary data (vectors or matrices) with spatial properties. 
-
-These are commonly summarised as coordinates representing their location in space (usually 2D or 3D).
-
-$$ \mathrm{spatial} \ \mathrm{data} = \mathrm{data} + \mathrm{coordinates} $$
+$$ \mathrm{spatial} \ \mathrm{data} = \mathrm{data} + \mathrm{geometry} $$
 --
 
-That does not look so hard, right?
+Now let's add a Coordinate Reference System (CRS) and we get **geospatial data**:
 
-![My first map in R!](images/Thesis-map-small.png)
+$$ \mathrm{geospatial} \ \mathrm{data} = \mathrm{data} + \mathrm{geometry} + \mathrm{CRS} $$
+--
 
+There are several benefits to this:
 
----
-
-# Geospatial data
-
-Geospatial data is a special type of spatial data that uses a Coordinate Reference System (CRS)
-
-$$ \mathrm{geospatial} \ \mathrm{data} = \mathrm{data} + \mathrm{coords} + \mathrm{CRS} $$
-
-Using explicit and standard CRS allows to:
-
-- Translate locations on the earth to planar coordinates.
+- CRS translate locations on the earth to planar coordinates and viceversa.
 - Compare, overlay and combine spatial data using the same CRS
 - Transform coordinates between alternative CRS
 
+---
+
+## Geospatial analysis
+
+Different types of geospatial analysis involves operations on *data*, *geometries* and *CRS*.
+
 --
 
-In this workshop we will see examples that:
+Some analysis are very simple such as:
 
-- focus on the **data** and use **coordinates** as an aesthetic in plots
-- modify **CRS** to improve visualisation
-- focus on the **coordinates** to perform spatial operations
-- use **coordinates** to query **data**
-- use **coordinates** to modify the **data**
-- models that use both **data** and **coordinates**
+- focusing on the **data** and using **geometry** as an aesthetic in plots
+- modifying **CRS** to improve visualisation
 
+--
+
+Some analysis require additional steps like:
+
+- using **geometries** to perform spatial operations
+- using **geometries** to query **data**
+- using **geometries** to modify the **data**
+
+--
+
+And at the higher end, some analysis require very specific models that use both **data** and **geometries** as input 
+
+- geostatistics (Krigging) analysis,
+- GLMM with spatial correlation structure,
+- Point pattern analysis, etc
 ---
 
 # Geospatial data types
@@ -153,6 +154,8 @@ The two primary types of (geo-)spatial data are raster and vector data.
 - The extent is the geographical area covered by a raster.
 - The resolution is the area covered by each pixel of a raster.
 
+---
+
 Examples of raster data: aerial photographs, satellite images, precipitation maps, elevation maps, landcover maps, etc.
 
 One common file formats for raster data is the [GeoTIFF](https://en.wikipedia.org/wiki/GeoTIFF) format.
@@ -167,6 +170,7 @@ A raster file can contain data on multiple variables stored as **bands** (each b
 - Vectors are composed of discrete geometric locations that define the shape of the spatial object (points, lines, polygons).
 - A table of attributes links each spatial object (row) with multiple attributes (columns).
 
+---
 
 Examples of vector data: sampling locations or cities, roads or routes, country boundaries.
 
@@ -179,11 +183,65 @@ There are many file formats for vector data: ESRI Shapefiles are very popular, O
 class: inverse, middle, center
 
 
-# Examples of spatial operations and analysis
+# Examples of spatial and geospatial data
 
 ---
 
-## Visualisation
+## A group of biologists looking for frogs
+
+Our team is studying if the activity of a frog species in related to vegetation characteristics in a botanical garden (we will call it [JBM](https://iamvenezuela.com/2017/05/jardin-botanico-de-maracaibo-leandro-aristeguieta/#prettyPhoto) for short). They use a paper map of the garden and write down coordinates of each sampling point where they describe characteristics of the vegetation at these points (leaf litter, tree cover, etc).
+
+
+
+--
+
+Let's have a glimpse at their data
+
+```r
+glimpse(data_jbm)
+## Rows: 74
+## Columns: 8
+## $ Uncertainty   &lt;dbl&gt; 14, 15, 15, 16, 15, 16, 15, 15, 15, 15, 16, 16, 15, 16, …
+## $ code          &lt;chr&gt; "A01", "A02", "A03", "A04", "A05", "A06", "A07", "A08", …
+## $ Substrate     &lt;chr&gt; "2", "2", "2", "2", "2", "2", "4", "2", "2", "2", "2", "…
+## $ Understory    &lt;dbl&gt; 3, 2, 2, 2, 2, 2, 3, 4, 3, 3, 3, 2, 2, 3, 3, 3, 2, 1, 3,…
+## $ `Leaf Litter` &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1,…
+## $ `Tree cover`  &lt;dbl&gt; 4, 4, 4, 4, 1, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,…
+## $ Canopy        &lt;dbl&gt; 2, 3, 1, 4, 2, 3, 4, 3, 2, 3, 2, 2, 4, 2, 2, 3, 3, 3, 3,…
+## $ geom          &lt;POINT&gt; POINT (203655.7 1171530), POINT (203408.8 1171513), PO…
+```
+
+---
+
+The geom with coordinates and  a categorical variable named `Tree.cover`:
+
+
+```r
+
+ggplot(data_jbm) + 
+  geom_sf(aes(size=`Tree cover`, colour=`Tree cover`)) +
+  labs(subtitle="Coordinates in meters", x="x", y="y",
+       size="Tree\ncover\nclass", colour="Tree\ncover\nclass") +
+  scale_x_continuous(labels=function(x) x-203000) +
+    scale_y_continuous(labels=function(x) x-1171000) +
+  guides(color= guide_legend(), size=guide_legend())
+```
+
+![](Intro_files/figure-html/unnamed-chunk-3-1.svg)&lt;!-- --&gt;
+
+---
+
+### Filling gaps: spatial interpolation
+
+
+For example, our team of biologist collected data about leaf litter in several locations
+
+
+
+
+---
+
+## 
 
 Sometimes coordinates are just additional aesthetics variables in our plots.
 
@@ -196,30 +254,15 @@ For example: Consider data about trends in human population size in major cities
 ```r
 data(metro)
 metro
-```
-
-```
 ## Simple feature collection with 436 features and 12 fields
 ## Geometry type: POINT
 ## Dimension:     XY
 ## Bounding box:  xmin: -123.1193 ymin: -37.814 xmax: 174.7667 ymax: 60.16925
-```
-
-```
 ## old-style crs object detected; please recreate object with a recent sf::st_crs()
-```
-
-```
 ## Geodetic CRS:  WGS 84
 ## First 10 features:
-```
-
-```
 ## old-style crs object detected; please recreate object with a recent sf::st_crs()
 ## old-style crs object detected; please recreate object with a recent sf::st_crs()
-```
-
-```
 ##            name             name_long iso_a3 pop1950 pop1960 pop1970 pop1980
 ## 2         Kabul                 Kabul    AFG  170784  285352  471891  977824
 ## 8       Algiers El Djazair  (Algiers)    DZA  516450  871636 1281127 1621442
@@ -264,6 +307,7 @@ For example if we compare the population size in major cities of the world betwe
 
 
 ```r
+
 data(World)
 
 my_map &lt;- tm_shape(World, projection='+proj=robin') + 
@@ -282,19 +326,13 @@ my_map &lt;- tm_shape(World, projection='+proj=robin') +
 
 ```r
 my_map
-```
-
-```
 ## old-style crs object detected; please recreate object with a recent sf::st_crs()
 ## old-style crs object detected; please recreate object with a recent sf::st_crs()
 ## old-style crs object detected; please recreate object with a recent sf::st_crs()
-```
-
-```
 ## Variable(s) "growth" contains positive and negative values, so midpoint is set to 0. Set midpoint = NA to show the full spectrum of the color palette.
 ```
 
-![](Intro_files/figure-html/unnamed-chunk-4-1.png)&lt;!-- --&gt;
+![](Intro_files/figure-html/unnamed-chunk-8-1.png)&lt;!-- --&gt;
 
 
 ---
@@ -311,39 +349,17 @@ Comparing two datasets
 
 ---
 
-### Filling gaps: spatial interpolation
 
-For example, a group of biologists are studying if the activity of a frog species in related to vegetation characteristics in a botanical garden. They use a paper map and write down coordinates of each sampling point where they describe characteristics of the vegetation at these points.
-For example, our team of biologist collected data about leaf litter in several locations
-
----
-
-### Filling gaps: spatial interpolation
-
-
-For example, our team of biologist collected data about leaf litter in several locations
-
-
-
-
-.pull-left[
-If you have a dataset named `pts` with coordinates and  a categorical variable named `Tree.cover`:
-
-![](Intro_files/figure-html/unnamed-chunk-6-1.svg)&lt;!-- --&gt;
-]
-
-.pull-right[
 
 
 ```r
 require(gstat)
-v = variogram(I(Tree.cover &gt; 2)~1,data_utm)
+v = variogram(I(Tree.cover &gt; 2)~1,data_jbm)
 vm = fit.variogram(v, vgm(1, "Exp", 70, .1))
 plot(v,vm)
 ```
 
-![](Intro_files/figure-html/unnamed-chunk-7-1.svg)&lt;!-- --&gt;
-]
+![](Intro_files/figure-html/unnamed-chunk-9-1.svg)&lt;!-- --&gt;
 
 ---
 
@@ -351,10 +367,7 @@ plot(v,vm)
 
 
 ```r
-ik = krige(I(Tree.cover &gt; 2)~1, as_Spatial(data_utm), prd.grd, vm)
-```
-
-```
+ik = krige(I(Tree.cover &gt; 2)~1, as_Spatial(data_jbm), prd.grd, vm)
 ## [using ordinary kriging]
 ```
 .pull-left[
@@ -365,7 +378,7 @@ spplot(ik["var1.pred"],
        sub = "Z = Tree Cover &gt; 2")
 ```
 
-![](Intro_files/figure-html/unnamed-chunk-9-1.png)&lt;!-- --&gt;
+![](Intro_files/figure-html/unnamed-chunk-11-1.png)&lt;!-- --&gt;
 ]
 
 .pull-right[
@@ -376,7 +389,7 @@ spplot(ik["var1.var"],
        sub = "Z = Tree Cover &gt; 2")
 ```
 
-![](Intro_files/figure-html/unnamed-chunk-10-1.png)&lt;!-- --&gt;
+![](Intro_files/figure-html/unnamed-chunk-12-1.png)&lt;!-- --&gt;
 ]
 
 

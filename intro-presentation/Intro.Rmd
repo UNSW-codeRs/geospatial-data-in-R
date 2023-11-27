@@ -3,13 +3,11 @@ title: "What's so special about spatial"
 subtitle: "Geospatial tutorial - intro"
 author: "JR Ferrer-Paris"
 institute: 
-  - "Centre for Ecosystem Science"
-  - "UNSW Data Science Hub"
   - "UNSW codeRs"
-date: "14 Dec 2023 (updated: `r Sys.Date()`)"
+date: "`r Sys.Date()`"
 output:
   xaringan::moon_reader:
-    css: [default, fc, fc-fonts, "css/footer.css"]
+    css: [xaringan-themer.css, "css/footer.css"]
     lib_dir: libs
     nature:
       countdown: 60000
@@ -32,6 +30,22 @@ xaringanExtra::use_logo(
 )
 ```
 
+```{r xaringan-themer, include=FALSE, warning=FALSE}
+library(xaringanthemer)
+## make sure to install showtext also
+myTheme_colors <- 
+c(seasalt="#F7F7F7", skyblue="#73CDEB", sunglow="#FDCA3B", sage="#B6C39B", coyote="#805632")
+style_duo_accent(
+  primary_color = myTheme_colors[5], secondary_color = myTheme_colors[1],
+  header_font_google = google_font("Roboto Slab"),
+  text_font_google   = google_font("Roboto", "300", "300i"),
+  code_font_google   = google_font("Roboto Mono"),
+  colors = myTheme_colors
+)
+
+knitr::opts_chunk$set(fig.showtext=TRUE,collapse=TRUE)
+```
+
 ---
 
 class: center,inverse
@@ -46,6 +60,7 @@ class: inverse, center, middle
 
 ```{r setup, include=FALSE}
 options(htmltools.dir.version = FALSE)
+library(fontawesome)
 library(tmap)
 require(sp)
 library(sf)
@@ -56,54 +71,62 @@ require(dplyr)
 require(magrittr)
 require(RColorBrewer)
 require(ggplot2)
+# set theme for ggplot2
+theme_set(theme_xaringan())
 require(leaflet)
-library(fontawesome)
+library(knitr)
 ```
 
 # Spatial or geospatial?
 
 ---
 
+# Spatial or geospatial?
 
-# Spatial data 
+Think of **spatial data** as ordinary data (vectors or matrices) with spatial properties that we will call geometries. 
 
-Basically, spatial data is not much more than ordinary data (vectors or matrices) with spatial properties. 
-
-These are commonly summarised as coordinates representing their location in space (usually 2D or 3D).
-
-$$ \mathrm{spatial} \ \mathrm{data} = \mathrm{data} + \mathrm{coordinates} $$
+$$ \mathrm{spatial} \ \mathrm{data} = \mathrm{data} + \mathrm{geometry} $$
 --
 
-That does not look so hard, right?
+Now let's add a Coordinate Reference System (CRS) and we get **geospatial data**:
 
-![My first map in R!](images/Thesis-map-small.png)
+$$ \mathrm{geospatial} \ \mathrm{data} = \mathrm{data} + \mathrm{geometry} + \mathrm{CRS} $$
+--
 
+There are several benefits to this:
 
----
-
-# Geospatial data
-
-Geospatial data is a special type of spatial data that uses a Coordinate Reference System (CRS)
-
-$$ \mathrm{geospatial} \ \mathrm{data} = \mathrm{data} + \mathrm{coords} + \mathrm{CRS} $$
-
-Using explicit and standard CRS allows to:
-
-- Translate locations on the earth to planar coordinates.
+- CRS translate locations on the earth to planar coordinates and viceversa.
 - Compare, overlay and combine spatial data using the same CRS
 - Transform coordinates between alternative CRS
 
+---
+
+## Geospatial analysis
+
+Different types of geospatial analysis involves operations on *data*, *geometries* and *CRS*.
+
 --
 
-In this workshop we will see examples that:
+Some analysis are very simple such as:
 
-- focus on the **data** and use **coordinates** as an aesthetic in plots
-- modify **CRS** to improve visualisation
-- focus on the **coordinates** to perform spatial operations
-- use **coordinates** to query **data**
-- use **coordinates** to modify the **data**
-- models that use both **data** and **coordinates**
+- focusing on the **data** and using **geometry** as an aesthetic in plots
+- modifying **CRS** to improve visualisation
 
+--
+
+Some analysis require additional steps like:
+
+- using **geometries** to perform spatial operations
+- using **geometries** to query **data**
+- using **geometries** to modify the **data**
+
+--
+
+And at the higher end, some analysis require very specific models that use both **data** and **geometries** as input 
+
+- geostatistics (Krigging) analysis,
+- GLMM with spatial correlation structure,
+- Point pattern analysis, etc
 ---
 
 # Geospatial data types
@@ -121,6 +144,8 @@ The two primary types of (geo-)spatial data are raster and vector data.
 - The extent is the geographical area covered by a raster.
 - The resolution is the area covered by each pixel of a raster.
 
+---
+
 Examples of raster data: aerial photographs, satellite images, precipitation maps, elevation maps, landcover maps, etc.
 
 One common file formats for raster data is the [GeoTIFF](https://en.wikipedia.org/wiki/GeoTIFF) format.
@@ -135,6 +160,7 @@ A raster file can contain data on multiple variables stored as **bands** (each b
 - Vectors are composed of discrete geometric locations that define the shape of the spatial object (points, lines, polygons).
 - A table of attributes links each spatial object (row) with multiple attributes (columns).
 
+---
 
 Examples of vector data: sampling locations or cities, roads or routes, country boundaries.
 
@@ -147,11 +173,80 @@ There are many file formats for vector data: ESRI Shapefiles are very popular, O
 class: inverse, middle, center
 
 
-# Examples of spatial operations and analysis
+# Examples of spatial and geospatial data
 
 ---
 
-## Visualisation
+## Biologists looking for frogs
+
+Our team is studying if the activity of a frog species in related to vegetation characteristics in a botanical garden (we will call it [JBM](https://iamvenezuela.com/2017/05/jardin-botanico-de-maracaibo-leandro-aristeguieta/#prettyPhoto) for short). They use a paper map of the garden and write down coordinates of each sampling point where they describe characteristics of the vegetation at these points (leaf litter, tree cover, etc).
+
+```{r,eval=TRUE,echo=FALSE,message=FALSE}
+here::i_am("intro-presentation/Intro.Rmd")
+
+dts <- read_sf(here::here("data","JBM-points.gpkg"))
+data_jbm <- dts #%>% mutate(TCC=factor(`Tree cover`))
+st_crs(data_jbm) <- NA
+
+```
+
+--
+
+Let's have a glimpse at their data
+```{r}
+glimpse(data_jbm)
+```
+
+---
+
+Here the *geometry* attribute is represented as points with two coordinates, and we can use these coordinates as aesthetics in a plot and represent other categorical variable with size and colour aesthetics.
+
+```{r, dev='svg', message=F, echo=FALSE}
+
+ggplot(data_jbm) + 
+  geom_sf(aes(size=`Tree cover`, colour=`Tree cover`)) +
+  labs(subtitle="Coordinates in meters", x="x", y="y",
+       size="Tree\ncover\nclass", colour="Tree\ncover\nclass") +
+  scale_x_continuous(labels=function(x) x-203000) +
+    scale_y_continuous(labels=function(x) x-1171000) +
+  guides(color= guide_legend(), size=guide_legend())
+
+
+```
+
+
+---
+
+### Filling gaps: spatial interpolation
+
+
+For example, our team of biologist collected data about leaf litter in several locations
+
+
+
+```{r,eval=TRUE,echo=FALSE,message=FALSE}
+here::i_am("intro-presentation/Intro.Rmd")
+
+boundary_jbm <- read_sf(here::here("data","JBM.gpkg")) %>% 
+  filter(id %in% c(7,8,11))
+data_jbm <- read_sf(here::here("data","JBM-points.gpkg"))
+
+rnull <- raster(extent(boundary_jbm),
+                nrows=18, ncols=24,
+                crs=st_crs(boundary_jbm)$proj4string)
+mask <- distanceFromPoints(rnull,data_jbm)<50
+
+ss <- values(mask)==1
+
+prd.grd <- SpatialPixelsDataFrame(
+  points=xyFromCell(mask,1:ncell(mask))[ss,],
+  data=data.frame(values(mask)[ss]),
+  proj4string=CRS(st_crs(boundary_jbm)$proj4string))
+
+```
+---
+
+## 
 
 Sometimes coordinates are just additional aesthetics variables in our plots.
 
@@ -219,75 +314,21 @@ Comparing two datasets
 
 ---
 
-### Filling gaps: spatial interpolation
 
-For example, a group of biologists are studying if the activity of a frog species in related to vegetation characteristics in a botanical garden. They use a paper map and write down coordinates of each sampling point where they describe characteristics of the vegetation at these points.
-For example, our team of biologist collected data about leaf litter in several locations
-
----
-
-### Filling gaps: spatial interpolation
-
-
-For example, our team of biologist collected data about leaf litter in several locations
-
-
-```{r,eval=TRUE,echo=FALSE,message=FALSE}
-here::i_am("intro-presentation/Intro.Rmd")
-
-boundary_utm <- read_sf(here::here("data","JBM.gpkg")) %>% 
-  filter(id %in% c(7,8,11))
-data_utm <- read_sf(here::here("data","JBM-points.gpkg"))
-
-rnull <- raster(extent(boundary_utm),
-                nrows=18, ncols=24,
-                crs=st_crs(boundary_utm)$proj4string)
-mask <- distanceFromPoints(rnull,data_utm)<50
-
-ss <- values(mask)==1
-
-prd.grd <- SpatialPixelsDataFrame(
-  points=xyFromCell(mask,1:ncell(mask))[ss,],
-  data=data.frame(values(mask)[ss]),
-  proj4string=CRS(st_crs(boundary_utm)$proj4string))
-
-```
-
-.pull-left[
-If you have a dataset named `pts` with coordinates and  a categorical variable named `Tree.cover`:
-
-```{r,fig.height=4, fig.width=4,dev='svg',message=F,echo=FALSE}
-
-dts <- data_utm #%>% mutate(TCC=factor(`Tree cover`))
-st_crs(dts) <- NA
-
-
-ggplot(dts) + 
-  geom_sf(aes(size=`Tree cover`, colour=`Tree cover`)) +
-  labs(subtitle="Coordinates in meters", x="x", y="y",
-       size="Tree\ncover\nclass", colour="Tree\ncover\nclass") +
-  guides(color= guide_legend(), size=guide_legend())
-
-
-```
-]
-
-.pull-right[
 
 ```{r, fig.height=4, fig.width=4,dev='svg',message=F}
 require(gstat)
-v = variogram(I(Tree.cover > 2)~1,data_utm)
+v = variogram(I(Tree.cover > 2)~1,data_jbm)
 vm = fit.variogram(v, vgm(1, "Exp", 70, .1))
 plot(v,vm)
 ```
-]
 
 ---
 
 # Spatial analysis in **R**
 
 ```{r,message=FALSE}
-ik = krige(I(Tree.cover > 2)~1, as_Spatial(data_utm), prd.grd, vm)
+ik = krige(I(Tree.cover > 2)~1, as_Spatial(data_jbm), prd.grd, vm)
 
 
 ```
