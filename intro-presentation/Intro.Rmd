@@ -1,5 +1,5 @@
 ---
-title: "What's so special about spatial"
+title: "What's so special about (geo)spatial"
 subtitle: "Geospatial tutorial - intro"
 author: "JR Ferrer-Paris"
 institute: 
@@ -23,11 +23,13 @@ layout: true
 
 <!-- this adds the link footer to all slides, depends on my-footer class in css-->
 
-```{r xaringan-logo, echo=FALSE}
+```{r xaringan-extras, echo=FALSE, message=FALSE}
+here::i_am("intro-presentation/Intro.Rmd")
 xaringanExtra::use_logo(
-  image_url = "https://unsw-coders.netlify.app/home/welcome_files/logo.png",
+  image_url = here::here("images","codeRs-logo.png"),
   position = xaringanExtra::css_position(top = "1em", right = "1em")
 )
+xaringanExtra::use_panelset()
 ```
 
 ```{r xaringan-themer, include=FALSE, warning=FALSE}
@@ -60,13 +62,9 @@ knitr::opts_hooks$set(fig.callout = function(options) {
 ---
 
 class: center,inverse
-background-image: url("images/Heal-Country-NAIDOC-2021.png")
+background-image: url("`r here::here("images", "Heal-Country-NAIDOC-2021.png")`")
 background-position: center
 background-size: contain
-
----
-
-class: inverse, center, middle
 
 
 ```{r setup, include=FALSE}
@@ -88,10 +86,86 @@ require(leaflet)
 library(knitr)
 ```
 
-# Spatial or geospatial?
+```{r, echo=FALSE}
+data(World)
+```
 
 ---
 
+class: inverse, center, middle
+
+
+# Spatial or geospatial?
+---
+
+# Spatial data
+
+Think of **spatial data** as ordinary data (vectors or matrices) with spatial properties that we will call geometries. 
+
+$$ \mathrm{spatial} \ \mathrm{data} = \mathrm{data} + \mathrm{geometry} $$
+--
+The **geometry** part can be interpreted in different ways:
+- as a regular grid with a known origin, extent and cell size
+- as discrete geometric locations that define the shape of the spatial object: points, lines, polygons.
+
+We call these two main types **rasters** and **vectors**, respectively.
+
+---
+
+## Rasters
+
+.center[
+```{r, echo = FALSE, out.width="60%"}
+include_graphics(here::here("images","raster_concept.png"))
+```
+
+Source: National Ecological Observatory Network (NEON)
+]
+
+---
+
+## Vectors
+
+.center[
+```{r, echo = FALSE, out.width="60%"}
+include_graphics(here::here("images","pnt_line_poly.png"))
+```
+
+Source: National Ecological Observatory Network (NEON)
+]
+
+---
+
+
+## Rasters vs. vectors
+
+
+.pull-left[
+**Rasters**
+
+- Grid defined by extent and resolution.
+- Each pixel/cell is associated with a specific location.
+- Multiple variables are stored as **bands**.
+- Examples: 
+  aerial photographs, satellite images, precipitation maps, elevation maps, landcover maps, etc.
+- One common file formats for raster data is the [GeoTIFF](https://en.wikipedia.org/wiki/GeoTIFF) format.
+
+]
+
+.pull-right[
+**Vectors**
+
+- Multiple geometries representing points, lines or polygons 
+- Table of attributes links each spatial object (row) with multiple attributes (columns).
+- Examples of vector data: 
+  sampling locations, cities, roads or routes, country boundaries.
+- Many file formats: 
+  - ESRI Shapefiles are very popular, 
+  - OGC GeoPackage (GPKG) is an open and standards-based format, 
+  - GeoJSON is used in many web applications
+
+]
+---
 # Spatial or geospatial?
 
 Think of **spatial data** as ordinary data (vectors or matrices) with spatial properties that we will call geometries. 
@@ -112,136 +186,336 @@ There are several benefits to this:
 
 ---
 
-## Geospatial analysis
+## Why do we need a CRS?
 
-Different types of geospatial analysis involves operations on *data*, *geometries* and *CRS*.
+The earth is not flat, it is *almost* a perfect sphere...
 
---
-
-Some analysis are very simple such as:
-
-- focusing on the **data** and using **geometry** as an aesthetic in plots
-- modifying **CRS** to improve visualisation
-
---
-
-Some analysis require additional steps like:
-
-- using **geometries** to perform spatial operations
-- using **geometries** to query **data**
-- using **geometries** to modify the **data**
-
---
-
-And at the higher end, some analysis require very specific models that use both **data** and **geometries** as input 
-
-- geostatistics (Krigging) analysis,
-- GLMM with spatial correlation structure,
-- Point pattern analysis, etc
----
-
-# Geospatial data types
-
-The two primary types of (geo-)spatial data are raster and vector data. 
-
-**Raster data** is stored as a grid of values which are rendered on a map as pixels or cells. Each pixel value represents an area on the Earth’s surface with. **Vector data** structures represent specific features on the Earth’s surface, and assign attributes to those features.
+![Animation of a rotating geoid](https://www.asu.cas.cz/~bezdek/vyzkum/rotating_3d_globe/figures/rotating_3d_globe_Geoid_height_EGM2008_nmax500_px0650_angle360_fps1_clrmap_byr1.gif)
 
 ---
 
-## Rasters 
+## Same data, different projections 
 
-- Raster data is pixelated data where each pixel is associated with a specific location.
-- Raster data always has an extent and a resolution.
-- The extent is the geographical area covered by a raster.
-- The resolution is the area covered by each pixel of a raster.
+In order to represent the earth as a 2D map you need to apply some mathematical conversions known as [projections](https://proj.org/en/6.0/operations/projections/index.html).
 
----
+.panelset[
 
-Examples of raster data: aerial photographs, satellite images, precipitation maps, elevation maps, landcover maps, etc.
+.panel[.panel-name[Plate Carrée]
+```{r, fig.height=4, fig.width=6}
+tm_shape(World) + 
+  tm_polygons()
+```
+]
 
-One common file formats for raster data is the [GeoTIFF](https://en.wikipedia.org/wiki/GeoTIFF) format.
+.panel[.panel-name[Robinson]
+```{r, fig.height=4, fig.width=6}
+tm_shape(World, projection='+proj=robin') + 
+  tm_polygons()
+```
+]
 
-A raster file can contain data on multiple variables stored as **bands** (each band represents one variable) that share the same spatial properties (extent, resolution, etc).
+.panel[.panel-name[Adams World in a Square I]
+```{r, fig.height=4, fig.width=6}
+tm_shape(World, projection='+proj=adams_ws1') + 
+  tm_polygons()
+```
+]
 
----
-
-## Vectors
-
-- Vector data structures represent specific features on the Earth’s surface, and assign attributes to those features.
-- Vectors are composed of discrete geometric locations that define the shape of the spatial object (points, lines, polygons).
-- A table of attributes links each spatial object (row) with multiple attributes (columns).
-
----
-
-Examples of vector data: sampling locations or cities, roads or routes, country boundaries.
-
-There are many file formats for vector data: ESRI Shapefiles are very popular, OGC GeoPackage (GPKG) is an open and standards-based format, GeoJSON is used in many web applications.
-
-
-
-
----
-class: inverse, middle, center
-
-
-# Examples of spatial and geospatial data
+.panel[.panel-name[Mercator]
+```{r, fig.height=4, fig.width=6}
+tm_shape(World, projection='+proj=merc') + 
+  tm_polygons()
+```
+]
+] 
 
 ---
 layout: true
 
-## Biologists looking for frogs
+## Geospatial data in R
+
+---
+
+There is a large group dedicated to developing spatial capabilities in R:
+
+[CRAN Task View: Analysis of Spatial Data](https://cran.r-project.org/web/views/Spatial.html) 
+
+Many of the packages for handling and analysing spatial data use *shared classes*. 
+
+Two informal organisations curate websites: 
+
+- [r-spatial](https://github.com/r-spatial) is more generally geo-informatics based, worked on vector packages `sp`, `sf` and `stars`
+
+- [rspatial](https://github.com/rspatial) has grown from the `raster` package, now moving towards the modern `terra` package. 
+
+---
+
+.pull-left[
+**Rasters**
+
+- some classes in package `sp` (up until 2016) 
+- package `raster` has been used extensively for many years
+- `terra` is a modern re-implementation of `raster` functionality
+- `stars` provides functions for spatiotemporal data in the form of dense arrays
+]
+
+.pull-right[
+**Vectors**
+
+- Up until 2016 package `sp` package provided shared classes for spatial vector and raster data.
+- `sf` provides Modern and efficient international standards for spatial vector data are implemented
+]
+
+---
+
+Visualisation of geospatial data is very important, and there are many options in R.
+
+- `ggplot2` includes some functions for handling spatial data as we usually use other kinds of data
+- `leaflet` uses the external JavaScript library `leaflet.js` for interactive visualisation
+- `tmap` is used for creating thematic maps that can be static (like a plot) or interactive (based on `leaflet` functions)
+- `mapview` is a very intuitive solution for quick and useful interactive maps, also based on leaflet` functions
+
+---
+
+Later, we will explore vector data in R with:
+
+- [Tutorial 1: create a spatial object](https://yessl3-unswcoders.shinyapps.io/tutorial-1-create-spatial-object/)
+
+
+- [Tutorial 2: points, lines and polygons](https://yessl3-unswcoders.shinyapps.io/tutorial-2-points-lines-polygons/)
+
+---
+layout: false
+class: inverse, center, middle
+
+# Geospatial analysis
+
+---
+layout: true
+
+## Geospatial analysis
+
+---
+
+Different types of geospatial analysis involve operations on *data*, *geometries* and *CRS*.
+
+--
+
+Some analysis focus on **visualisation**:
+
+- **data** and **geometry** used as aesthetic elements in plots
+- interactive navigation (like your favorite map app!)
+
+--
+
+Some analysis perform **spatial operations**:
+
+- using **geometries** to calculate distances or areas
+- using **geometries** to query **data**
+
+--
+
+Finally, **spatial modelling** and **spatial prediction** use the **data** and **geometries** to explore processes and relationships. Some examples include:
+
+- geostatistics ([Kriging](https://en.wikipedia.org/wiki/Kriging)) analysis
+- GLMM with spatial correlation structure
+- Point pattern analysis
+
+---
+
+### Some examples of geospatial analysis
+
+I will show a couple of examples, each with several steps.
+
+I will ask some questions at the end of each slide.
+
+I would like to hear or read your responses before moving to the following step/slide.
+
+
+---
+layout: true
+
+## Population in major cities
+
+---
+
+Consider data about trends in human population size in major cities of the world. We have spatial data of metropolitan areas. It includes a population times series from 1950 to (forecasted) 2030. All metro areas with over 1 million inhabitants in 2010 are included.
+
+
+.panelset[
+
+.panel[.panel-name[Let's have a glimpse at this dataset]
+.small-code[
+```{r}
+data(metro)
+glimpse(metro)
+```
+]
+]
+
+.panel[.panel-name[Questions]
+What kind of data is this:  
+
+- Spatial or GeoSpatial? 
+- Raster or Vector?
+ 
+What is the extent and resolution of the data?
+]
+]
+
+---
+
+For each city we have several measures or estimates of population size for each decade. Let's calculate the growth between 2010 and 2020 and select the city with the largest growth
+
+
+.panelset[
+
+.panel[.panel-name[Code]
+.small-code[
+```{r}
+metro <- 
+  metro %>% 
+  mutate(growth = (pop2020 - pop2010)/(pop2010 * 10) * 100)
+
+metro %>% arrange(desc(growth)) %>% slice(1)
+```
+]
+]
+.panel[.panel-name[Questions]
+
+What kind of geospatial analysis is this?
+
+> (Visualisation, spatial operations, modelling, something else?)
+
+How did we use the *geometry* component?
+
+]
+]
+---
+
+We can visualise the data by combining the `metro` dataset with another dataset of the countries of the world, and use functions in the package `tmap` to create a beautiful thematic map.
+
+.panelset[
+
+.panel[.panel-name[Code]
+```{r cities, eval=FALSE,message=FALSE}
+tm_shape(World, projection='+proj=robin') + 
+  tm_polygons() +
+  tm_text("iso_a3", size = "AREA", col = "gray30", root = 3) +
+  tm_shape(metro) + 
+  tm_bubbles("pop2010", col = "growth",
+    border.col = "black", border.alpha = 0.5,
+    breaks = c(-Inf, 0, 2, 4, 6, Inf), palette = "-RdYlGn",
+    title.size = "Metro population (2010)",
+    title.col = "Annual growth rate (%)", id = "name",
+    popup.vars = c("pop2010", "pop2020", "growth")) 
+```
+]
+.panel[.panel-name[Plot]
+.center[
+```{r cities-out, ref.label="cities", echo=FALSE, message=FALSE, warning=FALSE, fig.width=9, fig.height=5}
+```
+]
+]
+.panel[.panel-name[Questions]
+
+What kind of geospatial analysis is this?
+
+> (Visualisation, spatial operations, modelling, something else?)
+
+Are we using all components of the geospatial data?
+
+- Where did we use the *data* ?
+- Where did we use the *geometry* ?
+- Where did we use the *CRS* ?
+
+What do the size and colour of the bubbles indicate?
+]
+]
+
+
+---
+
+You can work through these steps in more detail in the following tutorial.
+
+---
+layout: true
+
+## Biologists in a botanical garden
 
 ---
 
 Our team is studying if the activity of a frog species in related to vegetation characteristics in a botanical garden (we will call it [JBM](https://iamvenezuela.com/2017/05/jardin-botanico-de-maracaibo-leandro-aristeguieta/#prettyPhoto) for short). They use a paper map of the garden and write down coordinates of each sampling point where they describe characteristics of the vegetation at these points (leaf litter, tree cover, etc).
 
 ```{r,eval=TRUE,echo=FALSE,message=FALSE}
-here::i_am("intro-presentation/Intro.Rmd")
-
 dts <- read_sf(here::here("data","JBM-points.gpkg"))
 data_jbm <- dts #%>% mutate(TCC=factor(`Tree cover`))
 st_crs(data_jbm) <- NA
-
+st_geometry(data_jbm) <- st_geometry(data_jbm) - c(203000,1171000)
 ```
 
---
+.panelset[
 
-Let's have a glimpse at their data
+.panel[.panel-name[Let's have a glimpse at their data]
+
 ```{r}
 glimpse(data_jbm)
 ```
+]
 
+.panel[.panel-name[Questions]
+ What kind of data is this:  
+
+- Spatial or GeoSpatial? 
+- Raster or Vector?
+]
+]
 ---
 
-Here the *geometry* attribute is represented as points with two coordinates, and we can use these coordinates as aesthetics in a plot and represent other categorical variable with size and colour aesthetics.
+Correct! This is a spatial object in vector format with point geometries. The data is in special class of R object called `sf` or `simple feature` class, and we can use this code to plot the data.
 
+.panelset[
 
+.panel[.panel-name[Code]
 
-.small-code[
 ```{r jbm-plot, message=F, eval=FALSE}
 ggplot(data_jbm) + 
-  geom_sf(aes(size=`Tree cover`, colour=`Tree cover`)) +
+  geom_sf(aes(geometry = geom,
+              size=`Tree cover`, 
+              colour=`Tree cover`)) +
   labs(subtitle="Coordinates in meters", x="x", y="y",
        size="Tree\ncover\nclass", colour="Tree\ncover\nclass") +
-  scale_x_continuous(labels=function(x) x-203000) +
-    scale_y_continuous(labels=function(x) x-1171000) +
   guides(color= guide_legend(), size=guide_legend())
 ```
 ]
 
-.plot-callout[
-```{r jbm-plot-callout, ref.label="jbm-plot", fig.callout=TRUE}
+.panel[.panel-name[Plot]
+.center[
+```{r large-plot-full-output, ref.label="jbm-plot", echo=FALSE, fig.width=6.7, fig.height=5.5}
 ```
+]
+
+]
+
+.panel[.panel-name[Questions]
+
+What kind of geospatial analysis is this?
+
+| (Visualisation, spatial operations, modelling, something else?)
+
+What is the extent and resolution of this example?
+
+The plot aesthetics include the x and y axis, size and colour, but:
+
+- Which ones represent the *data*?
+- Which ones represent the *geometry* component?
+
+]
 ]
 
 ---
 
-```{r large-plot-full-output, ref.label="jbm-plot", echo=FALSE}
-```
-
----
-
-**Spatial autocorrelation** is a measure of how similar are observations that are close together. We use a **semivariogram** to represent this.
+**Spatial autocorrelation** is a measure of how similar are observations that are close together. Here we use a **semivariogram** to describe this autocorrelation. We use functions from the `gstats` package.
 
 
 ```{r,eval=TRUE,echo=FALSE,message=FALSE}
@@ -265,141 +539,113 @@ prd.grd <- SpatialPixelsDataFrame(
 
 ```
 
-.pull-left[
-.small-code[
+.panelset[
+
+.panel[.panel-name[Code]
 ```{r variogram, eval=FALSE,message=FALSE}
 library(gstat)
 
-v <- variogram(
-  I(Tree.cover > 2)~1,
-  data_jbm)
+empirical_variogram <- variogram(I(Tree.cover > 2)~1, data_jbm)
 
-vm <- fit.variogram(
-  v,
-  vgm(1, "Exp", 70, .1))
+variogram_model <- fit.variogram(empirical_variogram, 
+                                 vgm(1, "Exp", 70, .1))
 
-plot(v,vm)
+plot(empirical_variogram, variogram_model)
 ```
 ]
-]
+.panel[.panel-name[Plot]
 
-.pull-right[
-```{r variogram-out, ref.label="variogram", echo=FALSE, fig.dim=c(4.8, 4.5), out.width="100%"}
+```{r variogram-out, ref.label="variogram", echo=FALSE, fig.width=6, fig.height=5}
 ```
 ]
+.panel[.panel-name[Questions]
 
+What kind of geospatial analysis is this?
+
+> (Visualisation, spatial operations, modelling, something else?)
+
+The variables in this plot were derived from the spatial data:
+
+- Where did we use the *data* ?
+- Where did we use the *geometry* component?
+
+]
+]
 ---
 
-## 
+In Geostatistics the term **Kriging** is used for a family of models that minimise the spatial error and can be used for spatial interpolation and prediction. Here we use **Indicator kriging** to interpolate the probability of $\mathrm{Tree\ cover} > 2$ from out measurement points into a regular grid.
+.panelset[
 
-Sometimes coordinates are just additional aesthetics variables in our plots.
-
---
-
-For example: Consider data about trends in human population size in major cities of the world. 
-
-
-```{r}
-data(metro)
-metro
-```
-
----
-
-We use geographic coordinates (latitude and longitude) to locate each city in the map of the world, and for each city we have several estimates of population size for each decade.
-
-```{r}
-metro <- metro %>% mutate(growth = (pop2020 - pop2010)/(pop2010 * 10) * 100)
-```
-
-
-For example if we compare the population size in major cities of the world between 2010 and 2020, we can calculate population growth and use the coordinates to show where are the cities with largest growth.
-
----
-
-### Visualisation
-
-For example if we compare the population size in major cities of the world between 2010 and 2020, we can calculate population growth and use the coordinates to show where are the cities with largest growth.
-
-```{r}
-
-data(World)
-
-my_map <- tm_shape(World, projection='+proj=robin') + 
-  tm_polygons() +
-  tm_text("iso_a3", size = "AREA", col = "gray30", root = 3) +
-  tm_shape(metro) + tm_bubbles("pop2010", col = "growth",
-  border.col = "black", border.alpha = 0.5,
-  breaks = c(-Inf, 0, 2, 4, 6, Inf), palette = "-RdYlGn",
-  title.size = "Metro population (2010)",
-  title.col = "Annual growth rate (%)", id = "name",
-  popup.vars = c("pop2010", "pop2020", "growth")) 
-
-```
-
----
-
-```{r}
-my_map
-```
-
-
----
-
-### Spatial operations
-
-Calculating distances between datasets
-
----
-
-### Spatial queries
-
-Comparing two datasets
-
----
-
-
-
----
-
-# Spatial analysis in **R**
-
+.panel[.panel-name[Fit the model]
 ```{r,message=FALSE}
-ik = krige(I(Tree.cover > 2)~1, as_Spatial(data_jbm), prd.grd, vm)
-
-
+ik = krige(I(Tree.cover > 2)~1, # our target variable
+           as_Spatial(data_jbm), # our spatial data
+           prd.grd, # the regular grid for prediction 
+           variogram_model) # the spatial autocorrelation
 ```
+
+]
+.panel[.panel-name[Prediction]
 .pull-left[
-```{r,fig.height=4,fig.width=4,dev='png',message=FALSE}
+.small-code[
+```{r,fig.height=4,fig.height=4,message=FALSE}
 spplot(ik["var1.pred"],
-       main = "ordinary kriging predictions",
+       main = "indicator kriging predictions",
        sub = "Z = Tree Cover > 2")
 ```
 ]
-
+]
 .pull-right[
-```{r,fig.height=4,fig.width=4,dev='png',message=FALSE}
+.small-code[
+```{r,fig.height=4,fig.height=4,message=FALSE}
 spplot(ik["var1.var"],
-       main = "ordinary kriging variance",
+       main = "indicator kriging variance",
        sub = "Z = Tree Cover > 2")
 ```
 ]
+]
+]
+.panel[.panel-name[Questions]
 
+What kind of geospatial analysis is this?
 
+What kind of geospatial data was produced in the prediction?
+
+]
+]
+---
+
+You can work through the full example of the analysis in the tutorial 
 
 
 ---
+layout:false
 class: inverse, middle, center
 
-# Let's try some packages with these tutorials
+# Hand's on tutorials
 
-[UNSW codeRs @ GitHub](https://github.com/UNSW-codeRs) / [geospatial-data-in-R](https://github.com/UNSW-codeRs/geospatial-data-in-R)
+For this workshop I have prepared several tutorials. 
 
+You can work through each one of them at your own pace.
 
-[Tutorial 1: create a spatial object](https://yessl3-unswcoders.shinyapps.io/tutorial-1-create-spatial-object/)
+Tutorial | Title | Packages | Links |
+------------------------------------
+Tutorial 1 | Create a spatial object |
+`sf`, `mapview` |
+[UNSW-codeRs](https://yessl3-unswcoders.shinyapps.io/tutorial-1-create-spatial-object/) |
 
+Tutorial 2 | Points, lines and polygons |
+`sf`, `mapview` |
+[UNSW-codeRs](https://yessl3-unswcoders.shinyapps.io/tutorial-2-points-lines-polygons/) |
 
-[Tutorial 2: points, lines and polygons](https://yessl3-unswcoders.shinyapps.io/tutorial-2-points-lines-polygons/)
+Tutorial 3 | Thematic mapping |
+`sf`, `tmap` |
+[UNSW-codeRs](https://yessl3-unswcoders.shinyapps.io/tutorial-2-points-lines-polygons/) |
+
+Tutorial 4 | Geostatistic analysis |
+`sf`, `sp`, `raster`, `gstat` |
+[UNSW-codeRs](https://yessl3-unswcoders.shinyapps.io/tutorial-2-points-lines-polygons/) |
+
 ---
 
 
@@ -416,4 +662,43 @@ class: center, middle
 /
 [`r fa(name = "paper-plane")` j.ferrer@unsw.edu.au](mailto:j.ferrer@unsw.edu.au)
 
+]
+
+---
+
+This presentation was prepared by José R. Ferrer-Paris 
+
+[Attribution 4.0 Internacional (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/)
+
+.panelset[
+
+.panel[.panel-name[Links]
+Presentation available at:
+
+[rpubs.com/jrfep/firevegdb-ESA2023](https://rpubs.com/jrfep/firevegdb-ESA2023)
+
+Powered by [RStudio](https://posit.co/products/open-source/rstudio/), [Rmarkdown](), and [xaringan](). 
+
+Source code available at:
+
+[bitbucket.org/fireveg/...](https://bitbucket.org/fireveg/fireveg-presentations/)
+
+UNSW codeRs: [Fire Ecology Traits for Plants: A database for fire research and management](https://osf.io/hu96w/), component: [Data coverage of Fire Ecology Traits for Plants database](https://osf.io/h96q2/) 
+]
+
+[UNSW codeRs @ GitHub](https://github.com/UNSW-codeRs) / [geospatial-data-in-R](https://github.com/UNSW-codeRs/geospatial-data-in-R)
+
+.panel[.panel-name[Images]
+
+Photos by José R. Ferrer-Paris, shared under: [Attribution 4.0 Internacional (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/)
+
+]
+
+.panel[.panel-name[*R* session]
+.small-code[
+```{r}
+sessionInfo()
+```
+]
+]
 ]

@@ -66,4 +66,8 @@ https://community.rstudio.com/t/using-multiple-font-sizes-for-code-chunks/26405/
 
 https://github.com/yihui/xaringan/issues/69
 
+Panel set:https://pkg.garrickadenbuie.com/xaringanExtra/panelset/#8projectio
 
+http://zevross.com/blog/2017/06/19/tips-and-tricks-for-working-with-images-and-figures-in-r-markdown-documents/#more-functionality-from-include_graphics
+
+https://r-spatial.github.io/sf/articles/sf3.html
