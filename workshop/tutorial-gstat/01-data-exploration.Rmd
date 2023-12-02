@@ -1,0 +1,117 @@
+---
+title: "Geospatial tutorial - section 1"
+author: "JR Ferrer-Paris"
+---
+## Understanding the data
+
+Our team is studying if the activity of a frog species in related to vegetation characteristics in a botanical garden (we will call it [JBM](https://iamvenezuela.com/2017/05/jardin-botanico-de-maracaibo-leandro-aristeguieta/#prettyPhoto) for short). They use a paper map of the garden and write down coordinates of each sampling point where they describe characteristics of the vegetation at these points (leaf litter, tree cover, etc).
+
+One particular frog is almost always present when tree cover is high and always absent when it is low. Using the sample of tree cover values they want to create a map of probability of finding the frog [@ferrer-paris_JBM_acustico_2015].
+
+### Reading the data
+
+We will read one version of the data with simple spatial data. 
+
+```{r, eval=TRUE}
+data_jbm <- read_sf(here::here(data_folder, "JBM-points-no-crs.gpkg"))
+```
+
+The spatial coordinates are relative to an arbitrary point within the botanical garden, and the Coordinate Reference System is undefined with meter units.
+
+```{r, eval=TRUE}
+st_crs(data_jbm)
+```
+
+This undefined CRS can be a problem with some functions, so we will need to set the CRS information to NA so that it can be ignored by those functions:
+
+```{r}
+st_crs(data_jbm) = NA
+```
+
+### Data and geometries
+
+The data has several columns with ordinal variables coded as numeric (from 0 to 4), and then one special column for the spatial geometry.
+
+```{r glimpsedata, exercise=TRUE}
+print(data_jbm)
+```
+
+### Tree cover
+
+We will focus on one variable `Tree cover` and we want to see how are the low and high values distributed in the area of study.
+
+Let's first look at the distribution of values
+
+```{r xtractcover, exercise=TRUE}
+table(data_jbm$`Tree cover`)
+```
+
+### Spatial properties
+
+The spatial information is also important for this analysis. In order to understand the data better we want to explore its spatial properties. What is the spatial extent? what is the distance between sampling points?
+
+We will look first at the extent. We can get the bounding box of the simple feature object using `st_bbox`:
+
+```{r bbox}
+st_bbox(data_jbm)
+```
+
+To get the area, we can compare the values of xmin and xmax and the values of ymin and ymax. All points are included in a rectangle of roughly 500 m by 400m (200000 $m^2$). We can alternatively transform the bounding box into an spatial object and use `st_area` to get a more precise estimate of area.
+
+Try this, and compare the result.
+```{r xtent, exercise=TRUE}
+data_jbm_bbox <- st_as_sfc(st_bbox(data_jbm))
+st_area(data_jbm_bbox)
+```
+The output lacks units because we removed the CRS before this calculation, but we know the coordinates are in meters.
+
+To get a sense of how are the points spaced from one another, we can calculate a distance matrix:
+
+```{r distance_matrix}
+distance_matrix <- st_distance(data_jbm)
+str(distance_matrix)
+```
+
+From this distance matrix we want to look at nearest neighbours distance (how far is the nearest point?). We can use `apply` to calculate a function (`FUN`) to each row (`MARGIN=1`), for example:
+
+```{r min_dist_error}
+min_distances <- apply(distance_matrix, MARGIN = 1, FUN = min)
+summary(min_distances)
+```
+
+
+What is wrong with this? The distance matrix includes distance between each point and all other points including itself. Thus all distance matrices have a diagonal of zero values. How can we modify the function to ignore the zero values and return the second lowest value of distances? What is the minimum distance between points?, what is the maximum?
+
+```{r distance, exercise=TRUE}
+min_distances <- apply(distance_matrix, MARGIN = 1, FUN = ____)
+summary(min_distances)
+```
+
+
+```{r distance-solution, exercise.reveal_solution = TRUE}
+min_distances <- apply(distance_matrix, MARGIN = 1, FUN = function(x) min(x[x>0]))
+summary(min_distances)
+```
+
+<div id="distance-hint">
+**Hint:** You can define your own function `function(x) {...}`. You can calculate the minimum of non-zero values with `min(x[x>0])`. Alternatively you could replace the diagonal of the distance matrix with NAs and use min(x, rm.na=TRUE). 
+</div>
+
+
+```{r distance-check}
+"If you used the custom function `function(x) min(x[x>0])` you now know that the minimum distances are between 2 and 83 meters, with mean value of 25m."
+```
+
+For spatial interpolation the distance between all pairs of points is important. A well sampled area will have a wide spread of distance between the minimum (0 meters) and the extent of the bounding box (400 to 500m). So let's do this!
+
+
+We want to remove duplicates and the diagonal of zero values, so we focus on the lower triangle of the matrix and calculate a summary or plot the histogram of distances. Uncomment the lines run the code to see the summary and/or the histogram:
+
+```{r matrix, exercise=TRUE}
+distance_matrix <- st_distance(data_jbm)
+distances <- distance_matrix[lower.tri(distance_matrix)]
+# summary(distances)
+# hist(distances, breaks = seq(0, 600, by = 20))
+```
+
+How many pairs of points are there with distances below 100m?, how many have distances above 300?

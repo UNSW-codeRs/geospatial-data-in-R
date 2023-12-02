@@ -1,8 +1,8 @@
 ---
-title: "Geo-spatial tutorial: basic concepts"
+title: "Geo-spatial tutorial: Overview of packages"
 author: "JR Ferrer-Paris"
 institute: "Centre for Ecosystem Science<br/>UNSW Data Science Hub"
-date: "March 2021 (updated: `r Sys.Date()`)"
+date: "November 2023 (updated: `r Sys.Date()`)"
 output:
   learnr::tutorial:
     progressive: true
@@ -15,6 +15,7 @@ description: >
 ```{r setup, include=FALSE}
 library(learnr)
 library(sf)
+library(sp)
 require(leafpop)
 library(leaflet)
 library(mapview)
@@ -33,7 +34,8 @@ tutorial_options(
 )
 knitr::opts_chunk$set(error = TRUE)
 
-
+here::i_am("workshop/Intro/tutorial-0-basic-concepts.Rmd")
+data_folder <- "data" 
 ```
 
 ## Welcome
@@ -51,6 +53,7 @@ I've preloaded the packages for this tutorial with
 
 ```{r eval = FALSE}
 library(sf)
+library(sp)
 library(leaflet)
 library(mapview)
 library(leafpop)
