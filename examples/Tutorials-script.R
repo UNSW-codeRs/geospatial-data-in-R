@@ -1,3 +1,5 @@
+# This R-script contains the R code for replicating steps of tutorials 1 and 2 
+
 # install packages if needed:
 # install.packages(c("sf","mapview","leafpop"),dependencies = TRUE)
 # For leaflet try to install the current github version with devtools
@@ -11,9 +13,7 @@ require(dplyr)
 require(ggplot2)
 require(RColorBrewer)
 
-##########
-## Tutorial 1
-######
+## Tutorial 1 -----
 
 # Create our first object:
 
@@ -104,9 +104,8 @@ mapview(not_sparta, col.regions = "blanchedalmond") +
   mapview(sparta, popup = popupImage(img=sparta.popup, src ="remote"))
 
 
-##########
-## Tutorial 2
-######
+
+## Tutorial 2 ----
 
 UBT <- st_sf(data.frame(full_name='Universität Bayreuth',
                         url='https://uni-bayreuth.de/'),

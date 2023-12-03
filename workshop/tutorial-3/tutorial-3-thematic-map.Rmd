@@ -68,6 +68,10 @@ The tidyverse package also includes `ggplot2`, which allow us to create static m
 
 For this tutorial we will use the `World`, `metro` and other data sets from package `tmap`. These data sets are documented in `help(package=tmap)`. 
 
+Examples in this tutorial are based on:
+
+> Tennekes, M. (2018). tmap: Thematic Maps in R. Journal of Statistical Software, 84(6), 1–39. [DOI:10.18637/jss.v084.i06](https://doi.org/10.18637/jss.v084.i06)
+
 
 ```{r, eval=TRUE, child="00-read-data.Rmd"}
 
