@@ -1,0 +1,45 @@
+
+## A first thematic map
+
+A thematic map is a map that displays or visualises some aspects of the data, not just the spatial boundaries. We have seen that the World dataset includes multiple columns with information for each country.
+
+Run this code to create your first thematic map:
+
+```{r first_thematic_map, exercise=TRUE}
+tm_shape(World,projection='+proj=robin') + 
+  tm_polygons(
+    col = "income_grp", 
+    palette = "-Blues", 
+    contrast = 0.7, 
+    border.col = "gray30")
+```
+
+You can replace "income_grp" with other categorical variables in your dataset and click the run button again to create a different view of your dataset. 
+
+### What about quantitative variables ?
+
+Functions in `tmap` will usually find a way to display quantitative data, but sometimes default parameters will not be sufficient for data with large ranges or skewed distributions. 
+
+For example, the population estimates do not look good with the defaults. Try defining breaks, or changing the style parameter (or both), and see how the plot improves.
+
+```{r second_thematic_map, exercise=TRUE}
+tm_shape(World,projection='+proj=robin') + 
+  tm_polygons(
+    col = "pop_est", 
+    palette = "-Blues", 
+    #style = "log10_pretty",
+    #breaks = c(0,1^6,10^7,10^8,10^10),
+    contrast = 0.7, 
+    border.col = "gray30")
+```
+
+### Title for the legend
+
+You can use the parameter `title` to customise your legend:
+```{r}
+tm_shape(World,projection='+proj=robin') + 
+  tm_polygons("income_grp", palette = "-Blues", 
+              title = "Income class", contrast = 0.7, border.col = "gray30",
+              id = "name") 
+```
+

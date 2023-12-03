@@ -186,9 +186,7 @@ There are several benefits to this:
 
 ---
 
-## Why do we need a CRS?
-
-The earth is not flat, it is *almost* a perfect sphere...
+### Why do we need a CRS?
 
 ![Animation of a rotating geoid](https://www.asu.cas.cz/~bezdek/vyzkum/rotating_3d_globe/figures/rotating_3d_globe_Geoid_height_EGM2008_nmax500_px0650_angle360_fps1_clrmap_byr1.gif)
 
@@ -230,9 +228,16 @@ tm_shape(World, projection='+proj=merc') +
 ] 
 
 ---
+
+class: inverse, center, middle
+
+
+# Geospatial data in R
+
+---
 layout: true
 
-## Geospatial data in R
+# Geospatial data in R
 
 ---
 
@@ -273,7 +278,8 @@ Visualisation of geospatial data is very important, and there are many options i
 - `ggplot2` includes some functions for handling spatial data as we usually use other kinds of data
 - `leaflet` uses the external JavaScript library `leaflet.js` for interactive visualisation
 - `tmap` is used for creating thematic maps that can be static (like a plot) or interactive (based on `leaflet` functions)
-- `mapview` is a very intuitive solution for quick and useful interactive maps, also based on leaflet` functions
+- `mapview` is a very intuitive solution for quick and useful interactive maps, also based on `leaflet` functions
+
 
 ---
 
@@ -403,7 +409,7 @@ tm_shape(World, projection='+proj=robin') +
   tm_polygons() +
   tm_text("iso_a3", size = "AREA", col = "gray30", root = 3) +
   tm_shape(metro) + 
-  tm_bubbles("pop2010", col = "growth",
+  tm_bubbles(size = "pop2010", col = "growth",
     border.col = "black", border.alpha = 0.5,
     breaks = c(-Inf, 0, 2, 4, 6, Inf), palette = "-RdYlGn",
     title.size = "Metro population (2010)",
@@ -501,7 +507,7 @@ ggplot(data_jbm) +
 
 What kind of geospatial analysis is this?
 
-| (Visualisation, spatial operations, modelling, something else?)
+> (Visualisation, spatial operations, modelling, something else?)
 
 What is the extent and resolution of this example?
 
@@ -628,23 +634,12 @@ For this workshop I have prepared several tutorials.
 
 You can work through each one of them at your own pace.
 
-Tutorial | Title | Packages | Links |
-------------------------------------
-Tutorial 1 | Create a spatial object |
-`sf`, `mapview` |
-[UNSW-codeRs](https://yessl3-unswcoders.shinyapps.io/tutorial-1-create-spatial-object/) |
-
-Tutorial 2 | Points, lines and polygons |
-`sf`, `mapview` |
-[UNSW-codeRs](https://yessl3-unswcoders.shinyapps.io/tutorial-2-points-lines-polygons/) |
-
-Tutorial 3 | Thematic mapping |
-`sf`, `tmap` |
-[UNSW-codeRs](https://yessl3-unswcoders.shinyapps.io/tutorial-2-points-lines-polygons/) |
-
-Tutorial 4 | Geostatistic analysis |
-`sf`, `sp`, `raster`, `gstat` |
-[UNSW-codeRs](https://yessl3-unswcoders.shinyapps.io/tutorial-2-points-lines-polygons/) |
+| Tutorial | Title | Packages | Links |
+|----------|-------|----------|---------|
+| Tutorial 1 | Create a spatial object | `sf`, `mapview` | [UNSW-codeRs](https://yessl3-unswcoders.shinyapps.io/tutorial-1-create-spatial-object/) |
+| Tutorial 2 | Points, lines and polygons | `sf`, `mapview` | [UNSW-codeRs](https://yessl3-unswcoders.shinyapps.io/tutorial-2-points-lines-polygons/) |
+| Tutorial 3 | Thematic mapping | `sf`, `tmap` | [UNSW-codeRs](https://yessl3-unswcoders.shinyapps.io/tutorial-2-points-lines-polygons/) |
+| Tutorial 4 | Geostatistic analysis | `sf`, `sp`, `raster`, `gstat` | [UNSW-codeRs](https://yessl3-unswcoders.shinyapps.io/tutorial-2-points-lines-polygons/) |
 
 ---
 
@@ -690,7 +685,12 @@ UNSW codeRs: [Fire Ecology Traits for Plants: A database for fire research and m
 
 .panel[.panel-name[Images]
 
-Photos by José R. Ferrer-Paris, shared under: [Attribution 4.0 Internacional (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/)
+Raster and vector concept images from National Ecological Observatory Network (NEON).
+
+Rotating 3D visualisation of the globe from [Aleš Bezděk website.](https://www.asu.cas.cz/~bezdek/vyzkum/rotating_3d_globe/index.php) Described in:
+
+> Bezděk A, Sebera J, 2013. MATLAB script for 3D visualizing geodata on a rotating globe. Computers & geosciences 56, 127–130, http://dx.doi.org/10.1016/j.cageo.2013.03.007.
+
 
 ]
 

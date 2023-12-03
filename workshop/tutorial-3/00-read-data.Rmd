@@ -1,0 +1,73 @@
+
+## A glimpse into the spatial data 
+
+We can load the data like this:
+
+```{r}
+data("World", "metro", package = "tmap")
+```
+
+These datasets are loaded as simple feature (or `sf`) objects. 
+
+### World dataset 
+The World dataset includes general information about countries. You get a summary of the object attributes when you use the function `print`. This will include the geometry type, bounding box and Coordinate Reference System (CRS), followed by the data columns and the geometry column, usually at the end of the table.
+```{r}
+print(head(World))
+```
+
+### Metro dataset 
+
+The metro dataset includes information about population size in large cities around the world. It includes a population times series from 1950 to (forecasted) 2030. All metro areas with over 1 million inhabitants in 2010 are included.
+
+Functions like `str` or `glimpse` (from the `tidyverse` library) will give summaries of the data component but supress part of the spatial attributes.^[If you get a warning about an 'incorrect crs object detected', you can fix this with: `st_crs(metro) = "EPSG:4326"`]
+
+```{r}
+glimpse(metro)
+```
+
+### Modifying the dataset 
+
+We can perform normal operations in a spatial dataset. For example creating new columns based on existing columns using `mutate` (from `tidyverse` library).
+
+For each city we have several measures or estimates of population size for each decade. Let's calculate the growth between 2010 and 2020 and select the city with the largest growth.
+
+```{r}
+metro <- 
+  metro %>% 
+  mutate(growth = (pop2020 - pop2010)/(pop2010 * 10) * 100)
+
+metro %>% arrange(desc(growth)) %>% slice(1)
+```
+
+
+## Let's choose a projection
+
+The dataset World includes country boundaries. We can plot them using a tandem of functions: 
+
+- `tm_shape`: Creates a tmap-element that specifies a spatial data object, which we refer to as shape. It is possible to use multiple shape objects within one plot (see tmap-element).
+- `tm_polygons` fills the polygons and draws the polygon borders defined in the active shape.
+
+```{r}
+tm_shape(World) +
+  tm_polygons()
+```
+
+Our map is using 'rectangular' or 'unprojected' coordinates, also known as 'Plate Carrée' projection, which is not recommended for world representations.
+
+We can set up a better projection using the aptly named `projection` argument to `tm_shape`. tmap recognises many ways to declare the projection, we will use here PROJ strings (see the [online documentation](https://proj.org/en/latest/operations/projections/index.html)). Start with the Robinson projection by clicking the run buttom, look at the resulting map and compare with the one above, how does it looks?. 
+```{r projections, exercise=TRUE}
+tm_shape(World, projection = '+proj=robin') + 
+  tm_polygons()
+```
+
+Now, you can change the value of the string to other projections and click on the run button again to see how the world instatntly changes.
+
+| Name | PROJ string |
+|---|---|
+|Robinson|`+proj=robin`|
+|Lambert cylindrical equal-area|`+proj=cea`|
+|Gall-Peters|`+proj=cea +lat_ts=45`|
+|Rectangular Polyconic|`+proj=rpoly`|
+|Eckert IV|`+proj=eck4`|
+|Equal earth|`+proj=eqearth`|
+

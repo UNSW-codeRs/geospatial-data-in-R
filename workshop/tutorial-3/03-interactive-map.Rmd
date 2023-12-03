@@ -1,0 +1,45 @@
+
+## Interactive maps
+
+The same map that we created above can be turned into an interactive map by changing `tmap_mode` from `plot` to `view`.
+
+### Create your map 
+
+First we will combine the layers that we need and assign this to `my_map`. We will add one polygon and one text layer from the World shape, and one bubble layer from the metro shape.
+
+```{r}
+my_map <- tm_shape(World,projection='+proj=robin') + 
+  tm_polygons("income_grp", palette = "-Blues", 
+              title = "Income class", contrast = 0.7, border.col = "gray30",
+              id = "name") +
+  tm_text("iso_a3", size = "AREA", col = "gray30", root = 3) +
+  tm_shape(metro) + 
+  tm_bubbles("pop2010", col = "growth",
+             border.col = "black", border.alpha = 0.5,
+             breaks = c(-Inf, 0, 2, 4, 6, Inf), palette = "-RdYlGn",
+             title.size = "Metro population (2010)",
+             title.col = "Annual growth rate (%)", id = "name",
+             popup.vars = c("pop2010", "pop2020", "growth")) 
+
+```
+Notice that we added the `id` and `popup.vars` parameters. These will come in handy for interactive visualisation.
+
+### `plot` mode
+
+If we turn on the `plot` mode, the output will be the same as in previous examples, an static plot.
+```{r}
+tmap_mode("plot")
+my_map
+```
+
+### `view` mode
+
+But turning on the `view` mode offers us a fully functional and interactive leaflet map in our viewer. 
+
+```{r}
+tmap_mode("view")
+my_map
+```
+
+You can zoom and pan your view, and select layers to display in your map, if you click on the features (polygons or points) you will see the id and the variables used for plotting or defined in the `popup.vars` parameter.
+
