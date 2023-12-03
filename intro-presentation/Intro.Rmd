@@ -115,8 +115,10 @@ We call these two main types **rasters** and **vectors**, respectively.
 ## Rasters
 
 .center[
-```{r, echo = FALSE, out.width="60%"}
-include_graphics(here::here("images","raster_concept.png"))
+<img src="https://kodu.ut.ee/~kmoch/geopython2020/_images/raster_concept.png" width = "60%"/>
+
+```{r, eval = FALSE, echo = FALSE, out.width="60%"}
+ include_graphics(here::here("images","raster_concept.png"))
 ```
 
 Source: National Ecological Observatory Network (NEON)
@@ -127,7 +129,10 @@ Source: National Ecological Observatory Network (NEON)
 ## Vectors
 
 .center[
-```{r, echo = FALSE, out.width="60%"}
+
+<img src="https://datacarpentry.org/organization-geospatial/fig/dc-spatial-vector/pnt_line_poly.png" width = "60%"/>
+
+```{r, eval = FALSE, echo = FALSE, out.width="60%"}
 include_graphics(here::here("images","pnt_line_poly.png"))
 ```
 
@@ -636,10 +641,10 @@ You can work through each one of them at your own pace.
 
 | Tutorial | Title | Packages | Links |
 |----------|-------|----------|---------|
-| Tutorial 1 | Create a spatial object | `sf`, `mapview` | [UNSW-codeRs](https://yessl3-unswcoders.shinyapps.io/tutorial-1-create-spatial-object/) |
-| Tutorial 2 | Points, lines and polygons | `sf`, `mapview` | [UNSW-codeRs](https://yessl3-unswcoders.shinyapps.io/tutorial-2-points-lines-polygons/) |
-| Tutorial 3 | Thematic mapping | `sf`, `tmap` | [UNSW-codeRs](https://yessl3-unswcoders.shinyapps.io/tutorial-2-points-lines-polygons/) |
-| Tutorial 4 | Geostatistic analysis | `sf`, `sp`, `raster`, `gstat` | [UNSW-codeRs](https://yessl3-unswcoders.shinyapps.io/tutorial-2-points-lines-polygons/) |
+| 1 | Create a spatial object | `sf`, `mapview` | [UNSW-codeRs](https://yessl3-unswcoders.shinyapps.io/tutorial-1-create-spatial-object/) / [ecosphere](https://ecosphere.shinyapps.io/tutorial-1-create-spatial-object/) |
+| 2 | Points, lines and polygons | `sf`, `mapview` | [UNSW-codeRs](https://yessl3-unswcoders.shinyapps.io/tutorial-2-points-lines-polygons/) / [ecosphere]( https://ecosphere.shinyapps.io/tutorial-2-points-lines-polygons/)|
+| 3 | Thematic mapping | `sf`, `tmap` | [ecosphere](https://ecosphere.shinyapps.io/tutorial-3-thematic-map/) |
+| 4 | Geostatistic analysis | `sf`, `sp`, `raster`, `gstat` | work in progress |
 
 ---
 
@@ -670,22 +675,17 @@ This presentation was prepared by José R. Ferrer-Paris
 .panel[.panel-name[Links]
 Presentation available at:
 
-[rpubs.com/jrfep/firevegdb-ESA2023](https://rpubs.com/jrfep/firevegdb-ESA2023)
+[rpubs.com/jrfep/geospatial-workshop-2023](https://rpubs.com/jrfep/geospatial-workshop-intro-2023)
 
-Powered by [RStudio](https://posit.co/products/open-source/rstudio/), [Rmarkdown](), and [xaringan](). 
+Powered by [RStudio](https://posit.co/products/open-source/rstudio/), [Rmarkdown](https://bookdown.org/yihui/rmarkdown/xaringan.html), and [xaringan](https://github.com/yihui/xaringan). 
 
 Source code available at:
 
-[bitbucket.org/fireveg/...](https://bitbucket.org/fireveg/fireveg-presentations/)
-
-UNSW codeRs: [Fire Ecology Traits for Plants: A database for fire research and management](https://osf.io/hu96w/), component: [Data coverage of Fire Ecology Traits for Plants database](https://osf.io/h96q2/) 
-]
-
 [UNSW codeRs @ GitHub](https://github.com/UNSW-codeRs) / [geospatial-data-in-R](https://github.com/UNSW-codeRs/geospatial-data-in-R)
-
+]
 .panel[.panel-name[Images]
 
-Raster and vector concept images from National Ecological Observatory Network (NEON).
+Raster and vector concept images from National Ecological Observatory Network (NEON), downloaded from <https://datacarpentry.org/organization-geospatial/>
 
 Rotating 3D visualisation of the globe from [Aleš Bezděk website.](https://www.asu.cas.cz/~bezdek/vyzkum/rotating_3d_globe/index.php) Described in:
 

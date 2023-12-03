@@ -8,7 +8,7 @@ This repository contains code and data used (and re-used) for presentations abou
 
 ## Abstract
 
-Spatial data is essential for understanding many phenomena in natural and social sciences, and maps are used in a variety of fields to visualise data and results in an appealing and interpretive way. I have been dealing with spatial data with (and without) R for nearly 20 years, using a variety of packages and approaches that have evolved over time, regularly finding challenges and new solutions. In this workshop I will demostrate how current integration of R with external libraries like leaflet or plotly make interactive mapping easier (and nicer!) than ever.
+Spatial data is essential for understanding many phenomena in natural and social sciences, and maps are used in a variety of fields to visualise data and results in an appealing and interpretive way. I have been dealing with spatial data with (and without) R for nearly 20 years, using a variety of packages and approaches that have evolved over time, regularly finding challenges and new solutions. In this workshop I will show examples of how to work with geospatial data in R, including some basic geospatial analysis, and how current integration of R with external libraries like leaflet make interactive mapping easieR (and niceR!) than ever.
 
 
 ## Bio
@@ -29,6 +29,9 @@ The online versions of these tutorial are available through alternative shinyapp
 
 - Tutorial 1: Create a spatial object [option 1](https://ecosphere.shinyapps.io/tutorial-1-create-spatial-object/) [option 2]( https://yessl3-unswcoders.shinyapps.io/tutorial-1-create-spatial-object/)
 - Tutorial 2: Points, Lines and Polygons [option 1](https://yessl3-unswcoders.shinyapps.io/tutorial-2-points-lines-polygons/) [option 2]( https://ecosphere.shinyapps.io/tutorial-2-points-lines-polygons/)
+- Tutorial 2: Thematic maps 
+- Tutorial 4: In preparation 
+
 
 ### Going back in time
 
@@ -50,24 +53,3 @@ I also added a script with code from the tutorials in [examples/Tutorials-script
 
 We shared the [recording for this workshop](https://bit.ly/37gE3t1) through the UNSW codeRs website. 
 
-# Sources
-
-I am using content from several tutorials and on-line resources:
-
-- 
-
-For the presentation I was initially inspired by ... 
-
-For showing both plot and code in one slide, I followed [Garrick's blogpost](https://www.garrickadenbuie.com/blog/decouple-code-and-output-in-xaringan-slides/)
-
-font size for code slides: 
-
-https://community.rstudio.com/t/using-multiple-font-sizes-for-code-chunks/26405/6
-
-https://github.com/yihui/xaringan/issues/69
-
-Panel set:https://pkg.garrickadenbuie.com/xaringanExtra/panelset/#8projectio
-
-http://zevross.com/blog/2017/06/19/tips-and-tricks-for-working-with-images-and-figures-in-r-markdown-documents/#more-functionality-from-include_graphics
-
-https://r-spatial.github.io/sf/articles/sf3.html

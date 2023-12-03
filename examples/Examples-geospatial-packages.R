@@ -57,12 +57,6 @@ mapview(list(franconia, breweries,trails),
   mapview(UBT, popup = popupImage(img, src = "remote")
   )
 
-## Create thematic maps with `tmap`
-#Original examples from:
-#> Tennekes, M. (2018). tmap: Thematic Maps in R. Journal of Statistical Software, 84(6), 1–39. [DOI:10.18637/jss.v084.i06](https://doi.org/10.18637/jss.v084.i06)
-#Adapted to new version of package:
-  
-
 
 ## Quick overview of `rgee` functions:
 
