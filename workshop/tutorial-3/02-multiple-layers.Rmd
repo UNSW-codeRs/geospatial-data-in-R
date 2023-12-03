@@ -1,0 +1,41 @@
+## Adding layers to the map 
+
+Now that we have created a simple thematic map, we can start adding layers to it. 
+
+There are many `tm_*` functions to explore different ways to visualise the data. We will explore some of them.
+
+### Multiple layers from the same shape
+
+`tm_polygons` adds polygons from the previously declared shape. Now, let's use `tm_text` to add labels to the polygons. 
+
+```{r}
+tm_shape(World,projection='+proj=robin') + 
+  tm_polygons("income_grp", palette = "-Blues", 
+              title = "Income class", contrast = 0.7, border.col = "gray30",
+              id = "name") +
+  tm_text("iso_a3", size = "AREA", col = "gray30", root = 3)
+```
+
+`tm_bubbles` works with point data, let's try it on our metro dataset. We can also add `tm_text` here, but need to choose a very small font size to avoid crowding the plot area. This is obviously not optimal, but we will tackle this later.
+
+```{r}
+tm_shape(metro) + 
+  tm_bubbles(size = "pop2010", col = "pop2010",
+             border.col = "black", border.alpha = 0.5,
+             palette = "-RdYlGn",
+             title.size = "Metro population (2010)",
+             title.col = "Metro population (2010)") +
+  tm_text("name", size = 0.3, col = "gray30")
+```
+
+
+### Multiple layers from multiple shapes
+
+`tmap` will let us add multiple shapes, each with one or more layers. Let's try it out, just combine the lines of code above and try to create your own combination.
+
+```{r full_map, exercise=TRUE}
+tm_shape(___) +
+    ____ +
+tm_shape(___) +
+    ____
+```

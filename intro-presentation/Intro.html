@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>What’s so special about (geo)spatial</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="JR Ferrer-Paris" />
+    <meta name="date" content="2023-12-03" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
+    <link href="libs/panelset/panelset.css" rel="stylesheet" />
+    <script src="libs/panelset/panelset.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+    <link rel="stylesheet" href="css/footer.css" type="text/css" />
+    <link rel="stylesheet" href="css/custom.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# What’s so special about (geo)spatial
+]
+.subtitle[
+## Geospatial tutorial - intro
+]
+.author[
+### JR Ferrer-Paris
+]
+.institute[
+### UNSW codeRs
+]
+.date[
+### 2023-12-03
+]
+
+---
+
+layout: true
+
+&lt;div class="my-footer"&gt;&lt;span&gt;JR Ferrer-Paris / &lt;a href='https://github.com/UNSW-codeRs/geospatial-data-in-R'&gt;geospatial-data-in-R&lt;/a&gt;&lt;/span&gt;&lt;/div&gt;
+
+&lt;!-- this adds the link footer to all slides, depends on my-footer class in css--&gt;
+
+<div>
+<style type="text/css">.xaringan-extra-logo {
+width: 110px;
+height: 128px;
+z-index: 0;
+background-image: url(/Users/z3529065/proyectos/codeRs/geospatial-data-in-R/images/codeRs-logo.png);
+background-size: contain;
+background-repeat: no-repeat;
+position: absolute;
+top:1em;right:1em;
+}
+</style>
+<script>(function () {
+  let tries = 0
+  function addLogo () {
+    if (typeof slideshow === 'undefined') {
+      tries += 1
+      if (tries < 10) {
+        setTimeout(addLogo, 100)
+      }
+    } else {
+      document.querySelectorAll('.remark-slide-content:not(.title-slide):not(.inverse):not(.hide_logo)')
+        .forEach(function (slide) {
+          const logo = document.createElement('div')
+          logo.classList = 'xaringan-extra-logo'
+          logo.href = null
+          slide.appendChild(logo)
+        })
+    }
+  }
+  document.addEventListener('DOMContentLoaded', addLogo)
+})()</script>
+</div>
+
+
+
+
+---
+
+class: center,inverse
+background-image: url("/Users/z3529065/proyectos/codeRs/geospatial-data-in-R/images/Heal-Country-NAIDOC-2021.png")
+background-position: center
+background-size: contain
+
+
+
+
+
+
+---
+
+class: inverse, center, middle
+
+
+# Spatial or geospatial?
+---
+
+# Spatial data
+
+Think of **spatial data** as ordinary data (vectors or matrices) with spatial properties that we will call geometries. 
+
+$$ \mathrm{spatial} \ \mathrm{data} = \mathrm{data} + \mathrm{geometry} $$
+--
+The **geometry** part can be interpreted in different ways:
+- as a regular grid with a known origin, extent and cell size
+- as discrete geometric locations that define the shape of the spatial object: points, lines, polygons.
+
+We call these two main types **rasters** and **vectors**, respectively.
+
+---
+
+## Rasters
+
+.center[
+&lt;img src="../images/raster_concept.png" width="60%" /&gt;
+
+Source: National Ecological Observatory Network (NEON)
+]
+
+---
+
+## Vectors
+
+.center[
+&lt;img src="../images/pnt_line_poly.png" width="60%" /&gt;
+
+Source: National Ecological Observatory Network (NEON)
+]
+
+---
+
+
+## Rasters vs. vectors
+
+
+.pull-left[
+**Rasters**
+
+- Grid defined by extent and resolution.
+- Each pixel/cell is associated with a specific location.
+- Multiple variables are stored as **bands**.
+- Examples: 
+  aerial photographs, satellite images, precipitation maps, elevation maps, landcover maps, etc.
+- One common file formats for raster data is the [GeoTIFF](https://en.wikipedia.org/wiki/GeoTIFF) format.
+
+]
+
+.pull-right[
+**Vectors**
+
+- Multiple geometries representing points, lines or polygons 
+- Table of attributes links each spatial object (row) with multiple attributes (columns).
+- Examples of vector data: 
+  sampling locations, cities, roads or routes, country boundaries.
+- Many file formats: 
+  - ESRI Shapefiles are very popular, 
+  - OGC GeoPackage (GPKG) is an open and standards-based format, 
+  - GeoJSON is used in many web applications
+
+]
+---
+# Spatial or geospatial?
+
+Think of **spatial data** as ordinary data (vectors or matrices) with spatial properties that we will call geometries. 
+
+$$ \mathrm{spatial} \ \mathrm{data} = \mathrm{data} + \mathrm{geometry} $$
+--
+
+Now let's add a Coordinate Reference System (CRS) and we get **geospatial data**:
+
+$$ \mathrm{geospatial} \ \mathrm{data} = \mathrm{data} + \mathrm{geometry} + \mathrm{CRS} $$
+--
+
+There are several benefits to this:
+
+- CRS translate locations on the earth to planar coordinates and viceversa.
+- Compare, overlay and combine spatial data using the same CRS
+- Transform coordinates between alternative CRS
+
+---
+
+### Why do we need a CRS?
+
+![Animation of a rotating geoid](https://www.asu.cas.cz/~bezdek/vyzkum/rotating_3d_globe/figures/rotating_3d_globe_Geoid_height_EGM2008_nmax500_px0650_angle360_fps1_clrmap_byr1.gif)
+
+---
+
+## Same data, different projections 
+
+In order to represent the earth as a 2D map you need to apply some mathematical conversions known as [projections](https://proj.org/en/6.0/operations/projections/index.html).
+
+.panelset[
+
+.panel[.panel-name[Plate Carrée]
+
+```r
+tm_shape(World) + 
+  tm_polygons()
+```
+
+![](Intro_files/figure-html/unnamed-chunk-4-1.png)&lt;!-- --&gt;
+]
+
+.panel[.panel-name[Robinson]
+
+```r
+tm_shape(World, projection='+proj=robin') + 
+  tm_polygons()
+```
+
+![](Intro_files/figure-html/unnamed-chunk-5-1.png)&lt;!-- --&gt;
+]
+
+.panel[.panel-name[Adams World in a Square I]
+
+```r
+tm_shape(World, projection='+proj=adams_ws1') + 
+  tm_polygons()
+```
+
+![](Intro_files/figure-html/unnamed-chunk-6-1.png)&lt;!-- --&gt;
+]
+
+.panel[.panel-name[Mercator]
+
+```r
+tm_shape(World, projection='+proj=merc') + 
+  tm_polygons()
+```
+
+![](Intro_files/figure-html/unnamed-chunk-7-1.png)&lt;!-- --&gt;
+]
+] 
+
+---
+
+class: inverse, center, middle
+
+
+# Geospatial data in R
+
+---
+layout: true
+
+# Geospatial data in R
+
+---
+
+There is a large group dedicated to developing spatial capabilities in R:
+
+[CRAN Task View: Analysis of Spatial Data](https://cran.r-project.org/web/views/Spatial.html) 
+
+Many of the packages for handling and analysing spatial data use *shared classes*. 
+
+Two informal organisations curate websites: 
+
+- [r-spatial](https://github.com/r-spatial) is more generally geo-informatics based, worked on vector packages `sp`, `sf` and `stars`
+
+- [rspatial](https://github.com/rspatial) has grown from the `raster` package, now moving towards the modern `terra` package. 
+
+---
+
+.pull-left[
+**Rasters**
+
+- some classes in package `sp` (up until 2016) 
+- package `raster` has been used extensively for many years
+- `terra` is a modern re-implementation of `raster` functionality
+- `stars` provides functions for spatiotemporal data in the form of dense arrays
+]
+
+.pull-right[
+**Vectors**
+
+- Up until 2016 package `sp` package provided shared classes for spatial vector and raster data.
+- `sf` provides Modern and efficient international standards for spatial vector data are implemented
+]
+
+---
+
+Visualisation of geospatial data is very important, and there are many options in R.
+
+- `ggplot2` includes some functions for handling spatial data as we usually use other kinds of data
+- `leaflet` uses the external JavaScript library `leaflet.js` for interactive visualisation
+- `tmap` is used for creating thematic maps that can be static (like a plot) or interactive (based on `leaflet` functions)
+- `mapview` is a very intuitive solution for quick and useful interactive maps, also based on `leaflet` functions
+
+
+---
+
+Later, we will explore vector data in R with:
+
+- [Tutorial 1: create a spatial object](https://yessl3-unswcoders.shinyapps.io/tutorial-1-create-spatial-object/)
+
+
+- [Tutorial 2: points, lines and polygons](https://yessl3-unswcoders.shinyapps.io/tutorial-2-points-lines-polygons/)
+
+---
+layout: false
+class: inverse, center, middle
+
+# Geospatial analysis
+
+---
+layout: true
+
+## Geospatial analysis
+
+---
+
+Different types of geospatial analysis involve operations on *data*, *geometries* and *CRS*.
+
+--
+
+Some analysis focus on **visualisation**:
+
+- **data** and **geometry** used as aesthetic elements in plots
+- interactive navigation (like your favorite map app!)
+
+--
+
+Some analysis perform **spatial operations**:
+
+- using **geometries** to calculate distances or areas
+- using **geometries** to query **data**
+
+--
+
+Finally, **spatial modelling** and **spatial prediction** use the **data** and **geometries** to explore processes and relationships. Some examples include:
+
+- geostatistics ([Kriging](https://en.wikipedia.org/wiki/Kriging)) analysis
+- GLMM with spatial correlation structure
+- Point pattern analysis
+
+---
+
+### Some examples of geospatial analysis
+
+I will show a couple of examples, each with several steps.
+
+I will ask some questions at the end of each slide.
+
+I would like to hear or read your responses before moving to the following step/slide.
+
+
+---
+layout: true
+
+## Population in major cities
+
+---
+
+Consider data about trends in human population size in major cities of the world. We have spatial data of metropolitan areas. It includes a population times series from 1950 to (forecasted) 2030. All metro areas with over 1 million inhabitants in 2010 are included.
+
+
+.panelset[
+
+.panel[.panel-name[Let's have a glimpse at this dataset]
+.small-code[
+
+```r
+data(metro)
+glimpse(metro)
+## Rows: 436
+## old-style crs object detected; please recreate object with a recent sf::st_crs()
+## Columns: 13
+## $ name      &lt;chr&gt; "Kabul", "Algiers", "Luanda", "Buenos Aires", "Cordoba", "Ro…
+## $ name_long &lt;chr&gt; "Kabul", "El Djazair  (Algiers)", "Luanda", "Buenos Aires", …
+## $ iso_a3    &lt;chr&gt; "AFG", "DZA", "AGO", "ARG", "ARG", "ARG", "ARM", "AUS", "AUS…
+## $ pop1950   &lt;dbl&gt; 170784, 516450, 138413, 5097612, 429249, 554483, 341432, 429…
+## $ pop1960   &lt;dbl&gt; 285352, 871636, 219427, 6597634, 605309, 671349, 537759, 571…
+## $ pop1970   &lt;dbl&gt; 471891, 1281127, 459225, 8104621, 809794, 816230, 778158, 85…
+## $ pop1980   &lt;dbl&gt; 977824, 1621442, 771349, 9422362, 1009521, 953491, 1041587, …
+## $ pop1990   &lt;dbl&gt; 1549320, 1797068, 1390240, 10513284, 1200168, 1083819, 11745…
+## $ pop2000   &lt;dbl&gt; 2401109, 2140577, 2591388, 12406780, 1347561, 1152387, 11113…
+## $ pop2010   &lt;dbl&gt; 3722320, 2432023, 4508434, 14245871, 1459268, 1298073, 10655…
+## $ pop2020   &lt;dbl&gt; 5721697, 2835218, 6836849, 15894307, 1562509, 1453814, 10237…
+## $ pop2030   &lt;dbl&gt; 8279607, 3404575, 10428756, 16956491, 1718192, 1606993, 1057…
+## $ geometry  &lt;POINT [°]&gt; POINT (69.17246 34.52889), POINT (3.04197 36.7525), PO…
+```
+]
+]
+
+.panel[.panel-name[Questions]
+What kind of data is this:  
+
+- Spatial or GeoSpatial? 
+- Raster or Vector?
+ 
+What is the extent and resolution of the data?
+]
+]
+
+---
+
+For each city we have several measures or estimates of population size for each decade. Let's calculate the growth between 2010 and 2020 and select the city with the largest growth
+
+
+.panelset[
+
+.panel[.panel-name[Code]
+.small-code[
+
+```r
+metro &lt;- 
+  metro %&gt;% 
+  mutate(growth = (pop2020 - pop2010)/(pop2010 * 10) * 100)
+
+metro %&gt;% arrange(desc(growth)) %&gt;% slice(1)
+## old-style crs object detected; please recreate object with a recent sf::st_crs()
+## Simple feature collection with 1 feature and 13 fields
+## Geometry type: POINT
+## Dimension:     XY
+## Bounding box:  xmin: 100.5968 ymin: 13.59934 xmax: 100.5968 ymax: 13.59934
+## Geodetic CRS:  WGS 84
+##           name    name_long iso_a3 pop1950 pop1960 pop1970 pop1980 pop1990
+## 1 Samut Prakan Samut Prakan    THA   10288   22107   46632   49147  138179
+##   pop2000 pop2010 pop2020 pop2030   growth                  geometry
+## 1  388603 1092566 2558160 3139358 13.41424 POINT (100.5968 13.59934)
+```
+]
+]
+.panel[.panel-name[Questions]
+
+What kind of geospatial analysis is this?
+
+&gt; (Visualisation, spatial operations, modelling, something else?)
+
+How did we use the *geometry* component?
+
+]
+]
+---
+
+We can visualise the data by combining the `metro` dataset with another dataset of the countries of the world, and use functions in the package `tmap` to create a beautiful thematic map.
+
+.panelset[
+
+.panel[.panel-name[Code]
+
+```r
+tm_shape(World, projection='+proj=robin') + 
+  tm_polygons() +
+  tm_text("iso_a3", size = "AREA", col = "gray30", root = 3) +
+  tm_shape(metro) + 
+  tm_bubbles(size = "pop2010", col = "growth",
+    border.col = "black", border.alpha = 0.5,
+    breaks = c(-Inf, 0, 2, 4, 6, Inf), palette = "-RdYlGn",
+    title.size = "Metro population (2010)",
+    title.col = "Annual growth rate (%)", id = "name",
+    popup.vars = c("pop2010", "pop2020", "growth")) 
+```
+]
+.panel[.panel-name[Plot]
+.center[
+![](Intro_files/figure-html/cities-out-1.png)&lt;!-- --&gt;
+]
+]
+.panel[.panel-name[Questions]
+
+What kind of geospatial analysis is this?
+
+&gt; (Visualisation, spatial operations, modelling, something else?)
+
+Are we using all components of the geospatial data?
+
+- Where did we use the *data* ?
+- Where did we use the *geometry* ?
+- Where did we use the *CRS* ?
+
+What do the size and colour of the bubbles indicate?
+]
+]
+
+
+---
+
+You can work through these steps in more detail in the following tutorial.
+
+---
+layout: true
+
+## Biologists in a botanical garden
+
+---
+
+Our team is studying if the activity of a frog species in related to vegetation characteristics in a botanical garden (we will call it [JBM](https://iamvenezuela.com/2017/05/jardin-botanico-de-maracaibo-leandro-aristeguieta/#prettyPhoto) for short). They use a paper map of the garden and write down coordinates of each sampling point where they describe characteristics of the vegetation at these points (leaf litter, tree cover, etc).
+
+
+
+.panelset[
+
+.panel[.panel-name[Let's have a glimpse at their data]
+
+
+```r
+glimpse(data_jbm)
+## Rows: 74
+## Columns: 8
+## $ Uncertainty   &lt;dbl&gt; 14, 15, 15, 16, 15, 16, 15, 15, 15, 15, 16, 16, 15, 16, …
+## $ code          &lt;chr&gt; "A01", "A02", "A03", "A04", "A05", "A06", "A07", "A08", …
+## $ Substrate     &lt;chr&gt; "2", "2", "2", "2", "2", "2", "4", "2", "2", "2", "2", "…
+## $ Understory    &lt;dbl&gt; 3, 2, 2, 2, 2, 2, 3, 4, 3, 3, 3, 2, 2, 3, 3, 3, 2, 1, 3,…
+## $ `Leaf Litter` &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1,…
+## $ `Tree cover`  &lt;dbl&gt; 4, 4, 4, 4, 1, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,…
+## $ Canopy        &lt;dbl&gt; 2, 3, 1, 4, 2, 3, 4, 3, 2, 3, 2, 2, 4, 2, 2, 3, 3, 3, 3,…
+## $ geom          &lt;POINT&gt; POINT (655.7148 529.6264), POINT (408.8195 512.6097), …
+```
+]
+
+.panel[.panel-name[Questions]
+ What kind of data is this:  
+
+- Spatial or GeoSpatial? 
+- Raster or Vector?
+]
+]
+---
+
+Correct! This is a spatial object in vector format with point geometries. The data is in special class of R object called `sf` or `simple feature` class, and we can use this code to plot the data.
+
+.panelset[
+
+.panel[.panel-name[Code]
+
+
+```r
+ggplot(data_jbm) + 
+  geom_sf(aes(geometry = geom,
+              size=`Tree cover`, 
+              colour=`Tree cover`)) +
+  labs(subtitle="Coordinates in meters", x="x", y="y",
+       size="Tree\ncover\nclass", colour="Tree\ncover\nclass") +
+  guides(color= guide_legend(), size=guide_legend())
+```
+]
+
+.panel[.panel-name[Plot]
+.center[
+![](Intro_files/figure-html/large-plot-full-output-1.png)&lt;!-- --&gt;
+]
+
+]
+
+.panel[.panel-name[Questions]
+
+What kind of geospatial analysis is this?
+
+&gt; (Visualisation, spatial operations, modelling, something else?)
+
+What is the extent and resolution of this example?
+
+The plot aesthetics include the x and y axis, size and colour, but:
+
+- Which ones represent the *data*?
+- Which ones represent the *geometry* component?
+
+]
+]
+
+---
+
+**Spatial autocorrelation** is a measure of how similar are observations that are close together. Here we use a **semivariogram** to describe this autocorrelation. We use functions from the `gstats` package.
+
+
+
+
+.panelset[
+
+.panel[.panel-name[Code]
+
+```r
+library(gstat)
+
+empirical_variogram &lt;- variogram(I(Tree.cover &gt; 2)~1, data_jbm)
+
+variogram_model &lt;- fit.variogram(empirical_variogram, 
+                                 vgm(1, "Exp", 70, .1))
+
+plot(empirical_variogram, variogram_model)
+```
+]
+.panel[.panel-name[Plot]
+
+![](Intro_files/figure-html/variogram-out-1.png)&lt;!-- --&gt;
+]
+.panel[.panel-name[Questions]
+
+What kind of geospatial analysis is this?
+
+&gt; (Visualisation, spatial operations, modelling, something else?)
+
+The variables in this plot were derived from the spatial data:
+
+- Where did we use the *data* ?
+- Where did we use the *geometry* component?
+
+]
+]
+---
+
+In Geostatistics the term **Kriging** is used for a family of models that minimise the spatial error and can be used for spatial interpolation and prediction. Here we use **Indicator kriging** to interpolate the probability of `\(\mathrm{Tree\ cover} &gt; 2\)` from out measurement points into a regular grid.
+.panelset[
+
+.panel[.panel-name[Fit the model]
+
+```r
+ik = krige(I(Tree.cover &gt; 2)~1, # our target variable
+           as_Spatial(data_jbm), # our spatial data
+           prd.grd, # the regular grid for prediction 
+           variogram_model) # the spatial autocorrelation
+## [using ordinary kriging]
+```
+
+]
+.panel[.panel-name[Prediction]
+.pull-left[
+.small-code[
+
+```r
+spplot(ik["var1.pred"],
+       main = "indicator kriging predictions",
+       sub = "Z = Tree Cover &gt; 2")
+```
+
+![](Intro_files/figure-html/unnamed-chunk-14-1.png)&lt;!-- --&gt;
+]
+]
+.pull-right[
+.small-code[
+
+```r
+spplot(ik["var1.var"],
+       main = "indicator kriging variance",
+       sub = "Z = Tree Cover &gt; 2")
+```
+
+![](Intro_files/figure-html/unnamed-chunk-15-1.png)&lt;!-- --&gt;
+]
+]
+]
+.panel[.panel-name[Questions]
+
+What kind of geospatial analysis is this?
+
+What kind of geospatial data was produced in the prediction?
+
+]
+]
+---
+
+You can work through the full example of the analysis in the tutorial 
+
+
+---
+layout:false
+class: inverse, middle, center
+
+# Hand's on tutorials
+
+For this workshop I have prepared several tutorials. 
+
+You can work through each one of them at your own pace.
+
+| Tutorial | Title | Packages | Links |
+|----------|-------|----------|---------|
+| Tutorial 1 | Create a spatial object | `sf`, `mapview` | [UNSW-codeRs](https://yessl3-unswcoders.shinyapps.io/tutorial-1-create-spatial-object/) |
+| Tutorial 2 | Points, lines and polygons | `sf`, `mapview` | [UNSW-codeRs](https://yessl3-unswcoders.shinyapps.io/tutorial-2-points-lines-polygons/) |
+| Tutorial 3 | Thematic mapping | `sf`, `tmap` | [UNSW-codeRs](https://yessl3-unswcoders.shinyapps.io/tutorial-2-points-lines-polygons/) |
+| Tutorial 4 | Geostatistic analysis | `sf`, `sp`, `raster`, `gstat` | [UNSW-codeRs](https://yessl3-unswcoders.shinyapps.io/tutorial-2-points-lines-polygons/) |
+
+---
+
+
+class: center, middle
+
+# Thanks!
+
+.center[## Dr. José R. Ferrer-Paris
+&lt;img class="circle" src="https://unsw-coders.netlify.app/author/dr.-jose-r.-ferrer-paris/avatar_hu5b8b6b713305d35fb8bb18275da87db6_26972_270x270_fill_q75_lanczos_center.jpg" width="150px"/&gt;
+
+
+
+[<svg aria-hidden="true" role="img" viewBox="0 0 496 512" style="height:1em;width:0.97em;vertical-align:-0.125em;margin-left:auto;margin-right:auto;font-size:inherit;fill:currentColor;overflow:visible;position:relative;"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg> @jrfep](http://github.com/jrfep)
+/
+[<svg aria-hidden="true" role="img" viewBox="0 0 512 512" style="height:1em;width:1em;vertical-align:-0.125em;margin-left:auto;margin-right:auto;font-size:inherit;fill:currentColor;overflow:visible;position:relative;"><path d="M16.1 260.2c-22.6 12.9-20.5 47.3 3.6 57.3L160 376V479.3c0 18.1 14.6 32.7 32.7 32.7c9.7 0 18.9-4.3 25.1-11.8l62-74.3 123.9 51.6c18.9 7.9 40.8-4.5 43.9-24.7l64-416c1.9-12.1-3.4-24.3-13.5-31.2s-23.3-7.5-34-1.4l-448 256zm52.1 25.5L409.7 90.6 190.1 336l1.2 1L68.2 285.7zM403.3 425.4L236.7 355.9 450.8 116.6 403.3 425.4z"/></svg> j.ferrer@unsw.edu.au](mailto:j.ferrer@unsw.edu.au)
+
+]
+
+---
+
+This presentation was prepared by José R. Ferrer-Paris 
+
+[Attribution 4.0 Internacional (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/)
+
+.panelset[
+
+.panel[.panel-name[Links]
+Presentation available at:
+
+[rpubs.com/jrfep/firevegdb-ESA2023](https://rpubs.com/jrfep/firevegdb-ESA2023)
+
+Powered by [RStudio](https://posit.co/products/open-source/rstudio/), [Rmarkdown](), and [xaringan](). 
+
+Source code available at:
+
+[bitbucket.org/fireveg/...](https://bitbucket.org/fireveg/fireveg-presentations/)
+
+UNSW codeRs: [Fire Ecology Traits for Plants: A database for fire research and management](https://osf.io/hu96w/), component: [Data coverage of Fire Ecology Traits for Plants database](https://osf.io/h96q2/) 
+]
+
+[UNSW codeRs @ GitHub](https://github.com/UNSW-codeRs) / [geospatial-data-in-R](https://github.com/UNSW-codeRs/geospatial-data-in-R)
+
+.panel[.panel-name[Images]
+
+Raster and vector concept images from National Ecological Observatory Network (NEON).
+
+Rotating 3D visualisation of the globe from [Aleš Bezděk website.](https://www.asu.cas.cz/~bezdek/vyzkum/rotating_3d_globe/index.php) Described in:
+
+&gt; Bezděk A, Sebera J, 2013. MATLAB script for 3D visualizing geodata on a rotating globe. Computers &amp; geosciences 56, 127–130, http://dx.doi.org/10.1016/j.cageo.2013.03.007.
+
+
+]
+
+.panel[.panel-name[*R* session]
+.small-code[
+
+```r
+sessionInfo()
+## R version 4.3.1 (2023-06-16)
+## Platform: aarch64-apple-darwin20 (64-bit)
+## Running under: macOS Sonoma 14.1.2
+## 
+## Matrix products: default
+## BLAS:   /Library/Frameworks/R.framework/Versions/4.3-arm64/Resources/lib/libRblas.0.dylib 
+## LAPACK: /Library/Frameworks/R.framework/Versions/4.3-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.11.0
+## 
+## locale:
+## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+## 
+## time zone: Australia/Sydney
+## tzcode source: internal
+## 
+## attached base packages:
+## [1] stats     graphics  grDevices utils     datasets  methods   base     
+## 
+## other attached packages:
+##  [1] gstat_2.1-1          knitr_1.44           leaflet_2.1.2       
+##  [4] ggplot2_3.4.3        RColorBrewer_1.1-3   magrittr_2.0.3      
+##  [7] dplyr_1.1.3          plotrix_3.8-2        raster_3.6-20       
+## [10] rgdal_1.6-6          sf_1.0-12            sp_1.6-0            
+## [13] tmap_3.3-3           fontawesome_0.5.2    xaringanthemer_0.4.2
+## 
+## loaded via a namespace (and not attached):
+##  [1] tidyselect_1.2.0        viridisLite_0.4.2       farver_2.1.1           
+##  [4] fastmap_1.1.1           xaringan_0.28           XML_3.99-0.14          
+##  [7] digest_0.6.33           lifecycle_1.0.3         terra_1.7-29           
+## [10] compiler_4.3.1          rlang_1.1.1             sass_0.4.7             
+## [13] tools_4.3.1             utf8_1.2.3              yaml_2.3.7             
+## [16] FNN_1.1.3.2             labeling_0.4.3          htmlwidgets_1.6.2      
+## [19] classInt_0.4-9          curl_5.0.2              here_1.0.1             
+## [22] showtextdb_3.0          abind_1.4-5             KernSmooth_2.23-21     
+## [25] withr_2.5.0             purrr_1.0.2             leafsync_0.1.0         
+## [28] grid_4.3.1              fansi_1.0.4             sysfonts_0.8.8         
+## [31] xts_0.13.1              e1071_1.7-13            leafem_0.2.0           
+## [34] colorspace_2.1-0        scales_1.2.1            dichromat_2.0-0.1      
+## [37] cli_3.6.1               rmarkdown_2.25          intervals_0.15.4       
+## [40] generics_0.1.3          rstudioapi_0.15.0       tmaptools_3.1-1        
+## [43] DBI_1.1.3               cachem_1.0.8            proxy_0.4-27           
+## [46] stars_0.6-1             parallel_4.3.1          s2_1.1.4               
+## [49] base64enc_0.1-3         vctrs_0.6.3             jsonlite_1.8.7         
+## [52] crosstalk_1.2.0         jquerylib_0.1.4         units_0.8-2            
+## [55] glue_1.6.2              lwgeom_0.2-11           codetools_0.2-19       
+## [58] leaflet.providers_1.9.0 xaringanExtra_0.7.0     gtable_0.3.4           
+## [61] munsell_0.5.0           tibble_3.2.1            pillar_1.9.0           
+## [64] htmltools_0.5.6         showtext_0.9-6          R6_2.5.1               
+## [67] wk_0.7.3                rprojroot_2.0.3         evaluate_0.21          
+## [70] lattice_0.21-8          png_0.1-8               bslib_0.5.1            
+## [73] class_7.3-22            Rcpp_1.0.10             spacetime_1.3-0        
+## [76] whisker_0.4.1           xfun_0.40               zoo_1.8-12             
+## [79] pkgconfig_2.0.3
+```
+]
+]
+]
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": true
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+(function(time) {
+  var d2 = function(number) {
+    return ('0' + number).slice(-2); // left-pad 0 to minutes/seconds
+  },
+
+  time_format = function(total) {
+    var secs = Math.abs(total) / 1000;
+    var h = Math.floor(secs / 3600);
+    var m = Math.floor(secs % 3600 / 60);
+    var s = Math.round(secs % 60);
+    var res = d2(m) + ':' + d2(s);
+    if (h > 0) res = h + ':' + res;
+    return res;  // [hh:]mm:ss
+  },
+
+  slide_number_div = function(i) {
+    return document.getElementsByClassName('remark-slide-number').item(i);
+  },
+
+  current_page_number = function(i) {
+    return slide_number_div(i).firstChild.textContent;  // text "i / N"
+  };
+
+  var timer = document.createElement('span'); timer.id = 'slide-time-left';
+  var time_left = time, k = slideshow.getCurrentSlideIndex(),
+      last_page_number = current_page_number(k);
+
+  setInterval(function() {
+    time_left = time_left - 1000;
+    timer.innerHTML = ' ' + time_format(time_left);
+    if (time_left < 0) timer.style.color = 'red';
+  }, 1000);
+
+  slide_number_div(k).appendChild(timer);
+
+  slideshow.on('showSlide', function(slide) {
+    var i = slide.getSlideIndex(), n = current_page_number(i);
+    // reset timer when a new slide is shown and the page number is changed
+    if (last_page_number !== n) {
+      time_left = time; last_page_number = n;
+      timer.innerHTML = ' ' + time_format(time); timer.style.color = null;
+    }
+    slide_number_div(i).appendChild(timer);
+  });
+})(60000);
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

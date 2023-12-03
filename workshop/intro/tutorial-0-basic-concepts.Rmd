@@ -1,0 +1,104 @@
+---
+title: "Geo-spatial tutorial: Overview of packages"
+author: "JR Ferrer-Paris"
+institute: "Centre for Ecosystem Science<br/>UNSW Data Science Hub"
+date: "November 2023 (updated: `r Sys.Date()`)"
+output:
+  learnr::tutorial:
+    progressive: true
+    allow_skip: true
+runtime: shiny_prerendered
+description: >
+  Learn about geo-spatial objects and basic tasks.
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+library(sf)
+library(sp)
+require(leafpop)
+library(leaflet)
+library(mapview)
+
+tutorial_options(
+  exercise.timelimit = 60,
+  # A simple checker function that just returns the message in the check chunk
+  exercise.checker = function(check_code, ...) {
+    list(
+      message = eval(parse(text = check_code)),
+      correct = logical(0),
+      type = "info",
+      location = "append"
+    )
+  }
+)
+knitr::opts_chunk$set(error = TRUE)
+
+here::i_am("workshop/Intro/tutorial-0-basic-concepts.Rmd")
+data_folder <- "data" 
+```
+
+## Welcome
+
+This is part 1 of a series of introductory tutorials to work with geo-spatial data in R. I prepared these tutorials as a intuitive "hands on" introduction, but I provide links for those interested in more background and theory.
+
+In the first sections of this tutorial, you will go through some concepts in order to understand what is an spatial object and what are their properties.
+
+Then you will see some examples of what can you do with these spatial objects and which R packages can be useful for different tasks.
+
+
+### Setup
+
+I've preloaded the packages for this tutorial with
+
+```{r eval = FALSE}
+library(sf)
+library(sp)
+library(leaflet)
+library(mapview)
+library(leafpop)
+```
+
+For this tutorial we will **read spatial objects from files** and **load preexisting R objects from geospatial packages** in order to show some examples. These are preloaded for this tutorial, but if you need to replicate this at home, you will need to install these packages and download the files.
+
+```{r eval = FALSE}
+library(ozmaps)
+```
+
+
+
+```{r, eval=TRUE, child="01-vector-raster.Rmd"}
+
+```
+
+### Good job!
+
+We just ...
+
+We learned:
+
+- What is vector spatial data and what is raster spatial data,
+- What is the difference between spatial and geospatial data,
+- What are spatial and non-spatial attributes, and
+- How to read geospatial data in R using different packages.
+
+But what can we do with these geospatial datasets in R? 
+
+Let's see some examples in the next section!
+
+
+```{r, eval=TRUE, child="02-geospatial-steps.Rmd"}
+
+```
+
+### That's it for this tutorial!
+
+Well, that was our first step into the geospatial world! 
+
+We learned to:
+
+- 
+
+I hope this has been useful and you feel more confident to start working with geo-spatial data in R.
+
+Check the next tutorials in our [geospatial-data repository](https://github.com/UNSW-codeRs/geospatial-data-in-R)

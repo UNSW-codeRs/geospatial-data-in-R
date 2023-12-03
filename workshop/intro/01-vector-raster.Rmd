@@ -1,0 +1,74 @@
+---
+title: "Geo-spatial tutorial: Overview of packages"
+subtitle: "Section 1"
+author: "JR Ferrer-Paris"
+editor_options:
+  chunk_output_type: console
+---
+
+## Plenty of options
+
+There are plenty of options for working with spatial data in R.
+
+You will find many packages from the [rspatial](https://github.com/rspatial) and the [r-spatial](https://github.com/r-spatial) groups. 
+
+There are different packages for different tasks and operations, for example:
+
+- moving spatial data into and out of R: 
+  - vector and raster data with the old *sp* package bundle, 
+  - vector data with the current*sf* package,
+  - raster data with the *raster* or *terra* packages,
+- link to external GIS software: e.g. *GRASS* or *spgrass7*
+- link to external libraries: e.g. *rgdal*, *proj4*
+- handling of spatiotemporal arrays (Data cubes) with [*stars* package](https://github.com/r-spatial/stars/)
+
+Also, the development of powerful external libraries and services allow better visualisation and analysis in R. Some options include:
+
+-   *Leaflet*: open-source JavaScript library for interactive maps, with [package *leaflet*](https://rstudio.github.io/leaflet/)
+-   *Plotly*: Create Interactive Web Graphics via 'plotly.js', with [package *plotly*](https://plotly.com/r/)
+-   *Mapbox GL JS*: open source JavaScript library to render interactive maps, [package *mapboxer*](https://github.com/crazycapivara/mapboxer)
+-   *Google's Eath Engine*: cloud computing platform for planetary-scale data analysis, [package *rgee*](https://github.com/r-spatial/rgee/)
+
+Visit the [CRAN Task View: Analysis of Spatial Data](https://cran.r-project.org/web/views/Spatial.html) for a comprehensive list of packages and links to many more resources.
+
+## Now some examples
+
+### _sp_ package
+
+The good old `sp` package allows us to import "plain" point data and make it "geo-spatial" in three steps:
+
+1. First we read the data into a data frame
+2. Then we declare the names of the  two columns representing the coordinates
+3. Finally, we declare the spatial projection or Coordinate Reference System (for example, using the PROJ4 format)
+
+Let's try these steps and see what changes in the object:
+
+```{r}
+require(sp)
+data_ll <- read.csv(here::here(data_folder, "JBM-points.csv"))
+data_ll
+```
+
+```{r}
+coordinates(data_ll) <- c("Longitude","Latitude")
+data_ll
+```
+
+```{r}
+proj4string(data_ll) <- CRS("+proj=longlat +datum=WGS84")
+data_ll
+```
+
+But we actually need another projection!... no problem!
+
+
+```{r}
+data_utm <- spTransform(data_ll, CRS("+proj=utm +zone=19 +datum=WGS84"))
+data_utm
+```
+
+
+## Vector data with `sf`
+
+The adoption of open standards for spatial data lead to the development of  the [*sf* package](https://github.com/r-spatial/sf/) ("simple features")
+

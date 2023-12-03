@@ -1,0 +1,40 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+# Data folder
+
+Including some small-ish examples
+
+## Sampling frogs in Botanical Garden in Maracaibo 
+
+First download and prepare a file with polygons representing the garden areas:
+
+```{sh}
+#| eval: false
+wget --continue https://github.com/NeoMapas/clima-JBM/raw/dont-panic/ZonificacionJardin.zip
+unzip ZonificacionJardin.zip
+
+ogr2ogr JBM.gpkg ZonificacionJardin.shp -nlt MULTILINESTRING -nln outline -t_srs "+init=epsg:32619"
+rm ZonificacionJardin.*
+```
+
+
+Now read the point data and create a projected vector file
+
+```{r}
+library(sf)
+library(readr)
+library(dplyr)
+here::i_am("data/README.qmd")
+JBM_boundary <- 
+  read_sf(here::here("data","JBM.gpkg")) 
+JBM_sample <- read_csv(here::here("data","JBM-points.csv"), 
+                          show_col_types = FALSE) %>%  
+  st_as_sf(coords=c("Longitude","Latitude"), crs="EPSG:4326") %>% 
+  st_transform(st_crs(JBM_boundary)) %>% 
+  dplyr::select(Uncertainty:Canopy)
+write_sf(dsn=here::here("data","JBM-points.gpkg"), JBM_sample)
+```
+

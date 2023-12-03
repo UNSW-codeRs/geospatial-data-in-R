@@ -62,54 +62,6 @@ mapview(list(franconia, breweries,trails),
 #> Tennekes, M. (2018). tmap: Thematic Maps in R. Journal of Statistical Software, 84(6), 1–39. [DOI:10.18637/jss.v084.i06](https://doi.org/10.18637/jss.v084.i06)
 #Adapted to new version of package:
   
-require(tmap)
-
-data("World", "metro", package = "tmap")
-
-metro$growth <- (metro$pop2020 - metro$pop2010)/(metro$pop2010 * 10) * 100
-
-my_map <- tm_shape(World,projection='+proj=robin') + 
-  tm_polygons("income_grp", palette = "-Blues", 
-              title = "Income class", contrast = 0.7, border.col = "gray30",
-              id = "name") +
-  tm_text("iso_a3", size = "AREA", col = "gray30", root = 3) +
-  tm_shape(metro) + 
-  tm_bubbles("pop2010", col = "growth",
-             border.col = "black", border.alpha = 0.5,
-             breaks = c(-Inf, 0, 2, 4, 6, Inf), palette = "-RdYlGn",
-             title.size = "Metro population (2010)",
-             title.col = "Annual growth rate (%)", id = "name",
-             popup.vars = c("pop2010", "pop2020", "growth")) 
-
-tmap_mode("plot")
-my_map
-
-
-tmap_mode("view")
-my_map
-
-data("land", "rivers", package = "tmap")
-m2 <- tm_shape(land) +
-  tm_raster("elevation", breaks = c(-Inf, 250, 500, 1000, 1500, 2000, 2500, 3000, 4000, Inf),  
-            palette = terrain.colors(9), title = "Elevation (m)") +
-  tm_shape(rivers) + 
-  tm_lines("lightblue", lwd = "strokelwd", scale = 1.5, legend.lwd.show = FALSE) +
-  tm_shape(World, is.master = TRUE,projection = "+proj=eck4") +
-  tm_borders("grey20", lwd = .5) +
-  tm_grid(projection = "+proj=longlat", labels.size = 0.4, lwd = 0.25) +
-  tm_text("name", size = "AREA") +
-  tm_compass(position = c(0.08, 0.45), color.light = "grey90", size = 3) +
-  tm_credits("Eckert IV projection", position = c("RIGHT", "BOTTOM")) +
-  tm_style("classic",
-           bg.color = "lightblue",
-           space.color = "grey90",
-           inner.margins = c(0.04, 0.04, 0.03, 0.02), 
-           earth.boundary = TRUE) +
-  tm_legend(position = c("left", "bottom"), 
-            frame = TRUE,
-            bg.color = "lightblue")
-tmap_mode("plot")
-m2
 
 
 ## Quick overview of `rgee` functions:
