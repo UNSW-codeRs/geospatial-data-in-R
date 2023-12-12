@@ -9,7 +9,7 @@ output:
     allow_skip: true
 runtime: shiny_prerendered
 description: >
-  Learn how to import vector and raster data from different sources and visualise the data.
+  Examples of some packages to import vector and raster data from different sources.
 bibliography: references.bib
 ---
 
@@ -19,11 +19,11 @@ library(sf)
 library(ggplot2)
 library(wdpar)
 library(dplyr)
-library(tmap)
 library(elevatr)
 library(terra)
-library(leafpop)
-library(mapview)
+library(chirps)
+library(lubridate)
+library(leaflet)
 
 tutorial_options(
   exercise.timelimit = 60,
@@ -45,88 +45,237 @@ knitr::opts_chunk$set(error = TRUE)
 
 This is part of a series of introductory tutorials to work with geo-spatial data in R. I prepared these tutorials as a intuitive "hands on" introduction, but I provide links for those interested in more background and theory.
 
-In this tutorial, you will follow some steps to read spatial data in vector format with package `sf` (simple features), estimate the spatial correlation of variables associated with these points and use a semivariogram model to apply spatial interpolation following the indicator kriging approach.
+For this tutorial we will **import and read spatial objects using some libraries in R**. 
+We will explore three packages that allow us to read spatial data in vector and raster format, and give examples of operations, analysis and visualisation of such data.
+
+This tutorial consists entirely of commented code, and does not have exercises or questions. You can read the sections here and try the chunks of code in your own Rstudio session.
 
 ### Setup
 
-I've preloaded the packages for this tutorial with
+I've preloaded the three key packages for this tutorial with:
+
+```{r eval = FALSE}
+library(wdpar)
+library(elevatr)
+library(chirps)
+```
+
+Note that the package `wdpar` requires the PhantomJS executable, you might need to install this with:
+```{r eval = FALSE}
+install.packages("wdpar")
+webdriver::install_phantomjs()
+```
+
+We will also be using additional functions for spatial operations and visualisation from the following packages:
 
 ```{r eval = FALSE}
 library(sf)
-library(gstat)
-library(ggplot2)
-library(tmap)
+library(terra)
+library(leaflet)
 ```
 
+Throughout this tutorial we will be using the  pipe operator, `%>%`. You can use the pipe to rewrite multiple operations in a way that you can read left-to-right, top-to-bottom. We'll use piping frequently because it considerably improves the readability of code. The pipe is a defining feature of the tidyverse, so we will load this set of packages as well.
 
-For this tutorial we will **read spatial objects using some libraries in R**. 
+```{r eval = FALSE}
+library(tidyverse)
+```
 
+The tidyverse package also `lubridate` that has functions for handling dates, and  `ggplot2`, which allow us to create plots in a similar modular fashion, but using the `+` operator instead of the pipe.
 
-## Protected areas in Bhutan
+### Study area: Bhutan
 
-We will focus on Bhutan, a landlocked South Asian country situated in the Eastern Himalayas, between China in the north and India in the south. 
+We will focus on Bhutan. According to [wikipedia](https://en.wikipedia.org/wiki/Bhutan), Bhutan is a landlocked South Asian country situated in the Eastern Himalayas, between China in the north and India in the south. 
 
-A mountainous country, Bhutan is known locally as "Druk Yul" or "Land of the Thunder Dragon".
+A **mountainous country**, Bhutan is known locally as "Druk Yul" or "Land of the Thunder Dragon". The subalpine Himalayan mountains in the north rise from the country's lush subtropical plains in the south. In the Bhutanese Himalayas, there are peaks higher than 7,000 metres (23,000 ft) above sea level.
 
-We will take a look at the protected areas of Bhutan: https://www.protectedplanet.net/country/BTN
+[Bhutan's climate](https://en.wikipedia.org/wiki/Geography_of_Bhutan#Climate) is as varied as its altitudes and is affected by monsoons. **Western Bhutan is particularly affected by monsoons** that bring between 60 and 90 per cent of the region's rainfall.
 
-We use the function `wdpa_fetch`
+## Protected areas from WDPA
+
+[Protected Planet](https://www.protectedplanet.net/en) provides the most comprehensive data for conservation areas worldwide. Specifically, it provides the World Database on Protected Areas (WDPA) and the World Database on Other Effective Area-Based Conservation Measures (WDOECM). We can take a look at the [protected areas of Bhutan](https://www.protectedplanet.net/country/BTN).
+
+The [`wdpar` package](https://cran.r-project.org/web/packages/wdpar/vignettes/wdpar.html) provides an interface to data available on these datasets. It also provides methods for cleaning data from these databases following best practices.
+
+### Fetch WDPA records
+
+We use the function `wdpa_fetch` to download protected area data for Bhutan from Protected Planet. We can achieve this by specifying Bhutan’s country name or its ISO3 code (i.e. "BTN"). Data are downloaded to a temporary directory by default.
+
+```{r, cache=TRUE}
+wdpa_query <- wdpa_fetch("BTN") 
+```
+
+We can display the multiple columns of information returned by the database:
 
 ```{r}
-wdpa_query <- wdpa_fetch("BTN") 
 wdpa_query
 ```
 
+The data is in the simple feature format, and we can apply functions from package `sf` to this dataset. For example calculate the area of the spatial polygons:
+
 ```{r}
-Buthan_PAs <- wdpa_query %>% 
-          select(ORIG_NAME,DESIG,IUCN_CAT,REP_AREA,STATUS_YR,MANG_AUTH)
+st_area(wdpa_query)
 ```
 
-```{r, eval = FALSE}
-mapview(Buthan_PAs,
-        zcol = "STATUS_YR")
+### Clean WDPA records
+
+We will clean the data set using the function `wdpa_clean()`. For more information on the data cleaning procedures applied here, see the help page of that function. 
+
+```{r}
+Bhutan_PAs <- wdpa_clean(wdpa_query) 
 ```
+
+### Visualisation of the vector data
+
+We can use functions from package `leaflet` to create an interactive preview of our data. Notice that we transform the data to a rectangular coordinate reference system when we feed this into the `leaflet` function:
+
+```{r}
+leaflet(Bhutan_PAs %>% st_transform("EPSG:4326")) %>% 
+  addTiles() %>% 
+  addPolygons(color = "green", weight = 2, label = Bhutan_PAs$ORIG_NAME)
+```
+
+Alternatively you could use functions from packages `mapview` or `tmap` for the same purpose. See other tutorials in this workshop for more information on these packages.
+
+## Elevation data raster tiles
+
+Elevation data is used for a wide array of applications, including, for example, visualization, hydrology, and ecological modelling. A variety of APIs now exist that provide programmatic access to elevation data. The [`elevatr`](https://cran.r-project.org/web/packages/elevatr/vignettes/introduction_to_elevatr.html) package was written to standarize access to elevation data from web APIs. 
+
+There are several sources for digital elevation models such as the Shuttle Radar Topography Mission (SRTM), the USGS National Elevation Dataset (NED), Global DEM (GDEM), and others. The [Terrain Tiles]() on Amazon Web Services provides access to a synthesis elevation product (created by the defunct Mapzen project) and can be downloaded using the function `get_elev_raster()`.
+
+### Elevation data for a region of interest
+
+Here we select one protected area from our dataset:
 
 ```{r, eval = TRUE}
-
-tmap_mode("view")
-tm_shape(Buthan_PAs) +
-  tm_polygons("STATUS_YR")
+JSW_NP <- Bhutan_PAs  %>% filter(ORIG_NAME %in% "Jigme Singye Wangchuck National Park")
 ```
 
+We provide this simple feature object to the function `get_elev_raster` and choose an intermediate zoom level (`z = 9`) that is a [trade off between resolution and time for download](https://github.com/tilezen/joerd/blob/master/docs/data-sources.md#what-is-the-ground-resolution). 
 
-```{r, eval = FALSE}
-Royal_Manas <- Buthan_PAs  %>% filter(ORIG_NAME %in% "Royal Manas National Park") 
-JSW_NP <- Buthan_PAs  %>% filter(ORIG_NAME %in% "Jigme Singye Wangchuck National Park")
-```
-
-## Elevation data
-
-```{r, eval = FALSE}
+```{r, cache=TRUE, eval = TRUE}
 elev_data <- get_elev_raster(JSW_NP, z = 9)
-JSW_NP_DEM <- rast(elev_data)
-
 ```
 
+### Visualisation of the data
 
-```{r, eval = FALSE}
+Now we apply the function `rast` from package `terra` to create a raster layer object:
+
+```{r}
+JSW_NP_DEM <- rast(elev_data)
+```
+
+We can plot the raster data and show the protected area boundary on top:
+
+```{r, eval = TRUE, fig.width=6, fig.height=8}
 plot(JSW_NP_DEM)
-contour(JSW_NP_DEM,add=T)
 lines(JSW_NP,  lwd=3, alpha=.6)
 ```
 
+Or we can generate contour lines from this elevation surface.
+
+```{r, eval = TRUE, fig.width=6, fig.height=8}
+plot(JSW_NP_DEM)
+contour(JSW_NP_DEM,add=T)
+```
+
+## Precipitation data from CHIRPS
+
+The [chirps package](https://cran.r-project.org/web/packages/chirps/vignettes/Overview.html) provides functionalities for reproducible analysis using the CHIRPS data. CHIRPS is a daily precipitation data set developed by the [Climate Hazards Group](https://www.chc.ucsb.edu) for high resolution precipitation gridded data. Spanning 50°S - 50°N (and all longitudes) and ranging from 1981 to near-present (normally with a 45 day lag), CHIRPS incorporates 0.05 arc-degree resolution satellite imagery, and in-situ station data to create gridded precipitation time series for trend analysis and seasonal drought monitoring. 
+
+### Precipitation at sample points
+
+We take four random points within Bhutan protected areas to get the precipitation data for a full year. 
+
+First we will use the function `st_transform` to reverse the projection of the spatial object created before. Then we will use the `st_sample` function to select four random points within the polygons of the protected areas.
+
+```{r, cache=TRUE}
+set.seed(1227834)
+
+Bhutan_PAs_latlong <- st_transform(Bhutan_PAs,"EPSG:4326")
+
+JSW_NP_sample <- st_sample(Bhutan_PAs_latlong, 4) %>% 
+  st_as_sf()
+```
+
+###
+
+Let's look at the location of these points:
+
+```{r}
+plot(st_geometry(Bhutan_PAs_latlong))
+plot(JSW_NP_sample, col=1:4, cex=2, pch=19, add=TRUE)
+legend("left", fill=1:4,legend=1:4)
+```
+
+###
+
+For this example we fetch the data from January to December 2020 using `get_chirps()`. We use the server “ClimateSERV” using the argument `server = "ClimateSERV"`. This option is recommended when working with few data points as the request could be faster. 
+
+```{r, cache=TRUE}
+qry_dates <- c("2020-01-01","2020-12-31") 
+precip_data <- get_chirps(JSW_NP_sample,
+                qry_dates, 
+                server = "ClimateSERV")
+```
+
+### Visualisation of data for each location
+
+We summarise the data by months using functions from libraries `lubridate` and `dplyr` and use `ggplot` to create a plot of monthly precipitations.
+
+```{r}
+precip_data %>% 
+  mutate(month = factor(month(date))) %>% 
+  group_by(id,month) %>% 
+  summarise(total=sum(chirps), .groups="drop") %>%
+  ggplot() + 
+  geom_col(aes(x=month, y = total)) +
+  facet_wrap(~id)
+```
+
+Points 1 and 2 are drier, while point locations 3 and 4 receive much more precipitation but have different seasonal patterns.
+
+### Precipitation in a region
+
+We can download raster data by specifying a polygon or bounding box. We will first transform our protected area layer into a spatial vector object using the function `vect` from the `terra` package (this is a bit annoying, but package `terra` uses different functions as `sf`):
+
+```{r}
+Bhutan_vect <- vect(Bhutan_PAs_latlong)
+```
+
+We will download data for all days in the month of July of 2020. The default `server = "CHC"` is used for this query, as it is more efficient for multiple data points and dates.
+
+```{r}
+qry_dates <- c("2020-07-01","2020-07-30") 
+
+precip_map <- get_chirps(Bhutan_vect,
+                  qry_dates, 
+                  server = "CHC", 
+                  as.raster = TRUE)
+```
+
+###
+
+The downloaded data includes one raster layer for each day of the month of July of 2020, we can view a couple of dates using the index of the layers:
+
+```{r}
+plot(precip_map,c(1,10,20,30))
+```
+
+### 
+
+Or we can summarise the month data applying the `sum` function to the raster layer object:
+
+```{r}
+plot(sum(precip_map))
+lines(Bhutan_vect)
+points(JSW_NP_sample, col=1:4, cex=2)
+text(Bhutan_vect,"ORIG_NAME",cex=0.5)
+legend("top", fill=1:4,legend=1:4, xpd=NA, ncol=4)
+```
 
 ### That's it for this tutorial!
 
-Good job!
+I hope this has been useful. After this brief introduction you probably want to keep exploring other packages and data sources that can help you in your quest to discover the world!
 
-We learned to:
+Feel free to check the other tutorials in this workshop at the [UNSW codeRs' geospatial-data repository](https://github.com/UNSW-codeRs/geospatial-data-in-R).
 
-
-I hope this has been useful and you feel more confident to start working with geo-spatial data in R.
-
-Check other tutorials in this workshop at the [UNSW codeRs' geospatial-data repository](https://github.com/UNSW-codeRs/geospatial-data-in-R)
-
-The data for this tutorial comes from:
-
-<div id="refs"></div>
