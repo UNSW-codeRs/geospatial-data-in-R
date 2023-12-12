@@ -69,7 +69,7 @@ library(ggplot2)
 ```
 
 
-For this tutorial we will **read spatial objects from a file**. This file is preloaded in the learner tutorial, but if you want to replicate this steps in an R session, you need to locate the original file in the data folder of the parent repository. For example, using package `here`:
+For this tutorial we will **read spatial objects from a file**. This file is preloaded in this `learnr` tutorial, but if you want to replicate this steps in an R session, you need to locate the original file in the data folder of the parent repository. For example, using package `here`:
 
 ```{r eval = FALSE}
 here::i_am("workshop/tutorial-gstat/tutorial-4-geostatistic-example.Rmd")
