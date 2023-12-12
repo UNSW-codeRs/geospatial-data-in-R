@@ -1,0 +1,132 @@
+---
+title: "Geo-spatial tutorial: work with imported spatial data"
+author: "JR Ferrer-Paris"
+affiliation: "Centre for Ecosystem Science / UNSW Data Science Hub"
+date: "December 2023 (updated: `r Sys.Date()`)"
+output:
+  learnr::tutorial:
+    progressive: true
+    allow_skip: true
+runtime: shiny_prerendered
+description: >
+  Learn how to import vector and raster data from different sources and visualise the data.
+bibliography: references.bib
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+library(sf)
+library(ggplot2)
+library(wdpar)
+library(dplyr)
+library(tmap)
+library(elevatr)
+library(terra)
+library(leafpop)
+library(mapview)
+
+tutorial_options(
+  exercise.timelimit = 60,
+  # A simple checker function that just returns the message in the check chunk
+  exercise.checker = function(check_code, ...) {
+    list(
+      message = eval(parse(text = check_code)),
+      correct = logical(0),
+      type = "info",
+      location = "append"
+    )
+  }
+)
+knitr::opts_chunk$set(error = TRUE)
+
+```
+
+## Welcome
+
+This is part of a series of introductory tutorials to work with geo-spatial data in R. I prepared these tutorials as a intuitive "hands on" introduction, but I provide links for those interested in more background and theory.
+
+In this tutorial, you will follow some steps to read spatial data in vector format with package `sf` (simple features), estimate the spatial correlation of variables associated with these points and use a semivariogram model to apply spatial interpolation following the indicator kriging approach.
+
+### Setup
+
+I've preloaded the packages for this tutorial with
+
+```{r eval = FALSE}
+library(sf)
+library(gstat)
+library(ggplot2)
+library(tmap)
+```
+
+
+For this tutorial we will **read spatial objects using some libraries in R**. 
+
+
+## Protected areas in Bhutan
+
+We will focus on Bhutan, a landlocked South Asian country situated in the Eastern Himalayas, between China in the north and India in the south. 
+
+A mountainous country, Bhutan is known locally as "Druk Yul" or "Land of the Thunder Dragon".
+
+We will take a look at the protected areas of Bhutan: https://www.protectedplanet.net/country/BTN
+
+We use the function `wdpa_fetch`
+
+```{r}
+wdpa_query <- wdpa_fetch("BTN") 
+wdpa_query
+```
+
+```{r}
+Buthan_PAs <- wdpa_query %>% 
+          select(ORIG_NAME,DESIG,IUCN_CAT,REP_AREA,STATUS_YR,MANG_AUTH)
+```
+
+```{r, eval = FALSE}
+mapview(Buthan_PAs,
+        zcol = "STATUS_YR")
+```
+
+```{r, eval = TRUE}
+
+tmap_mode("view")
+tm_shape(Buthan_PAs) +
+  tm_polygons("STATUS_YR")
+```
+
+
+```{r, eval = FALSE}
+Royal_Manas <- Buthan_PAs  %>% filter(ORIG_NAME %in% "Royal Manas National Park") 
+JSW_NP <- Buthan_PAs  %>% filter(ORIG_NAME %in% "Jigme Singye Wangchuck National Park")
+```
+
+## Elevation data
+
+```{r, eval = FALSE}
+elev_data <- get_elev_raster(JSW_NP, z = 9)
+JSW_NP_DEM <- rast(elev_data)
+
+```
+
+
+```{r, eval = FALSE}
+plot(JSW_NP_DEM)
+contour(JSW_NP_DEM,add=T)
+lines(JSW_NP,  lwd=3, alpha=.6)
+```
+
+
+### That's it for this tutorial!
+
+Good job!
+
+We learned to:
+
+
+I hope this has been useful and you feel more confident to start working with geo-spatial data in R.
+
+Check other tutorials in this workshop at the [UNSW codeRs' geospatial-data repository](https://github.com/UNSW-codeRs/geospatial-data-in-R)
+
+The data for this tutorial comes from:
+
+<div id="refs"></div>
