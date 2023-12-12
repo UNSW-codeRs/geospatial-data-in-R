@@ -635,17 +635,17 @@ class: inverse, middle, center
 
 # Hand's on tutorials
 
-For this workshop I have prepared several tutorials. 
+For this workshop I have prepared several tutorials using the R packages `learnr` and `Rmarkdown`. 
 
 You can work through each one of them at your own pace.
 
-| Tutorial | Title | Packages | Links |
+| Nr. | Tutorial | Title | Packages | Links |
 |----------|-------|----------|---------|
-| 1 | Create a spatial object | `sf`, `mapview` | [UNSW-codeRs](https://yessl3-unswcoders.shinyapps.io/tutorial-1-create-spatial-object/) / [ecosphere](https://ecosphere.shinyapps.io/tutorial-1-create-spatial-object/) |
-| 2 | Points, lines and polygons | `sf`, `mapview` | [UNSW-codeRs](https://yessl3-unswcoders.shinyapps.io/tutorial-2-points-lines-polygons/) / [ecosphere]( https://ecosphere.shinyapps.io/tutorial-2-points-lines-polygons/)|
-| 3 | Thematic mapping | `sf`, `tmap` | [ecosphere](https://ecosphere.shinyapps.io/tutorial-3-thematic-map/) |
-| 4 | Geostatistic analysis | `sf`, `sp`, `raster`, `gstat` | work in progress |
-
+| 1 | learnr | Create a spatial object | `sf`, `mapview` | [shinyapps 1](https://yessl3-unswcoders.shinyapps.io/tutorial-1-create-spatial-object/) / [shinyapps 2](https://ecosphere.shinyapps.io/tutorial-1-create-spatial-object/) |
+| 2 | learnr | Points, lines and polygons | `sf`, `mapview` | [shinyapps 1](https://yessl3-unswcoders.shinyapps.io/tutorial-2-points-lines-polygons/) / [shinyapps 2]( https://ecosphere.shinyapps.io/tutorial-2-points-lines-polygons/)|
+| 3 | WIP | Thematic mapping | `sf`, `tmap` | work in progress |
+| 4 | WIP | Geostatistic analysis | `sf`, `sp`, `raster`, `gstat` | work in progress |
+| 5 | html | Accessing vector and raster data | `sf`, `terra`, `leaflet` | [rpubs](https://rpubs.com/jrfep/geospatial-tutorial-5)  |
 ---
 
 

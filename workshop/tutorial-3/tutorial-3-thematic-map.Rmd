@@ -1,6 +1,7 @@
 ---
 title: "Geo-spatial tutorial: thematic map"
 author: "JR Ferrer-Paris"
+affiliation: "Centre for Ecosystem Science / UNSW Data Science Hub"
 date: "March 2021 (updated: `r Sys.Date()`)"
 output:
   learnr::tutorial:
@@ -8,15 +9,16 @@ output:
     allow_skip: true
 runtime: shiny_prerendered
 description: >
-  Learn how to ...
+  Learn how to create thematic maps (static and interactive) using R package `tmap`.
 ---
 
 ```{r setup, include=FALSE}
 library(learnr)
 library(tidyverse)
 library(tmap)
+library(tmaptools)
 library(sf)
-
+library(leafsync)
 tutorial_options(
   exercise.timelimit = 60,
   # A simple checker function that just returns the message in the check chunk

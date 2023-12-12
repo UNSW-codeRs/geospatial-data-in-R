@@ -1,0 +1,123 @@
+---
+title: "Geo-spatial tutorial: spatial interpolation"
+author: "JR Ferrer-Paris"
+affiliation: "Centre for Ecosystem Science / UNSW Data Science Hub"
+date: "March 2021 (updated: `r Sys.Date()`)"
+output:
+  learnr::tutorial:
+    progressive: true
+    allow_skip: true
+runtime: shiny_prerendered
+description: >
+  Learn how to fit a variogram and do spatial interpolation using R package `gstat`.
+bibliography: references.bib
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+library(sf)
+library(gstat)
+library(ggplot2)
+
+tutorial_options(
+  exercise.timelimit = 60,
+  # A simple checker function that just returns the message in the check chunk
+  exercise.checker = function(check_code, ...) {
+    list(
+      message = eval(parse(text = check_code)),
+      correct = logical(0),
+      type = "info",
+      location = "append"
+    )
+  }
+)
+knitr::opts_chunk$set(error = TRUE)
+here::i_am("workshop/tutorial-4/tutorial-4-geostatistic-example.Rmd")
+data_folder <- "data"
+
+# prepare data
+newdata <- here::here(data_folder,"JBM-points-no-crs.gpkg")
+olddata <- here::here(data_folder,"JBM-points.gpkg")
+if (!file.exists(newdata)) {
+    dts <- read_sf(olddata)
+    data_jbm <- dts #%>% mutate(TCC=factor(`Tree cover`))
+    st_geometry(data_jbm) <- st_geometry(data_jbm) - c(203000,1171000)
+    st_crs(data_jbm) = st_crs('LOCAL_CS["Undefined Cartesian SRS"]')
+    write_sf(data_jbm, dsn=newdata)
+}
+
+data_jbm <- read_sf(newdata)
+st_crs(data_jbm) = NA
+xys <- st_coordinates(data_jbm)
+distance_matrix <- st_distance(data_jbm)
+```
+
+## Welcome
+
+This is part of a series of introductory tutorials to work with geo-spatial data in R. I prepared these tutorials as a intuitive "hands on" introduction, but I provide links for those interested in more background and theory.
+
+In this tutorial, you will follow some steps to read spatial data in vector format with package `sf` (simple features), estimate the spatial correlation of variables associated with these points and use a semivariogram model to apply spatial interpolation following the indicator kriging approach.
+
+### Setup
+
+I've preloaded the packages for this tutorial with
+
+```{r eval = FALSE}
+library(sf)
+library(gstat)
+library(ggplot2)
+```
+
+
+For this tutorial we will **read spatial objects from a file**. This file is preloaded in this `learnr` tutorial, but if you want to replicate this steps in an R session, you need to locate the original file in the data folder of the parent repository. For example, using package `here`:
+
+```{r eval = FALSE}
+here::i_am("workshop/tutorial-4/tutorial-4-geostatistic-example.Rmd")
+data_folder <- here::here("data")
+# Check if file exists at data folder
+file.exists(here::here(data_folder, "JBM-points.csv"))
+```
+
+```{r, eval=TRUE, child="01-data-exploration.Rmd"}
+
+```
+
+### One step done, three more to go...
+
+So far we have
+
+- read our data using package `sf`
+- used `ggplot2` for visualising one variable
+
+But we want to quantify the spatial autocorrelation of the data and try to make a spatial prediction for this variable. Let's figure out how to do this in the next steps!
+
+```{r, eval=TRUE, child="02-visualise-data.Rmd"}
+
+```
+
+### Two steps done, two more to go...
+
+```{r, eval=TRUE, child="03-spatial-autocorrelation.Rmd"}
+
+```
+
+### Almost there, one more to go...
+
+```{r, eval=TRUE, child="04-create-grid.Rmd"}
+
+```
+
+### That's it for this tutorial!
+
+Good job!
+
+We learned to:
+
+
+I hope this has been useful and you feel more confident to start working with geo-spatial data in R.
+
+Check other tutorials in this workshop at the [UNSW codeRs' geospatial-data repository](https://github.com/UNSW-codeRs/geospatial-data-in-R)
+
+The data for this tutorial comes from:
+
+<div id="refs"></div>
