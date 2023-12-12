@@ -38,7 +38,8 @@ tutorial_options(
   }
 )
 knitr::opts_chunk$set(error = TRUE)
-
+# here::i_am("workshop/tutorial-5/tutorial-5-read-raster-data.Rmd")
+# local_data_dir <- here::here("data")
 ```
 
 ## Welcome
@@ -98,10 +99,23 @@ The [`wdpar` package](https://cran.r-project.org/web/packages/wdpar/vignettes/wd
 
 ### Fetch WDPA records
 
-We use the function `wdpa_fetch` to download protected area data for Bhutan from Protected Planet. We can achieve this by specifying Bhutan’s country name or its ISO3 code (i.e. "BTN"). Data are downloaded to a temporary directory by default.
+We use the function `wdpa_fetch` to download protected area data for Bhutan from Protected Planet. We can achieve this by specifying Bhutan’s country name or its ISO3 code (i.e. "BTN"). 
 
-```{r, cache=TRUE}
+This file is preloaded in this `learnr` tutorial, but if you want to replicate these steps in an R session, you can either download to a temporary folder:
+
+```{r, eval=FALSE}
 wdpa_query <- wdpa_fetch("BTN") 
+```
+
+Or you need to locate a local data folder for storing the data between sessions. For example, using package `here`:
+
+```{r}
+here::i_am("workshop/tutorial-5/tutorial-5-read-raster-data.Rmd")
+local_data_dir <- here::here("data")
+# Check if data folder exists
+if (dir.exists(local_data_dir)) {
+  wdpa_query <- wdpa_fetch("BTN", download_dir = local_data_dir) 
+}
 ```
 
 We can display the multiple columns of information returned by the database:
