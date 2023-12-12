@@ -36,10 +36,16 @@ my_map
 
 But turning on the `view` mode offers us a fully functional and interactive leaflet map in our viewer. 
 
-```{r}
+```{r, eval = FALSE}
 tmap_mode("view")
 my_map
 ```
+
+::: {#hello .greeting .message style="color: red;"}
+The interactive mode is currently not working in the `learnr` document.
+
+Try this in your R session instead.
+:::
 
 You can zoom and pan your view, and select layers to display in your map, if you click on the features (polygons or points) you will see the id and the variables used for plotting or defined in the `popup.vars` parameter.
 

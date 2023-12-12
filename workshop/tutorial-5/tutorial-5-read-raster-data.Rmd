@@ -3,44 +3,14 @@ title: "Geo-spatial tutorial: work with imported spatial data"
 author: "JR Ferrer-Paris"
 affiliation: "Centre for Ecosystem Science / UNSW Data Science Hub"
 date: "December 2023 (updated: `r Sys.Date()`)"
-output:
-  learnr::tutorial:
-    progressive: true
-    allow_skip: true
-runtime: shiny_prerendered
+output: 
+  html_document:
+    toc: true
+    toc_float: true
 description: >
   Examples of some packages to import vector and raster data from different sources.
 bibliography: references.bib
 ---
-
-```{r setup, include=FALSE}
-library(learnr)
-library(sf)
-library(ggplot2)
-library(wdpar)
-library(dplyr)
-library(elevatr)
-library(terra)
-library(chirps)
-library(lubridate)
-library(leaflet)
-
-tutorial_options(
-  exercise.timelimit = 60,
-  # A simple checker function that just returns the message in the check chunk
-  exercise.checker = function(check_code, ...) {
-    list(
-      message = eval(parse(text = check_code)),
-      correct = logical(0),
-      type = "info",
-      location = "append"
-    )
-  }
-)
-knitr::opts_chunk$set(error = TRUE)
-# here::i_am("workshop/tutorial-5/tutorial-5-read-raster-data.Rmd")
-# local_data_dir <- here::here("data")
-```
 
 ## Welcome
 
@@ -53,9 +23,9 @@ This tutorial consists entirely of commented code, and does not have exercises o
 
 ### Setup
 
-I've preloaded the three key packages for this tutorial with:
+The focus of this tutorial will be on three packages for download of spatial data:
 
-```{r eval = FALSE}
+```{r eval = TRUE}
 library(wdpar)
 library(elevatr)
 library(chirps)
@@ -69,7 +39,7 @@ webdriver::install_phantomjs()
 
 We will also be using additional functions for spatial operations and visualisation from the following packages:
 
-```{r eval = FALSE}
+```{r eval = TRUE}
 library(sf)
 library(terra)
 library(leaflet)
@@ -77,7 +47,7 @@ library(leaflet)
 
 Throughout this tutorial we will be using the  pipe operator, `%>%`. You can use the pipe to rewrite multiple operations in a way that you can read left-to-right, top-to-bottom. We'll use piping frequently because it considerably improves the readability of code. The pipe is a defining feature of the tidyverse, so we will load this set of packages as well.
 
-```{r eval = FALSE}
+```{r eval = TRUE}
 library(tidyverse)
 ```
 
@@ -97,26 +67,41 @@ A **mountainous country**, Bhutan is known locally as "Druk Yul" or "Land of the
 
 The [`wdpar` package](https://cran.r-project.org/web/packages/wdpar/vignettes/wdpar.html) provides an interface to data available on these datasets. It also provides methods for cleaning data from these databases following best practices.
 
-### Fetch WDPA records
+### Fetch WDPA records {.tabset}
 
 We use the function `wdpa_fetch` to download protected area data for Bhutan from Protected Planet. We can achieve this by specifying Bhutan’s country name or its ISO3 code (i.e. "BTN"). 
 
-This file is preloaded in this `learnr` tutorial, but if you want to replicate these steps in an R session, you can either download to a temporary folder:
+I preloaded this query for the tutorial, but if you want to replicate these steps in an R session, you have two options:
+
+#### Download to a temporary folder
+
+This is the default behaviour, good enough for a test:
 
 ```{r, eval=FALSE}
 wdpa_query <- wdpa_fetch("BTN") 
 ```
 
-Or you need to locate a local data folder for storing the data between sessions. For example, using package `here`:
+#### Download to a local folder
+
+If you download the data into a persistent directory R won’t have to re-download the same dataset every time we restart our R session, and R can simply re-load previously downloaded datasets as needed.
+
+First locate a local data folder for storing the data between sessions. For example, using package `here`:
 
 ```{r}
 here::i_am("workshop/tutorial-5/tutorial-5-read-raster-data.Rmd")
 local_data_dir <- here::here("data")
+```
+
+Now, check if the data folder exists, and apply the `wdpa_query` function with an extra argument:
+
+```{r}
 # Check if data folder exists
 if (dir.exists(local_data_dir)) {
   wdpa_query <- wdpa_fetch("BTN", download_dir = local_data_dir) 
 }
 ```
+
+### Explore WDPA records
 
 We can display the multiple columns of information returned by the database:
 
@@ -132,7 +117,7 @@ st_area(wdpa_query)
 
 ### Clean WDPA records
 
-We will clean the data set using the function `wdpa_clean()`. For more information on the data cleaning procedures applied here, see the help page of that function. 
+We will clean the data set using the function `wdpa_clean()`. This function triggers a workflow for cleaning data from the WDPA database following best practices (outlined in @Runge2015 and @Butchart2015). For more information on the data cleaning procedures applied here, see the help page of that function. 
 
 ```{r}
 Bhutan_PAs <- wdpa_clean(wdpa_query) 
@@ -166,7 +151,7 @@ JSW_NP <- Bhutan_PAs  %>% filter(ORIG_NAME %in% "Jigme Singye Wangchuck National
 
 We provide this simple feature object to the function `get_elev_raster` and choose an intermediate zoom level (`z = 9`) that is a [trade off between resolution and time for download](https://github.com/tilezen/joerd/blob/master/docs/data-sources.md#what-is-the-ground-resolution). 
 
-```{r, cache=TRUE, eval = TRUE}
+```{r, eval = TRUE}
 elev_data <- get_elev_raster(JSW_NP, z = 9)
 ```
 
@@ -194,7 +179,7 @@ contour(JSW_NP_DEM,add=T)
 
 ## Precipitation data from CHIRPS
 
-The [chirps package](https://cran.r-project.org/web/packages/chirps/vignettes/Overview.html) provides functionalities for reproducible analysis using the CHIRPS data. CHIRPS is a daily precipitation data set developed by the [Climate Hazards Group](https://www.chc.ucsb.edu) for high resolution precipitation gridded data. Spanning 50°S - 50°N (and all longitudes) and ranging from 1981 to near-present (normally with a 45 day lag), CHIRPS incorporates 0.05 arc-degree resolution satellite imagery, and in-situ station data to create gridded precipitation time series for trend analysis and seasonal drought monitoring. 
+The [chirps package](https://cran.r-project.org/web/packages/chirps/vignettes/Overview.html) provides functionalities for reproducible analysis using the CHIRPS data [@Funk2015]. CHIRPS is a daily precipitation data set developed by the [Climate Hazards Group](https://www.chc.ucsb.edu) for high resolution precipitation gridded data. Spanning 50°S - 50°N (and all longitudes) and ranging from 1981 to near-present (normally with a 45 day lag), CHIRPS incorporates 0.05 arc-degree resolution satellite imagery, and in-situ station data to create gridded precipitation time series for trend analysis and seasonal drought monitoring. 
 
 ### Precipitation at sample points
 
@@ -202,7 +187,7 @@ We take four random points within Bhutan protected areas to get the precipitatio
 
 First we will use the function `st_transform` to reverse the projection of the spatial object created before. Then we will use the `st_sample` function to select four random points within the polygons of the protected areas.
 
-```{r, cache=TRUE}
+```{r}
 set.seed(1227834)
 
 Bhutan_PAs_latlong <- st_transform(Bhutan_PAs,"EPSG:4326")
@@ -210,8 +195,6 @@ Bhutan_PAs_latlong <- st_transform(Bhutan_PAs,"EPSG:4326")
 JSW_NP_sample <- st_sample(Bhutan_PAs_latlong, 4) %>% 
   st_as_sf()
 ```
-
-###
 
 Let's look at the location of these points:
 
@@ -221,11 +204,9 @@ plot(JSW_NP_sample, col=1:4, cex=2, pch=19, add=TRUE)
 legend("left", fill=1:4,legend=1:4)
 ```
 
-###
-
 For this example we fetch the data from January to December 2020 using `get_chirps()`. We use the server “ClimateSERV” using the argument `server = "ClimateSERV"`. This option is recommended when working with few data points as the request could be faster. 
 
-```{r, cache=TRUE}
+```{r}
 qry_dates <- c("2020-01-01","2020-12-31") 
 precip_data <- get_chirps(JSW_NP_sample,
                 qry_dates, 
@@ -267,15 +248,11 @@ precip_map <- get_chirps(Bhutan_vect,
                   as.raster = TRUE)
 ```
 
-###
-
 The downloaded data includes one raster layer for each day of the month of July of 2020, we can view a couple of dates using the index of the layers:
 
 ```{r}
 plot(precip_map,c(1,10,20,30))
 ```
-
-### 
 
 Or we can summarise the month data applying the `sum` function to the raster layer object:
 
@@ -287,9 +264,10 @@ text(Bhutan_vect,"ORIG_NAME",cex=0.5)
 legend("top", fill=1:4,legend=1:4, xpd=NA, ncol=4)
 ```
 
-### That's it for this tutorial!
+## That's it for this tutorial!
 
 I hope this has been useful. After this brief introduction you probably want to keep exploring other packages and data sources that can help you in your quest to discover the world!
 
 Feel free to check the other tutorials in this workshop at the [UNSW codeRs' geospatial-data repository](https://github.com/UNSW-codeRs/geospatial-data-in-R).
 
+## References
