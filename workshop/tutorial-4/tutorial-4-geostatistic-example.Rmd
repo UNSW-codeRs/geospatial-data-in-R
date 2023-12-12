@@ -2,7 +2,7 @@
 title: "Geo-spatial tutorial: spatial interpolation"
 author: "JR Ferrer-Paris"
 affiliation: "Centre for Ecosystem Science / UNSW Data Science Hub"
-date: "March 2021 (updated: `r Sys.Date()`)"
+date: "March 2023 (updated: `r Sys.Date()`)"
 output:
   learnr::tutorial:
     progressive: true
@@ -17,6 +17,8 @@ bibliography: references.bib
 library(learnr)
 library(sf)
 library(gstat)
+library(dplyr)
+library(raster)
 library(ggplot2)
 
 tutorial_options(
@@ -45,11 +47,24 @@ if (!file.exists(newdata)) {
     st_crs(data_jbm) = st_crs('LOCAL_CS["Undefined Cartesian SRS"]')
     write_sf(data_jbm, dsn=newdata)
 }
-
 data_jbm <- read_sf(newdata)
 st_crs(data_jbm) = NA
+
+newdata <- here::here(data_folder,"JBM-boundary-no-crs.gpkg")
+olddata <- here::here(data_folder,"JBM.gpkg")
+if (!file.exists(newdata)) {
+  dts <- read_sf(here::here(data_folder, "JBM.gpkg"))
+  boundary_jbm <- filter(dts, id %in% c(7,8,11))
+  st_geometry(boundary_jbm) <- st_geometry(boundary_jbm) - c(203000,1171000)
+    st_crs(boundary_jbm) = st_crs('LOCAL_CS["Undefined Cartesian SRS"]')
+    write_sf(boundary_jbm, dsn = newdata)
+}
+boundary_jbm <- read_sf(newdata)
+st_crs(boundary_jbm) = NA
+
 xys <- st_coordinates(data_jbm)
 distance_matrix <- st_distance(data_jbm)
+
 ```
 
 ## Welcome
@@ -66,6 +81,7 @@ I've preloaded the packages for this tutorial with
 library(sf)
 library(gstat)
 library(ggplot2)
+library(raster)
 ```
 
 
@@ -76,13 +92,26 @@ here::i_am("workshop/tutorial-4/tutorial-4-geostatistic-example.Rmd")
 data_folder <- here::here("data")
 # Check if file exists at data folder
 file.exists(here::here(data_folder, "JBM-points.csv"))
+file.exists(here::here(data_folder, "JBM.gpkg"))
 ```
 
 ```{r, eval=TRUE, child="01-data-exploration.Rmd"}
 
 ```
 
-### One step done, three more to go...
+### One step done...
+
+So far we have
+
+- read our data using package `sf`
+
+We are just getting started, let's keep going!
+
+```{r, eval=TRUE, child="02-visualise-data.Rmd"}
+
+```
+
+### This looks good!
 
 So far we have
 
@@ -91,19 +120,36 @@ So far we have
 
 But we want to quantify the spatial autocorrelation of the data and try to make a spatial prediction for this variable. Let's figure out how to do this in the next steps!
 
-```{r, eval=TRUE, child="02-visualise-data.Rmd"}
-
-```
-
-### Two steps done, two more to go...
-
 ```{r, eval=TRUE, child="03-spatial-autocorrelation.Rmd"}
 
 ```
 
-### Almost there, one more to go...
+### Just mastered spatial auto-correlation!
+
+So far we have
+
+- read our data using package `sf`
+- used `ggplot2` for visualising one variable
+- used `gstat` functions for fitting a variogram model
+
+Now we are almost ready to make a spatial prediction, but first let's create a raster mask!
 
 ```{r, eval=TRUE, child="04-create-grid.Rmd"}
+
+```
+
+### From vector to raster!
+
+Awesome! So far we have:
+
+- read our data using package `sf`
+- used `ggplot2` for visualising one variable
+- used `gstat` functions for fitting a variogram model
+- used `raster` and legacy `sp` functions to create a spatial grid for prediction
+
+Here comes the fun part: spatial prediction with kriging.
+
+```{r, eval=TRUE, child="05-kriging.Rmd"}
 
 ```
 
@@ -113,6 +159,11 @@ Good job!
 
 We learned to:
 
+- read our data using package `sf`
+- used `ggplot2` for visualising one variable
+- used `gstat` functions for fitting a variogram model
+- used `raster` and legacy `sp` functions to create a spatial grid for prediction
+- used `gstat` functions for spatial prediction (kriging)
 
 I hope this has been useful and you feel more confident to start working with geo-spatial data in R.
 

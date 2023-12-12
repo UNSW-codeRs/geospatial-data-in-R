@@ -643,8 +643,8 @@ You can work through each one of them at your own pace.
 |----------|-------|----------|---------|
 | 1 | learnr | Create a spatial object | `sf`, `mapview` | [shinyapps 1](https://yessl3-unswcoders.shinyapps.io/tutorial-1-create-spatial-object/) / [shinyapps 2](https://ecosphere.shinyapps.io/tutorial-1-create-spatial-object/) |
 | 2 | learnr | Points, lines and polygons | `sf`, `mapview` | [shinyapps 1](https://yessl3-unswcoders.shinyapps.io/tutorial-2-points-lines-polygons/) / [shinyapps 2]( https://ecosphere.shinyapps.io/tutorial-2-points-lines-polygons/)|
-| 3 | WIP | Thematic mapping | `sf`, `tmap` | work in progress |
-| 4 | WIP | Geostatistic analysis | `sf`, `sp`, `raster`, `gstat` | work in progress |
+| 3 | learnr | Thematic mapping | `sf`, `tmap` | [posit cloud](https://posit.cloud/content/7255037) / [posit connect](https://posit-connect-unsw.intersect.org.au/content/fbb893a7-f657-435a-ab18-4116252cd14c) |
+| 4 | learnr | Geostatistic analysis | `sf`, `sp`, `raster`, `gstat` | work in progress |
 | 5 | html | Accessing vector and raster data | `sf`, `terra`, `leaflet` | [rpubs](https://rpubs.com/jrfep/geospatial-tutorial-5)  |
 ---
 
