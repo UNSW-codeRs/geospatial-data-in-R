@@ -35,13 +35,19 @@ For the Workshop I set up the tutorials using the package `learnr`. You can run 
 
 The online versions of these tutorial are available through alternative shinyapp, rpubs, posit cloud or posit connect accounts in the following links:
 
-| Nr. | Tutorial | Title | Packages | Links |
-|----------|-------|----------|---------|
-| 1 | learnr | Create a spatial object | `sf`, `mapview` | [shinyapps 1](https://yessl3-unswcoders.shinyapps.io/tutorial-1-create-spatial-object/) / [shinyapps 2](https://ecosphere.shinyapps.io/tutorial-1-create-spatial-object/) |
-| 2 | learnr | Points, lines and polygons | `sf`, `mapview` | [shinyapps 1](https://yessl3-unswcoders.shinyapps.io/tutorial-2-points-lines-polygons/) / [shinyapps 2]( https://ecosphere.shinyapps.io/tutorial-2-points-lines-polygons/) |
-| 3 | learnr | Thematic mapping | `sf`, `tmap` | [posit cloud](https://posit.cloud/content/7255037) / [posit connect](https://posit-connect-unsw.intersect.org.au/content/fbb893a7-f657-435a-ab18-4116252cd14c) |
-| 4 | learnr | Geostatistic analysis | `sf`, `sp`, `raster`, `gstat` | [shinyapps 1](https://ecosphere.shinyapps.io/tutorial-4-geostatistic-example/) |
-| 5 | html | Accessing vector and raster data | `sf`, `terra`, `leaflet` | [rpubs](https://rpubs.com/jrfep/geospatial-tutorial-5)  |
+1. Create a spatial object (using `sf`, `mapview`) 
+  - [shinyapps 1](https://yessl3-unswcoders.shinyapps.io/tutorial-1-create-spatial-object/)
+  - [shinyapps 2](https://ecosphere.shinyapps.io/tutorial-1-create-spatial-object/)
+2. Points, lines and polygons (using `sf`, `mapview`)
+  - [shinyapps 1](https://yessl3-unswcoders.shinyapps.io/tutorial-2-points-lines-polygons/) 
+  - [shinyapps 2]( https://ecosphere.shinyapps.io/tutorial-2-points-lines-polygons/) 
+3. Thematic mapping (using `sf`, `tmap`) 
+  - [posit cloud](https://posit.cloud/content/7255037) 
+  - [posit connect](https://posit-connect-unsw.intersect.org.au/content/fbb893a7-f657-435a-ab18-4116252cd14c)
+4. Geostatistic analysis (using `sf`, `sp`, `raster`, `gstat`) 
+  - [shinyapps 1](https://ecosphere.shinyapps.io/tutorial-4-geostatistic-example/)
+5. Accessing vector and raster data (using `sf`, `terra`, `leaflet`)      
+  - [rpubs](https://rpubs.com/jrfep/geospatial-tutorial-5) 
 
 
 
