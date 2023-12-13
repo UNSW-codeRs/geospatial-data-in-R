@@ -21,16 +21,28 @@ José Rafael Ferrer-Paris (a.k.a. JR) is currently Research Fellow at the Centre
 
 The introduction to the workshop is available in the folder [intro-presentation/](intro-presentation/)
 
+And is published in rpubs at: <https://rpubs.com/jrfep/geospatial-workshop-intro-12-2023>
+
+*Title*: Geospatial tutorial - intro
+
+*Description*: Spatial data is essential for understanding many phenomena in natural and social sciences, and maps are used in a variety of fields to visualise data and results in an appealing and interpretive way. In this workshop I will show examples of how to work with geospatial data in R, including some basic geospatial analysis.
+
+*Slug*: geospatial-workshop-intro-12-2023
+
 ### Tutorials
 
 For the Workshop I set up the tutorials using the package `learnr`. You can run these in your local machine from the workshop folder, but you need to handle all the right version of the packages.
 
-The online versions of these tutorial are available through alternative shinyapp accounts in the following addresses:
+The online versions of these tutorial are available through alternative shinyapp, rpubs, posit cloud or posit connect accounts in the following links:
 
-- Tutorial 1: Create a spatial object [option 1](https://ecosphere.shinyapps.io/tutorial-1-create-spatial-object/) [option 2]( https://yessl3-unswcoders.shinyapps.io/tutorial-1-create-spatial-object/)
-- Tutorial 2: Points, Lines and Polygons [option 1](https://yessl3-unswcoders.shinyapps.io/tutorial-2-points-lines-polygons/) [option 2]( https://ecosphere.shinyapps.io/tutorial-2-points-lines-polygons/)
-- Tutorial 2: Thematic maps 
-- Tutorial 4: In preparation 
+| Nr. | Tutorial | Title | Packages | Links |
+|----------|-------|----------|---------|
+| 1 | learnr | Create a spatial object | `sf`, `mapview` | [shinyapps 1](https://yessl3-unswcoders.shinyapps.io/tutorial-1-create-spatial-object/) / [shinyapps 2](https://ecosphere.shinyapps.io/tutorial-1-create-spatial-object/) |
+| 2 | learnr | Points, lines and polygons | `sf`, `mapview` | [shinyapps 1](https://yessl3-unswcoders.shinyapps.io/tutorial-2-points-lines-polygons/) / [shinyapps 2]( https://ecosphere.shinyapps.io/tutorial-2-points-lines-polygons/) |
+| 3 | learnr | Thematic mapping | `sf`, `tmap` | [posit cloud](https://posit.cloud/content/7255037) / [posit connect](https://posit-connect-unsw.intersect.org.au/content/fbb893a7-f657-435a-ab18-4116252cd14c) |
+| 4 | learnr | Geostatistic analysis | `sf`, `sp`, `raster`, `gstat` | [shinyapps 1](https://ecosphere.shinyapps.io/tutorial-4-geostatistic-example/) |
+| 5 | html | Accessing vector and raster data | `sf`, `terra`, `leaflet` | [rpubs](https://rpubs.com/jrfep/geospatial-tutorial-5)  |
+
 
 
 ### Going back in time

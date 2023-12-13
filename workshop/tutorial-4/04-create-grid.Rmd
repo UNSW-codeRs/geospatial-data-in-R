@@ -4,7 +4,7 @@
 We read the JBM boundary file from our data folder:
 
 ```{r}
-boundary_jbm <- read_sf(here::here(data_folder, "JBM-boundary-no-crs.gpkg"))
+boundary_jbm <- read_sf(paste(data_folder, "JBM-boundary-no-crs.gpkg", sep="/"))
 ```
 
 First we create an empty raster using functions from package `raster`.

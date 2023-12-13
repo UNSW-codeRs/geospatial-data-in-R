@@ -678,7 +678,7 @@ This presentation was prepared by José R. Ferrer-Paris
 .panel[.panel-name[Links]
 Presentation available at:
 
-[rpubs.com/jrfep/geospatial-workshop-2023](https://rpubs.com/jrfep/geospatial-workshop-intro-2023)
+[rpubs.com/jrfep/geospatial-workshop-2023](https://rpubs.com/jrfep/geospatial-workshop-intro-12-2023)
 
 Powered by [RStudio](https://posit.co/products/open-source/rstudio/), [Rmarkdown](https://bookdown.org/yihui/rmarkdown/xaringan.html), and [xaringan](https://github.com/yihui/xaringan). 
 

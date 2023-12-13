@@ -34,36 +34,22 @@ tutorial_options(
   }
 )
 knitr::opts_chunk$set(error = TRUE)
-here::i_am("workshop/tutorial-4/tutorial-4-geostatistic-example.Rmd")
+## here::i_am and here::here can be problematic if we want to deploy in shinyapps, 
+## and the data is in a different folder as the document
 data_folder <- "data"
 
 # prepare data
-newdata <- here::here(data_folder,"JBM-points-no-crs.gpkg")
-olddata <- here::here(data_folder,"JBM-points.gpkg")
-if (!file.exists(newdata)) {
-    dts <- read_sf(olddata)
-    data_jbm <- dts #%>% mutate(TCC=factor(`Tree cover`))
-    st_geometry(data_jbm) <- st_geometry(data_jbm) - c(203000,1171000)
-    st_crs(data_jbm) = st_crs('LOCAL_CS["Undefined Cartesian SRS"]')
-    write_sf(data_jbm, dsn=newdata)
-}
+newdata <- paste0(data_folder, "/JBM-points-no-crs.gpkg")
 data_jbm <- read_sf(newdata)
 st_crs(data_jbm) = NA
 
-newdata <- here::here(data_folder,"JBM-boundary-no-crs.gpkg")
-olddata <- here::here(data_folder,"JBM.gpkg")
-if (!file.exists(newdata)) {
-  dts <- read_sf(here::here(data_folder, "JBM.gpkg"))
-  boundary_jbm <- filter(dts, id %in% c(7,8,11))
-  st_geometry(boundary_jbm) <- st_geometry(boundary_jbm) - c(203000,1171000)
-    st_crs(boundary_jbm) = st_crs('LOCAL_CS["Undefined Cartesian SRS"]')
-    write_sf(boundary_jbm, dsn = newdata)
-}
+newdata <- paste0(data_folder, "/JBM-boundary-no-crs.gpkg")
 boundary_jbm <- read_sf(newdata)
 st_crs(boundary_jbm) = NA
 
 xys <- st_coordinates(data_jbm)
 distance_matrix <- st_distance(data_jbm)
+
 
 ```
 
@@ -172,6 +158,7 @@ I hope this has been useful and you feel more confident to start working with ge
 Check other tutorials in this workshop at the [UNSW codeRs' geospatial-data repository](https://github.com/UNSW-codeRs/geospatial-data-in-R) or in the following links:
 
 ```{r echo=FALSE, results='asis'}
+here::i_am("workshop/tutorial-4/tutorial-4-geostatistic-example.Rmd")
 cat(knitr::knit_child(text = readLines(here::here("tutorials-links.Rmd")), quiet=TRUE), sep = '\n')
 ```
 

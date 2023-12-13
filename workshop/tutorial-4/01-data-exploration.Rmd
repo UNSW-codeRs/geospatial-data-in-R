@@ -13,7 +13,7 @@ One particular frog is almost always present when tree cover is high and always 
 We will read one version of the data with simple spatial data. 
 
 ```{r, eval=TRUE}
-data_jbm <- read_sf(here::here(data_folder, "JBM-points-no-crs.gpkg"))
+data_jbm <- read_sf(paste0(data_folder, "/JBM-points-no-crs.gpkg"))
 ```
 
 The spatial coordinates are relative to an arbitrary point within the botanical garden, and the Coordinate Reference System is undefined with meter units.

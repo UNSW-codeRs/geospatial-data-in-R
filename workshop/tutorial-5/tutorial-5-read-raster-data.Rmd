@@ -268,6 +268,12 @@ legend("top", fill=1:4,legend=1:4, xpd=NA, ncol=4)
 
 I hope this has been useful. After this brief introduction you probably want to keep exploring other packages and data sources that can help you in your quest to discover the world!
 
-Feel free to check the other tutorials in this workshop at the [UNSW codeRs' geospatial-data repository](https://github.com/UNSW-codeRs/geospatial-data-in-R).
+### What is next?
 
-## References
+Feel free to check other tutorials in this workshop at the [UNSW codeRs' geospatial-data repository](https://github.com/UNSW-codeRs/geospatial-data-in-R) or in the following links:
+
+```{r echo=FALSE, results='asis'}
+cat(knitr::knit_child(text = readLines(here::here("tutorials-links.Rmd")), quiet=TRUE), sep = '\n')
+```
+
+### References

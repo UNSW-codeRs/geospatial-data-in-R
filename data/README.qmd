@@ -46,3 +46,36 @@ here::i_am("workshop/tutorial-5/tutorial-5-read-raster-data.Rmd")
 wdpa_query <- wdpa_fetch("BTN", download_dir = here::here("data")) 
 ```
 
+## Data for tutorial 4
+
+```{r}
+here::i_am("workshop/tutorial-4/tutorial-4-geostatistic-example.Rmd")
+library(sf)
+library(dplyr)
+input_data_folder <- "data"
+output_data_folder <- "workshop/tutorial-4/data"
+if (!dir.exists(output_data_folder))
+  dir.create(output_data_folder)
+# prepare data
+newdata <- here::here(output_data_folder,"JBM-points-no-crs.gpkg")
+olddata <- here::here(input_data_folder,"JBM-points.gpkg")
+if (!file.exists(newdata)) {
+    dts <- read_sf(olddata)
+    data_jbm <- dts #%>% mutate(TCC=factor(`Tree cover`))
+    st_geometry(data_jbm) <- st_geometry(data_jbm) - c(203000,1171000)
+    st_crs(data_jbm) = st_crs('LOCAL_CS["Undefined Cartesian SRS"]')
+    write_sf(data_jbm, dsn=newdata)
+}
+
+
+newdata <- here::here(output_data_folder,"JBM-boundary-no-crs.gpkg")
+olddata <- here::here(input_data_folder,"JBM.gpkg")
+if (!file.exists(newdata)) {
+  dts <- read_sf(olddata)
+  boundary_jbm <- filter(dts, id %in% c(7,8,11))
+  st_geometry(boundary_jbm) <- st_geometry(boundary_jbm) - c(203000,1171000)
+    st_crs(boundary_jbm) = st_crs('LOCAL_CS["Undefined Cartesian SRS"]')
+    write_sf(boundary_jbm, dsn = newdata)
+}
+
+```
