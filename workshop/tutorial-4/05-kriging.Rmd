@@ -1,0 +1,35 @@
+
+## Kriging
+
+In Geostatistics the term **Kriging** is used for a family of models that minimise the spatial error and can be used for spatial interpolation and prediction. Here we use **Indicator kriging** to interpolate the probability of $Z = \mathrm{Tree\ cover} > 2$ from out measurement points into a regular grid.
+
+Here all of our previous steps come together:
+
+```{r kriging_fit, context = "setup"}
+ik = krige(Z ~ 1, # our target variable
+           as_Spatial(data_jbm), # our spatial data
+           prd.grd, # the regular grid for prediction 
+           variogram_model) # the spatial autocorrelation
+
+```
+
+### Visualise the prediction
+
+```{r kriging_pred, exercise = TRUE}
+spplot(ik["var1.pred"],
+       main = "indicator kriging predictions",
+       sub = "Z = Tree Cover > 2")
+```
+
+### Visualise the variance
+
+
+```{r kriging_var, exercise = TRUE}
+spplot(ik["var1.var"],
+       main = "indicator kriging variance",
+       sub = "Z = Tree Cover > 2")
+```
+
+What kind of geospatial analysis is this?
+
+What kind of geospatial data was produced in the prediction?

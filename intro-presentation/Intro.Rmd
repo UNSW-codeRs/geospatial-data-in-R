@@ -290,10 +290,9 @@ Visualisation of geospatial data is very important, and there are many options i
 
 Later, we will explore vector data in R with:
 
-- [Tutorial 1: create a spatial object](https://yessl3-unswcoders.shinyapps.io/tutorial-1-create-spatial-object/)
-
-
-- [Tutorial 2: points, lines and polygons](https://yessl3-unswcoders.shinyapps.io/tutorial-2-points-lines-polygons/)
+```{r echo=FALSE, results='asis'}
+cat(knit_child(text = readLines(here::here("tutorials-table.Rmd"))[c(1:2,3:5)], quiet=TRUE), sep = '\n')
+```
 
 ---
 layout: false
@@ -448,6 +447,11 @@ What do the size and colour of the bubbles indicate?
 ---
 
 You can work through these steps in more detail in the following tutorial.
+
+```{r echo=FALSE, results='asis'}
+cat(knit_child(text = readLines(here::here("tutorials-table.Rmd"))[c(1:2,5)], quiet=TRUE), sep = '\n')
+```
+
 
 ---
 layout: true
@@ -628,6 +632,10 @@ What kind of geospatial data was produced in the prediction?
 
 You can work through the full example of the analysis in the tutorial 
 
+```{r echo=FALSE, results='asis'}
+cat(knit_child(text = readLines(here::here("tutorials-table.Rmd"))[c(1:2,6)], quiet=TRUE), sep = '\n')
+```
+
 
 ---
 layout:false
@@ -635,17 +643,12 @@ class: inverse, middle, center
 
 # Hand's on tutorials
 
-For this workshop I have prepared several tutorials using the R packages `learnr` and `Rmarkdown`. 
+For this workshop I have prepared several tutorials using the R packages `learnr` and `Rmarkdown`. You can work through each one of them at your own pace.
 
-You can work through each one of them at your own pace.
+```{r echo=FALSE, results='asis'}
+cat(knit_child(text = readLines(here::here("tutorials-table.Rmd")), quiet=TRUE), sep = '\n')
+```
 
-| Nr. | Tutorial | Title | Packages | Links |
-|----------|-------|----------|---------|
-| 1 | learnr | Create a spatial object | `sf`, `mapview` | [shinyapps 1](https://yessl3-unswcoders.shinyapps.io/tutorial-1-create-spatial-object/) / [shinyapps 2](https://ecosphere.shinyapps.io/tutorial-1-create-spatial-object/) |
-| 2 | learnr | Points, lines and polygons | `sf`, `mapview` | [shinyapps 1](https://yessl3-unswcoders.shinyapps.io/tutorial-2-points-lines-polygons/) / [shinyapps 2]( https://ecosphere.shinyapps.io/tutorial-2-points-lines-polygons/)|
-| 3 | WIP | Thematic mapping | `sf`, `tmap` | work in progress |
-| 4 | WIP | Geostatistic analysis | `sf`, `sp`, `raster`, `gstat` | work in progress |
-| 5 | html | Accessing vector and raster data | `sf`, `terra`, `leaflet` | [rpubs](https://rpubs.com/jrfep/geospatial-tutorial-5)  |
 ---
 
 

@@ -104,8 +104,7 @@ summary(min_distances)
 
 For spatial interpolation the distance between all pairs of points is important. A well sampled area will have a wide spread of distance between the minimum (0 meters) and the extent of the bounding box (400 to 500m). So let's do this!
 
-
-We want to remove duplicates and the diagonal of zero values, so we focus on the lower triangle of the matrix and calculate a summary or plot the histogram of distances. Uncomment the lines run the code to see the summary and/or the histogram:
+We want to remove duplicates and the diagonal of zero values, so we focus on the lower triangle of the matrix and calculate a summary or plot the histogram of distances. Uncomment the lines and run the code to see either the summary or the histogram (or both?):
 
 ```{r matrix, exercise=TRUE}
 distance_matrix <- st_distance(data_jbm)

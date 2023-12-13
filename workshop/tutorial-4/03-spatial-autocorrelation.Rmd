@@ -2,10 +2,10 @@
 title: "Geospatial tutorial - section 1"
 author: "JR Ferrer-Paris"
 ---
-## Spatial autocorrelation
+## Spatial auto-correlation
 
 
-**Spatial autocorrelation** is a measure of how similar are observations that are close together. Here we use a **semivariogram** to describe this autocorrelation. We use functions from the `gstats` package.
+**Spatial auto-correlation** is a measure of how similar are observations that are close together. Here we use a **semivariogram** to describe this autocorrelation. We use functions from the `gstats` package.
 
 ### Empirical variogram
 
@@ -21,21 +21,18 @@ Z=\begin{cases}
 $$
 
 In R we can run this:
-```{r}
+```{r, context="setup"}
  data_jbm$Z <- data_jbm$`Tree cover` > 2
 ```
 
 Now we apply the `variogram` function in the `gstats` package using a formula as first argument, and the data as the second argument:
 
-```{r}
+```{r, context="setup"}
 empirical_variogram <- variogram(Z ~ 1, data_jbm)
 empirical_variogram
 ```
 
-So for example 64 pairs of points (column `np`) are located at a mean distance of 50.66m apart (column `dist`), and have a variance of 0.179 (column `gamma`).
-
-
-How many pairs of points are located at a distance of 100m? 
+Remember the histogram of distances we had before? Now we added information on how similar are records from pairs in different distance bins. So, for example 64 pairs of points (column `np`) are located at a mean distance of 50.66m apart (column `dist`), and have a variance of 0.179 (column `gamma`). 
 
 At what distance are the minimum and maximum values of gamma?
 
@@ -47,11 +44,23 @@ plot(empirical_variogram)
 
 ### Variogram model
 
-A variogram model is 
+A variogram model is a convenient way to summarise the relationship between distance and semi-variance.
 
-```{r}
+We use here an exponential model and use some starting values for the parameters of the model:
+
+```{r, context="setup"}
 variogram_model <- fit.variogram(empirical_variogram, 
                                  vgm(1, "Exp", 25, .20))
+```
 
+You can check the estimated or fitted parameter values for this model, run this code and check the output:
+
+```{r variogram_model, exercise=TRUE}
+variogram_model
+```
+
+And this translate to a fitted line for our semi-variogram plot, run this chunk and watch the resulting plot, is this a good summary of the empirical data?
+
+```{r variogram_plot, exercise=TRUE}
 plot(empirical_variogram, variogram_model)
 ```
