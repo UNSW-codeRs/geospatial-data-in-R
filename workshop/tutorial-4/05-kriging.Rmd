@@ -27,37 +27,29 @@ The `@data` slot includes two variables: the spatial prediction (`var1.pred`) an
 
 ### Visualise the prediction
 
-We use here the `spplot` function from package `sp` to look at the prediction:
+We will use the `plot` function to visualise the prediction of probabilities of $Z = \mathrm{Tree cover}>2$ and the observed values of `Tree cover` in one plot. 
 
 ```{r kriging_pred, exercise = TRUE}
-spplot(ik["var1.pred"],
-       main = "indicator kriging predictions",
-       sub = "Z = Tree Cover > 2")
+plot(ik["var1.pred"],
+       col = rev(terrain.colors(n = 30)),
+       main = "Indicator kriging predictions for Tree Cover > 2")
+
+xys <- st_geometry(data_jbm)
+tree_cover <- pull(data_jbm, "Tree cover")
+plot(xys, cex = tree_cover / 2, add = TRUE)
 ```
 
 ### Visualise the variance
 
-Now again for the plot of the prediction variance:
-
-```{r kriging_var, exercise = TRUE}
-spplot(ik["var1.var"],
-       main = "indicator kriging variance",
-       sub = "Z = Tree Cover > 2")
-```
-
 You can think of kriging as a sophisticated form of spatial interpolation. As such, the predictions should match existing observations, and the variance at these points should be minimal. Let's compare the prediction with the observed values:
 
+```{r kriging_var1, exercise = TRUE}
+plot(ik["var1.var"],
+       col = heat.colors(n = 30),
+       main = "Indicator kriging variance for Tree Cover > 2")
 
-```{r kriging_var, exercise = TRUE}
-spplot(ik["var1.var"],
-       main = "indicator kriging variance",
-       sub = "Z = Tree Cover > 2")
-
-bubble(as_Spatial(data_jbm), 
-  zcol = "Tree.cover",
-  col = "black",
-  maxsize = 1.5,
-  key.entries = 1:4,
-  add = T)
+xys <- st_geometry(data_jbm)
+tree_cover <- pull(data_jbm, "Tree cover")
+plot(xys, cex = tree_cover / 2, add = TRUE)
 ```
 

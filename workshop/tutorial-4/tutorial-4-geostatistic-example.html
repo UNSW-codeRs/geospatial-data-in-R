@@ -461,7 +461,7 @@ class="section level2">
 <p>Then we transform this to a mask by assigning a value of 1 for cells
 within 50 meters of a sampling point. We use the function
 <code>distanceFromPoints</code>.</p>
-<pre class="r"><code>mask &lt;- distanceFromPoints(rnull,data_jbm)&lt;50</code></pre>
+<pre class="r"><code>mask &lt;- distanceFromPoints(rnull, data_jbm)&lt;50</code></pre>
 </div>
 <div id="section-section-1" class="section level3">
 <h3></h3>
@@ -476,18 +476,28 @@ prd.grd &lt;- SpatialPixelsDataFrame(
 </div>
 <div id="section-visualise-the-mask" class="section level3">
 <h3>Visualise the mask</h3>
-Run this chunk to visualise the raster mask before continuing to the
-next step:
+<p>We can use the <code>plot</code> function to visualise the mask:</p>
+<pre class="r"><code>plot(prd.grd, main = &quot;Mask&quot;)</code></pre>
+<p><img src="tutorial-4-geostatistic-example_files/figure-html/unnamed-chunk-51-1.png" width="624" /></p>
+<p>But what if we want to compare the mask to the distribution of values
+of ‘Tree cover’? We can split the spatial information from the data to
+plot points with sizes proportional to the variable. First we use
+<code>st_geometry</code> to get the spatial information (point
+locations), and then use <code>pull</code> to extract one variable from
+the data frame, and use them in the plot function in this way:</p>
+<pre class="r"><code>xys &lt;- st_geometry(data_jbm)
+tree_cover &lt;- pull(data_jbm,&quot;Tree cover&quot;)
+plot(xys, cex = tree_cover/2)</code></pre>
+<p><img src="tutorial-4-geostatistic-example_files/figure-html/unnamed-chunk-52-1.png" width="624" /></p>
+<p>Now, we will use this trick to plot points and mask together, run
+this chunk to visualise the result:</p>
 <div class="tutorial-exercise" data-label="mask" data-completion="1"
 data-diagnostics="1" data-startover="1" data-lines="0"
 data-pipe="|&gt;">
-<pre class="text"><code>plot(prd.grd, main = &quot;Mask&quot;) 
-bubble(as_Spatial(data_jbm), 
-  zcol = &quot;Tree.cover&quot;,
-  col = &quot;black&quot;,
-  maxsize = 1.5,
-  key.entries = 1:4,
-  add = T)</code></pre>
+<pre class="text"><code>plot(prd.grd, main = &quot;Mask&quot;)
+xys &lt;- st_geometry(data_jbm)
+tree_cover &lt;- pull(data_jbm, &quot;Tree cover&quot;)
+plot(xys, cex = tree_cover/2, add=TRUE)</code></pre>
 <script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":false,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
 </div>
 </div>
@@ -512,43 +522,68 @@ spatial interpolation and prediction. Here we use <strong>Indicator
 kriging</strong> to interpolate the probability of <span
 class="math inline">\(Z = \mathrm{Tree\ cover} &gt; 2\)</span> from out
 measurement points into a regular grid.</p>
-<p>Here all of our previous steps come together:</p>
-<pre class="r"><code>ik = krige(Z ~ 1, # our target variable
+<p>Function <code>krige</code> is a simple wrapper method around other
+functions in the <code>gstat</code> package for univariate kriging
+prediction and conditional simulation methods. See the help pages of the
+functions <code>gstat</code> and <code>predict</code> for more
+details.</p>
+<p>Now, all of our previous steps come together:</p>
+<pre class="r"><code>ik &lt;- krige(Z ~ 1, # our target variable
            as_Spatial(data_jbm), # our spatial data
            prd.grd, # the regular grid for prediction 
            variogram_model) # the spatial autocorrelation</code></pre>
 <pre><code>## [using ordinary kriging]</code></pre>
-<p>The <code>krige</code> function fits the kriging model using the
-specified variogram model and predicts</p>
+<p>Run this chunk of code to look at the structure of the output object
+using the function <code>str</code>:</p>
 <div class="tutorial-exercise" data-label="kriging_obj"
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
 <pre class="text"><code>str(ik)</code></pre>
 <script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":false,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
 </div>
+<p>This class of objects come from the deprecated <code>sp</code>
+package, and the different slots (symbolised by the <code>@</code>) show
+different component of the object.</p>
+<p>The <code>@data</code> slot includes two variables: the spatial
+prediction (<code>var1.pred</code>) and the variance of the prediction
+(<code>var1.var</code>)</p>
 <div id="section-visualise-the-prediction" class="section level3">
 <h3>Visualise the prediction</h3>
+<p>We will use the <code>plot</code> function to visualise the
+prediction of probabilities of <span class="math inline">\(Z =
+\mathrm{Tree cover}&gt;2\)</span> and the observed values of
+<code>Tree cover</code> in one plot.</p>
 <div class="tutorial-exercise" data-label="kriging_pred"
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
-<pre class="text"><code>spplot(ik[&quot;var1.pred&quot;],
-       main = &quot;indicator kriging predictions&quot;,
-       sub = &quot;Z = Tree Cover &gt; 2&quot;)</code></pre>
+<pre class="text"><code>plot(ik[&quot;var1.pred&quot;],
+       col = rev(terrain.colors(n = 30)),
+       main = &quot;Indicator kriging predictions for Tree Cover &gt; 2&quot;)
+
+xys &lt;- st_geometry(data_jbm)
+tree_cover &lt;- pull(data_jbm, &quot;Tree cover&quot;)
+plot(xys, cex = tree_cover / 2, add = TRUE)</code></pre>
 <script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":false,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
 </div>
 </div>
 <div id="section-visualise-the-variance" class="section level3">
 <h3>Visualise the variance</h3>
-<div class="tutorial-exercise" data-label="kriging_var"
+<p>You can think of kriging as a sophisticated form of spatial
+interpolation. As such, the predictions should match existing
+observations, and the variance at these points should be minimal. Let’s
+compare the prediction with the observed values:</p>
+<div class="tutorial-exercise" data-label="kriging_var1"
 data-completion="1" data-diagnostics="1" data-startover="1"
 data-lines="0" data-pipe="|&gt;">
-<pre class="text"><code>spplot(ik[&quot;var1.var&quot;],
-       main = &quot;indicator kriging variance&quot;,
-       sub = &quot;Z = Tree Cover &gt; 2&quot;)</code></pre>
+<pre class="text"><code>plot(ik[&quot;var1.var&quot;],
+       col = heat.colors(n = 30),
+       main = &quot;Indicator kriging variance for Tree Cover &gt; 2&quot;)
+
+xys &lt;- st_geometry(data_jbm)
+tree_cover &lt;- pull(data_jbm, &quot;Tree cover&quot;)
+plot(xys, cex = tree_cover / 2, add = TRUE)</code></pre>
 <script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":false,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
 </div>
-<p>What kind of geospatial analysis is this?</p>
-<p>What kind of geospatial data was produced in the prediction?</p>
 </div>
 </div>
 <div id="section-thats-it-for-this-tutorial" class="section level2">
@@ -593,7 +628,7 @@ href="https://yessl3-unswcoders.shinyapps.io/tutorial-2-points-lines-polygons/">
 1</a></li>
 <li><a
 href="https://ecosphere.shinyapps.io/tutorial-2-points-lines-polygons/">shinyapps
-2</a> |</li>
+2</a></li>
 </ul>
 <ol start="3" style="list-style-type: decimal">
 <li>Thematic mapping (using <code>sf</code>, <code>tmap</code>)</li>
@@ -609,7 +644,7 @@ connect</a></li>
 <code>raster</code>, <code>gstat</code>)</li>
 </ol>
 <ul>
-<li>work in progress |</li>
+<li>work in progress</li>
 </ul>
 <ol start="5" style="list-style-type: decimal">
 <li>Accessing vector and raster data (using <code>sf</code>,
@@ -1264,7 +1299,7 @@ rnull <- raster(extent(boundary_jbm),
 </script>
  
 <script type="application/shiny-prerendered" data-context="server-start">
-mask <- distanceFromPoints(rnull,data_jbm)<50
+mask <- distanceFromPoints(rnull, data_jbm)<50
 </script>
 
 
@@ -1308,7 +1343,7 @@ learnr:::store_exercise_cache(structure(list(label = "mask", global_setup = stru
 "st_crs(boundary_jbm) = NA", "", "xys <- st_coordinates(data_jbm)", 
 "distance_matrix <- st_distance(data_jbm)", ""), chunk_opts = list(
     label = "setup", include = FALSE)), setup = NULL, chunks = list(
-    list(label = "mask", code = "plot(prd.grd, main = \"Mask\") \nbubble(as_Spatial(data_jbm), \n  zcol = \"Tree.cover\",\n  col = \"black\",\n  maxsize = 1.5,\n  key.entries = 1:4,\n  add = T)", 
+    list(label = "mask", code = "plot(prd.grd, main = \"Mask\")\nxys <- st_geometry(data_jbm)\ntree_cover <- pull(data_jbm, \"Tree cover\")\nplot(xys, cex = tree_cover/2, add=TRUE)", 
         opts = list(label = "\"mask\"", exercise = "TRUE"), engine = "r")), 
     code_check = NULL, error_check = NULL, check = NULL, solution = NULL, 
     tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
@@ -1328,17 +1363,16 @@ learnr:::store_exercise_cache(structure(list(label = "mask", global_setup = stru
         message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
         engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
         max.print = 1000, exercise.timelimit = 60, exercise.checker = "function (check_code, ...) \n{\n    list(message = eval(parse(text = check_code)), correct = logical(0), \n        type = \"info\", location = \"append\")\n}", 
-        label = "mask", exercise = TRUE, code = c("plot(prd.grd, main = \"Mask\") ", 
-        "bubble(as_Spatial(data_jbm), ", "  zcol = \"Tree.cover\",", 
-        "  col = \"black\",", "  maxsize = 1.5,", "  key.entries = 1:4,", 
-        "  add = T)"), out.width.px = 624, out.height.px = 384, 
-        params.src = "mask, exercise = TRUE", fig.num = 0, exercise.df_print = "paged"), 
-    engine = "r", version = "4"), class = c("r", "tutorial_exercise"
-)))
+        label = "mask", exercise = TRUE, code = c("plot(prd.grd, main = \"Mask\")", 
+        "xys <- st_geometry(data_jbm)", "tree_cover <- pull(data_jbm, \"Tree cover\")", 
+        "plot(xys, cex = tree_cover/2, add=TRUE)"), out.width.px = 624, 
+        out.height.px = 384, params.src = "mask, exercise = TRUE", 
+        fig.num = 0, exercise.df_print = "paged"), engine = "r", 
+    version = "4"), class = c("r", "tutorial_exercise")))
 </script>
  
 <script type="application/shiny-prerendered" data-context="server-start">
-ik = krige(Z ~ 1, # our target variable
+ik <- krige(Z ~ 1, # our target variable
            as_Spatial(data_jbm), # our spatial data
            prd.grd, # the regular grid for prediction 
            variogram_model) # the spatial autocorrelation
@@ -1435,7 +1469,7 @@ learnr:::store_exercise_cache(structure(list(label = "kriging_pred", global_setu
 "st_crs(boundary_jbm) = NA", "", "xys <- st_coordinates(data_jbm)", 
 "distance_matrix <- st_distance(data_jbm)", ""), chunk_opts = list(
     label = "setup", include = FALSE)), setup = NULL, chunks = list(
-    list(label = "kriging_pred", code = "spplot(ik[\"var1.pred\"],\n       main = \"indicator kriging predictions\",\n       sub = \"Z = Tree Cover > 2\")", 
+    list(label = "kriging_pred", code = "plot(ik[\"var1.pred\"],\n       col = rev(terrain.colors(n = 30)),\n       main = \"Indicator kriging predictions for Tree Cover > 2\")\n\nxys <- st_geometry(data_jbm)\ntree_cover <- pull(data_jbm, \"Tree cover\")\nplot(xys, cex = tree_cover / 2, add = TRUE)", 
         opts = list(label = "\"kriging_pred\"", exercise = "TRUE"), 
         engine = "r")), code_check = NULL, error_check = NULL, 
     check = NULL, solution = NULL, tests = NULL, options = list(
@@ -1455,23 +1489,25 @@ learnr:::store_exercise_cache(structure(list(label = "kriging_pred", global_setu
         message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
         engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
         max.print = 1000, exercise.timelimit = 60, exercise.checker = "function (check_code, ...) \n{\n    list(message = eval(parse(text = check_code)), correct = logical(0), \n        type = \"info\", location = \"append\")\n}", 
-        label = "kriging_pred", exercise = TRUE, code = c("spplot(ik[\"var1.pred\"],", 
-        "       main = \"indicator kriging predictions\",", "       sub = \"Z = Tree Cover > 2\")"
-        ), out.width.px = 624, out.height.px = 384, params.src = "kriging_pred, exercise = TRUE", 
+        label = "kriging_pred", exercise = TRUE, code = c("plot(ik[\"var1.pred\"],", 
+        "       col = rev(terrain.colors(n = 30)),", "       main = \"Indicator kriging predictions for Tree Cover > 2\")", 
+        "", "xys <- st_geometry(data_jbm)", "tree_cover <- pull(data_jbm, \"Tree cover\")", 
+        "plot(xys, cex = tree_cover / 2, add = TRUE)"), out.width.px = 624, 
+        out.height.px = 384, params.src = "kriging_pred, exercise = TRUE", 
         fig.num = 0, exercise.df_print = "paged"), engine = "r", 
     version = "4"), class = c("r", "tutorial_exercise")))
 </script>
 
 
 <script type="application/shiny-prerendered" data-context="server">
-`tutorial-exercise-kriging_var-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-kriging_var-code-editor`)), session)
-output$`tutorial-exercise-kriging_var-output` <- renderUI({
-  `tutorial-exercise-kriging_var-result`()
+`tutorial-exercise-kriging_var1-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-kriging_var1-code-editor`)), session)
+output$`tutorial-exercise-kriging_var1-output` <- renderUI({
+  `tutorial-exercise-kriging_var1-result`()
 })
 </script>
  
 <script type="application/shiny-prerendered" data-context="server">
-learnr:::store_exercise_cache(structure(list(label = "kriging_var", global_setup = structure(c("library(learnr)", 
+learnr:::store_exercise_cache(structure(list(label = "kriging_var1", global_setup = structure(c("library(learnr)", 
 "library(sf)", "library(gstat)", "library(dplyr)", "library(raster)", 
 "library(ggplot2)", "", "tutorial_options(", "  exercise.timelimit = 60,", 
 "  # A simple checker function that just returns the message in the check chunk", 
@@ -1494,8 +1530,8 @@ learnr:::store_exercise_cache(structure(list(label = "kriging_var", global_setup
 "st_crs(boundary_jbm) = NA", "", "xys <- st_coordinates(data_jbm)", 
 "distance_matrix <- st_distance(data_jbm)", ""), chunk_opts = list(
     label = "setup", include = FALSE)), setup = NULL, chunks = list(
-    list(label = "kriging_var", code = "spplot(ik[\"var1.var\"],\n       main = \"indicator kriging variance\",\n       sub = \"Z = Tree Cover > 2\")", 
-        opts = list(label = "\"kriging_var\"", exercise = "TRUE"), 
+    list(label = "kriging_var1", code = "plot(ik[\"var1.var\"],\n       col = heat.colors(n = 30),\n       main = \"Indicator kriging variance for Tree Cover > 2\")\n\nxys <- st_geometry(data_jbm)\ntree_cover <- pull(data_jbm, \"Tree cover\")\nplot(xys, cex = tree_cover / 2, add = TRUE)", 
+        opts = list(label = "\"kriging_var1\"", exercise = "TRUE"), 
         engine = "r")), code_check = NULL, error_check = NULL, 
     check = NULL, solution = NULL, tests = NULL, options = list(
         eval = FALSE, echo = TRUE, results = "markup", tidy = FALSE, 
@@ -1514,9 +1550,11 @@ learnr:::store_exercise_cache(structure(list(label = "kriging_var", global_setup
         message = TRUE, render = NULL, ref.label = NULL, child = NULL, 
         engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
         max.print = 1000, exercise.timelimit = 60, exercise.checker = "function (check_code, ...) \n{\n    list(message = eval(parse(text = check_code)), correct = logical(0), \n        type = \"info\", location = \"append\")\n}", 
-        label = "kriging_var", exercise = TRUE, code = c("spplot(ik[\"var1.var\"],", 
-        "       main = \"indicator kriging variance\",", "       sub = \"Z = Tree Cover > 2\")"
-        ), out.width.px = 624, out.height.px = 384, params.src = "kriging_var, exercise = TRUE", 
+        label = "kriging_var1", exercise = TRUE, code = c("plot(ik[\"var1.var\"],", 
+        "       col = heat.colors(n = 30),", "       main = \"Indicator kriging variance for Tree Cover > 2\")", 
+        "", "xys <- st_geometry(data_jbm)", "tree_cover <- pull(data_jbm, \"Tree cover\")", 
+        "plot(xys, cex = tree_cover / 2, add = TRUE)"), out.width.px = 624, 
+        out.height.px = 384, params.src = "kriging_var1, exercise = TRUE", 
         fig.num = 0, exercise.df_print = "paged"), engine = "r", 
     version = "4"), class = c("r", "tutorial_exercise")))
 </script>
@@ -1528,7 +1566,7 @@ learnr:::store_exercise_cache(structure(list(label = "kriging_var", global_setup
 <!--/html_preserve-->
 <!--html_preserve-->
 <script type="application/shiny-prerendered" data-context="execution_dependencies">
-{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages","version"]},"class":{"type":"character","attributes":{},"value":["data.frame"]},"row.names":{"type":"integer","attributes":{},"value":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82]}},"value":[{"type":"character","attributes":{},"value":["backports","base","bslib","cachem","checkmate","class","classInt","cli","codetools","colorspace","compiler","datasets","DBI","digest","dplyr","e1071","ellipsis","evaluate","fansi","farver","fastmap","FNN","fontawesome","generics","ggplot2","glue","graphics","grDevices","grid","gstat","gtable","here","highr","htmltools","htmlwidgets","httpuv","intervals","jquerylib","jsonlite","KernSmooth","knitr","labeling","later","lattice","learnr","lifecycle","magrittr","methods","mime","munsell","pillar","pkgconfig","promises","proxy","R6","raster","Rcpp","rlang","rmarkdown","rprojroot","rstudioapi","sass","scales","sf","shiny","sp","spacetime","stats","terra","tibble","tidyselect","tools","units","utf8","utils","vctrs","withr","xfun","xtable","xts","yaml","zoo"]},{"type":"character","attributes":{},"value":["1.4.1","4.3.1","0.6.1","1.0.8","2.3.1","7.3-22","0.4-10","3.6.2","0.2-19","2.1-0","4.3.1","4.3.1","1.1.3","0.6.33","1.1.4","1.7-14","0.3.2","0.23","1.0.6","2.1.1","1.1.1","1.1.3.2","0.5.2","0.1.3","3.4.4","1.6.2","4.3.1","4.3.1","4.3.1","2.1-1","0.3.4","1.0.1","0.10","0.5.7","1.6.4","1.6.13","0.15.4","0.1.4","1.8.8","2.23-22","1.45","0.4.3","1.3.2","0.22-5","0.11.5","1.0.4","2.0.3","4.3.1","0.12","0.5.0","1.9.0","2.0.3","1.2.1","0.4-27","2.5.1","3.6-26","1.0.11","1.1.2","2.25","2.0.4","0.15.0","0.4.8","1.3.0","1.0-14","1.8.0","2.1-2","1.3-1","4.3.1","1.7-55","3.2.1","1.2.0","4.3.1","0.8-5","1.2.4","4.3.1","0.6.5","2.5.2","0.41","1.8-4","0.13.1","2.3.7","1.8-12"]}]}]}
+{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages","version"]},"class":{"type":"character","attributes":{},"value":["data.frame"]},"row.names":{"type":"integer","attributes":{},"value":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84]}},"value":[{"type":"character","attributes":{},"value":["backports","base","bslib","cachem","checkmate","class","classInt","cli","codetools","colorspace","compiler","datasets","DBI","digest","dplyr","e1071","ellipsis","evaluate","fansi","farver","fastmap","FNN","fontawesome","generics","ggplot2","glue","graphics","grDevices","grid","gstat","gtable","here","highr","htmltools","htmlwidgets","httpuv","intervals","jquerylib","jsonlite","KernSmooth","knitr","labeling","later","lattice","learnr","lifecycle","magrittr","methods","mime","munsell","pillar","pkgconfig","promises","proxy","R6","raster","Rcpp","rlang","rmarkdown","rprojroot","rstudioapi","sass","scales","sf","shiny","sp","spacetime","stats","stringi","stringr","terra","tibble","tidyselect","tools","units","utf8","utils","vctrs","withr","xfun","xtable","xts","yaml","zoo"]},{"type":"character","attributes":{},"value":["1.4.1","4.3.1","0.6.1","1.0.8","2.3.1","7.3-22","0.4-10","3.6.2","0.2-19","2.1-0","4.3.1","4.3.1","1.1.3","0.6.33","1.1.4","1.7-14","0.3.2","0.23","1.0.6","2.1.1","1.1.1","1.1.3.2","0.5.2","0.1.3","3.4.4","1.6.2","4.3.1","4.3.1","4.3.1","2.1-1","0.3.4","1.0.1","0.10","0.5.7","1.6.4","1.6.13","0.15.4","0.1.4","1.8.8","2.23-22","1.45","0.4.3","1.3.2","0.22-5","0.11.5","1.0.4","2.0.3","4.3.1","0.12","0.5.0","1.9.0","2.0.3","1.2.1","0.4-27","2.5.1","3.6-26","1.0.11","1.1.2","2.25","2.0.4","0.15.0","0.4.8","1.3.0","1.0-14","1.8.0","2.1-2","1.3-1","4.3.1","1.8.2","1.5.1","1.7-55","3.2.1","1.2.0","4.3.1","0.8-5","1.2.4","4.3.1","0.6.5","2.5.2","0.41","1.8-4","0.13.1","2.3.7","1.8-12"]}]}]}
 </script>
 <!--/html_preserve-->
 </div>
@@ -1546,7 +1584,7 @@ learnr:::store_exercise_cache(structure(list(label = "kriging_var", global_setup
 <h1 class="title toc-ignore" style="display:none;">Geo-spatial tutorial:
 spatial interpolation</h1>
 <h4 class="author"><em>JR Ferrer-Paris</em></h4>
-<h4 class="date"><em>March 2023 (updated: 2022-11-20)</em></h4>
+<h4 class="date"><em>March 2023 (updated: 2023-12-13)</em></h4>
 </div>
 <!-- end doc-metadata -->
 

@@ -20,7 +20,7 @@ rnull <- raster(extent(boundary_jbm),
 Then we transform this to a mask by assigning a value of 1 for cells within 50 meters of a sampling point. We use the function `distanceFromPoints`.
 
 ```{r, context="setup"}
-mask <- distanceFromPoints(rnull,data_jbm)<50
+mask <- distanceFromPoints(rnull, data_jbm)<50
 ```
 
 ###
@@ -37,13 +37,25 @@ prd.grd <- SpatialPixelsDataFrame(
 
 ### Visualise the mask 
 
-Run this chunk to visualise the raster mask before continuing to the next step:
+We can use the `plot` function to visualise the mask:
+```{r}
+plot(prd.grd, main = "Mask")
+```
+
+But what if we want to compare the mask to the distribution of values of 'Tree cover'? We can split the spatial information from the data to plot points with sizes proportional to the variable. First we use `st_geometry` to get the spatial information (point locations), and then use `pull` to extract one variable from the data frame, and use them in the plot function in this way:
+
+```{r}
+xys <- st_geometry(data_jbm)
+tree_cover <- pull(data_jbm,"Tree cover")
+plot(xys, cex = tree_cover/2)
+
+```
+
+Now, we will use this trick to plot points and mask together, run this chunk to visualise the result:
+
 ```{r mask, exercise = TRUE}
-plot(prd.grd, main = "Mask") 
-bubble(as_Spatial(data_jbm), 
-  zcol = "Tree.cover",
-  col = "black",
-  maxsize = 1.5,
-  key.entries = 1:4,
-  add = T)
+plot(prd.grd, main = "Mask")
+xys <- st_geometry(data_jbm)
+tree_cover <- pull(data_jbm, "Tree cover")
+plot(xys, cex = tree_cover/2, add=TRUE)
 ```
