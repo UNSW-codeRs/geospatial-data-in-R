@@ -38,3 +38,11 @@ JBM_sample <- read_csv(here::here("data","JBM-points.csv"),
 write_sf(dsn=here::here("data","JBM-points.gpkg"), JBM_sample)
 ```
 
+## Data from WDPA
+
+```{r}
+library(wdpar)
+here::i_am("workshop/tutorial-5/tutorial-5-read-raster-data.Rmd")
+wdpa_query <- wdpa_fetch("BTN", download_dir = here::here("data")) 
+```
+

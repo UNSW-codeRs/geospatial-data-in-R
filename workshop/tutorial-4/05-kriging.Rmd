@@ -1,0 +1,55 @@
+
+## Kriging
+
+In Geostatistics the term **Kriging** is used for a family of models that minimise the spatial error and can be used for spatial interpolation and prediction. Here we use **Indicator kriging** to interpolate the probability of $Z = \mathrm{Tree\ cover} > 2$ from out measurement points into a regular grid.
+
+Function `krige` is a simple wrapper method around other functions in the `gstat` package for univariate kriging prediction and conditional simulation methods. See the help pages of the functions `gstat` and `predict` for more details.
+
+Now, all of our previous steps come together:
+
+```{r kriging_fit, context = "setup"}
+ik <- krige(Z ~ 1, # our target variable
+           as_Spatial(data_jbm), # our spatial data
+           prd.grd, # the regular grid for prediction 
+           variogram_model) # the spatial autocorrelation
+
+```
+
+Run this chunk of code to look at the structure of the output object using the function `str`:
+
+```{r kriging_obj, exercise = TRUE}
+str(ik)
+```
+
+This class of objects come from the deprecated `sp` package, and the different slots (symbolised by the `@`) show different component of the object.
+
+The `@data` slot includes two variables: the spatial prediction (`var1.pred`) and the variance of the prediction (`var1.var`)
+
+### Visualise the prediction
+
+We will use the `plot` function to visualise the prediction of probabilities of $Z = \mathrm{Tree cover}>2$ and the observed values of `Tree cover` in one plot. 
+
+```{r kriging_pred, exercise = TRUE}
+plot(ik["var1.pred"],
+       col = rev(terrain.colors(n = 30)),
+       main = "Indicator kriging predictions for Tree Cover > 2")
+
+xys <- st_geometry(data_jbm)
+tree_cover <- pull(data_jbm, "Tree cover")
+plot(xys, cex = tree_cover / 2, add = TRUE)
+```
+
+### Visualise the variance
+
+You can think of kriging as a sophisticated form of spatial interpolation. As such, the predictions should match existing observations, and the variance at these points should be minimal. Let's compare the prediction with the observed values:
+
+```{r kriging_var1, exercise = TRUE}
+plot(ik["var1.var"],
+       col = heat.colors(n = 30),
+       main = "Indicator kriging variance for Tree Cover > 2")
+
+xys <- st_geometry(data_jbm)
+tree_cover <- pull(data_jbm, "Tree cover")
+plot(xys, cex = tree_cover / 2, add = TRUE)
+```
+

@@ -1,0 +1,61 @@
+
+## Create a grid for spatial prediction 
+
+We read the JBM boundary file from our data folder:
+
+```{r}
+boundary_jbm <- read_sf(here::here(data_folder, "JBM-boundary-no-crs.gpkg"))
+```
+
+First we create an empty raster using functions from package `raster`.
+
+```{r, context="setup"}
+rnull <- raster(extent(boundary_jbm),
+                nrows=18, ncols=24,
+                crs=st_crs(boundary_jbm)$proj4string)
+```
+
+###
+
+Then we transform this to a mask by assigning a value of 1 for cells within 50 meters of a sampling point. We use the function `distanceFromPoints`.
+
+```{r, context="setup"}
+mask <- distanceFromPoints(rnull, data_jbm)<50
+```
+
+###
+
+Finally, we create a Spatial Pixels Data Frame for the spatial prediction. The package `gstat` uses this format inherited from the old `sp` package. 
+
+```{r, context="setup"}
+ss <- values(mask)==1
+prd.grd <- SpatialPixelsDataFrame(
+  points=xyFromCell(mask,1:ncell(mask))[ss,],
+  data=data.frame(values(mask)[ss]),
+  proj4string=CRS(st_crs(boundary_jbm)$proj4string))
+```
+
+### Visualise the mask 
+
+We can use the `plot` function to visualise the mask:
+```{r}
+plot(prd.grd, main = "Mask")
+```
+
+But what if we want to compare the mask to the distribution of values of 'Tree cover'? We can split the spatial information from the data to plot points with sizes proportional to the variable. First we use `st_geometry` to get the spatial information (point locations), and then use `pull` to extract one variable from the data frame, and use them in the plot function in this way:
+
+```{r}
+xys <- st_geometry(data_jbm)
+tree_cover <- pull(data_jbm,"Tree cover")
+plot(xys, cex = tree_cover/2)
+
+```
+
+Now, we will use this trick to plot points and mask together, run this chunk to visualise the result:
+
+```{r mask, exercise = TRUE}
+plot(prd.grd, main = "Mask")
+xys <- st_geometry(data_jbm)
+tree_cover <- pull(data_jbm, "Tree cover")
+plot(xys, cex = tree_cover/2, add=TRUE)
+```

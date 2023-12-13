@@ -1,0 +1,43 @@
+---
+title: "Geospatial tutorial - section 2"
+author: "JR Ferrer-Paris"
+---
+## Visualising the data
+
+### Extract the coordinates
+
+We can extract the coordinates of an `sf` object by using `st_coordinates`. We get a two column matrix.
+
+```{r xtractcoords, exercise=TRUE}
+xys <- st_coordinates(data_jbm)
+head(xys)
+```
+
+We can use this matrix in ggplot and apply an appropriate `geom_*` function from the ggplot package:
+
+```{r jbm-plot-point}
+
+ggplot(data_jbm) +
+    geom_point(
+        aes(
+            x = xys[, 1],
+            y = xys[, 2],
+            size = `Tree cover`,
+            colour = `Tree cover`
+        )
+    ) 
+```
+
+### Have you met `geom_sf`?
+
+That is fine, but kind of cumbersome way to plot the data. Actually there is a special `geom_sf` that will handle the coordinates automatically. Try this yourself and compare both plots, do you see any differences in the output?
+
+```{r jbm-plot-basic, exercise=TRUE}
+ggplot(data_jbm) + 
+    geom_sf(aes(
+              size=`Tree cover`, 
+              colour=`Tree cover`)
+            ) 
+```
+
+The plot shows that most of the area has high values of tree cover (values of 3 or 4), but there are some pockets with clusters of low values (1 or 2).
